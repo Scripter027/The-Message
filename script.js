@@ -18,8 +18,10 @@ function playNextVideo() {
         
         if (playPromise !== undefined) {
             playPromise.catch(() => {
-                window.addEventListener('click', startInitialPlayback, { once: true });
-                window.addEventListener('keydown', startInitialPlayback, { once: true });
+                videoElement.muted = true;
+                videoElement.play().catch(() => {
+                    document.addEventListener('click', forceStartOnUserGesture, { once: true });
+                });
             });
         }
         
@@ -29,12 +31,15 @@ function playNextVideo() {
     }
 }
 
-function startInitialPlayback() {
-    videoElement.play();
+function forceStartOnUserGesture() {
+    videoElement.muted = false;
+    videoElement.play().catch(() => {
+        transitionToMenu();
+    });
 }
 
 function transitionToMenu() {
-    videoContainer.style.transition = 'opacity 1.5s ease';
+    videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
     
     setTimeout(() => {
@@ -45,7 +50,7 @@ function transitionToMenu() {
             mainMenu.classList.add('visible');
         }, 50);
         
-    }, 1500);
+    }, 1000);
 }
 
 videoElement.addEventListener('ended', playNextVideo);
