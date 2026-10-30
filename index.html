@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yandex Game</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="video-container" id="videoContainer">
+        <video id="introVideo" preload="auto" playsinline></video>
+    </div>
+
+    <div class="main-menu hidden" id="mainMenu">
+        <div class="tv-effects">
+            <div class="scanlines"></div>
+            <div class="flicker"></div>
+        </div>
+        
+        <div class="menu-content">
+            <h1 class="neon-text">НАЗВАНИЕ ИГРЫ</h1>
+            <div class="buttons-list">
+                <button class="menu-btn">Начать игру</button>
+                <button class="menu-btn">Свободная игра</button>
+                <button class="menu-btn">Настройки</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
