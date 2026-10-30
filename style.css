@@ -68,6 +68,24 @@ video {
     pointer-events: none;
 }
 
+.black-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 8;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.black-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
 .main-menu {
     position: fixed;
     top: 0;
@@ -140,6 +158,11 @@ video {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.menu-content.shifted {
+    transform: translateX(-25%);
 }
 
 .logo-wrapper {
@@ -153,7 +176,6 @@ video {
     max-width: 450px;
     height: auto;
     display: block;
-    filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.8));
 }
 
 .buttons-list {
@@ -161,6 +183,7 @@ video {
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    transition: opacity 0.3s ease;
 }
 
 .menu-btn {
@@ -176,7 +199,7 @@ video {
     width: 320px;
     position: relative;
     overflow: hidden;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
     box-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
     letter-spacing: 1px;
 }
@@ -185,9 +208,161 @@ video {
     background: #00ff66;
     color: #000;
     box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
-    text-shadow: none;
 }
 
 .menu-btn:active {
     transform: scale(0.96);
+}
+
+.buttons-list.has-active .menu-btn {
+    opacity: 0.3;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.buttons-list.has-active .menu-btn.clicked {
+    opacity: 1;
+    background: transparent;
+    color: #00ff66;
+    box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
+}
+
+.side-panel {
+    position: absolute;
+    right: -50%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 450px;
+    background: rgba(5, 15, 5, 0.95);
+    border: 3px solid #00ff66;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+    z-index: 4;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.side-panel.visible {
+    right: 10%;
+    opacity: 1;
+}
+
+.side-panel.hidden {
+    display: none !important;
+}
+
+.panel-title {
+    color: #00ff66;
+    text-transform: uppercase;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #00ff66;
+    border-bottom: 2px solid #00ff66;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.setting-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-label {
+    color: #00ff66;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.setting-options {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.select-btn {
+    flex: 1;
+    background: transparent;
+    border: 2px solid #00ff66;
+    color: #00ff66;
+    padding: 10px;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.select-btn.active, .select-btn:hover {
+    background: #00ff66;
+    color: #000;
+    box-shadow: 0 0 10px #00ff66;
+}
+
+.action-btn {
+    background: transparent;
+    border: 2px solid #ff3333;
+    color: #ff3333;
+    width: 100%;
+    padding: 12px;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: #ff3333;
+    color: #000;
+    box-shadow: 0 0 15px #ff3333;
+}
+
+.back-btn {
+    width: 100% !important;
+    margin-top: 10px;
+}
+
+.chapters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.chapter-card {
+    border: 2px dashed rgba(0, 255, 102, 0.4);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    background: rgba(0,0,0,0.2);
+}
+
+.chapter-card.locked {
+    color: rgba(0, 255, 102, 0.4);
+}
+
+.chapter-num {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.lock-icon {
+    font-size: 1.5rem;
+    color: #00ff66;
+    filter: drop-shadow(0 0 5px #00ff66);
+}
+
+.coming-soon {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
