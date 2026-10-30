@@ -479,32 +479,46 @@ video {
     text-transform: uppercase;
 }
 
-.social-links {
+.side-social-bar {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
+    flex-direction: column;
     gap: 20px;
-    margin-top: 30px;
-    z-index: 25;
+    z-index: 40;
 }
 
-.social-btn {
-    text-decoration: none;
-    font-family: 'Russo One', sans-serif;
-    font-size: 1rem;
-    padding: 8px 20px;
+.social-icon-btn {
+    width: 50px;
+    height: 50px;
     border: 2px solid #00ff66;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #00ff66;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     transition: all 0.2s ease;
-    box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
-    text-shadow: 0 0 5px #00ff66;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+    cursor: pointer;
+    pointer-events: auto !important;
 }
 
-.social-btn:hover {
+.social-icon-btn svg {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 4px #00ff66);
+}
+
+.social-icon-btn:hover {
     background: #00ff66;
     color: #000;
-    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
-    text-shadow: none;
+    box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
+}
+
+.social-icon-btn:hover svg {
+    filter: none;
 }
 
 .desktop-environment {
@@ -656,13 +670,13 @@ body.gfx-low .taskbar-clock,
 body.gfx-low .taskbar-btn,
 body.gfx-low .desktop-window,
 body.gfx-low .credits-text,
-body.gfx-low .social-btn {
+body.gfx-low .social-icon-btn {
     text-shadow: none !important;
     box-shadow: none !important;
 }
 body.gfx-low .menu-btn:hover,
 body.gfx-low .taskbar-btn:hover,
-body.gfx-low .social-btn:hover {
+body.gfx-low .social-icon-btn:hover {
     box-shadow: none !important;
 }
 body.gfx-low .menu-logo {
