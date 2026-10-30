@@ -141,7 +141,9 @@ function transitionToMenu() {
     setTimeout(() => {
         videoContainer.style.display = 'none';
         mainMenu.classList.remove('hidden');
-        mainMenu.classList.add('visible');
+        setTimeout(() => {
+            mainMenu.classList.add('visible');
+        }, 50);
     }, 1000);
 }
 
@@ -187,39 +189,47 @@ function updateGraphics(level) {
     if (level === 'high') document.body.classList.add('gfx-high');
 }
 
-btnSettings.onclick = function() {
+btnSettings.onclick = function(e) {
+    if(e) e.stopPropagation();
     settingsContext = 'menu';
     openPanel(btnSettings, panelSettings);
 };
 
-btnStart.onclick = function() {
+btnStart.onclick = function(e) {
+    if(e) e.stopPropagation();
     settingsContext = 'menu';
     openPanel(btnStart, panelStart);
 };
 
-btnFree.onclick = function() {
-    mainMenu.classList.add('hidden');
-    if (window.triggerLoading) {
-        window.triggerLoading(() => {
+btnFree.onclick = function(e) {
+    if(e) e.stopPropagation();
+    mainMenu.classList.remove('visible');
+    setTimeout(() => {
+        mainMenu.classList.add('hidden');
+        if (window.triggerLoading) {
+            window.triggerLoading(() => {
+                const desktopEnv = document.getElementById('desktopEnv');
+                desktopEnv.classList.remove('hidden');
+                setTimeout(() => desktopEnv.classList.add('visible'), 50);
+            });
+        } else {
             const desktopEnv = document.getElementById('desktopEnv');
             desktopEnv.classList.remove('hidden');
-            setTimeout(() => desktopEnv.classList.add('visible'), 50);
-        });
-    } else {
-        const desktopEnv = document.getElementById('desktopEnv');
-        desktopEnv.classList.remove('hidden');
-        desktopEnv.classList.add('visible');
-    }
+            desktopEnv.classList.add('visible');
+        }
+    }, 1000);
 };
 
 document.querySelectorAll('.back-btn').forEach(btn => {
-    btn.onclick = function() {
+    btn.onclick = function(e) {
+        if(e) e.stopPropagation();
         closeAllPanels();
     };
 });
 
 document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
-    btn.onclick = function() {
+    btn.onclick = function(e) {
+        if(e) e.stopPropagation();
         const siblings = this.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
         this.classList.add('active');
@@ -230,9 +240,9 @@ document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
     };
 });
 
-langRu.onclick = function() { switchLanguage('ru'); };
-langEn.onclick = function() { switchLanguage('en'); };
-btnClearData.onclick = function() { location.reload(); };
+langRu.onclick = function(e) { if(e) e.stopPropagation(); switchLanguage('ru'); };
+langEn.onclick = function(e) { if(e) e.stopPropagation(); switchLanguage('en'); };
+btnClearData.onclick = function(e) { if(e) e.stopPropagation(); location.reload(); };
 
 videoElement.addEventListener('ended', playNextVideo);
 startPrompt.onclick = initGameLaunch;
