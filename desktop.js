@@ -84,7 +84,9 @@
             if (window.triggerLoading) {
                 window.triggerLoading(() => {
                     mainMenu.classList.remove('hidden');
-                    setTimeout(() => mainMenu.classList.add('visible'), 50);
+                    setTimeout(() => {
+                        mainMenu.classList.add('visible');
+                    }, 50);
                 });
             }
         }, 1000);
