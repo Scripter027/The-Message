@@ -226,7 +226,7 @@ document.addEventListener('click', function(e) {
         return;
     }
     
-    if (target.classList.contains('select-btn')) {
+    if (target.classList.contains('select-btn') && !target.hasAttribute('data-gfx') && target.id !== 'desktopLangRu' && target.id !== 'desktopLangEn') {
         const siblings = target.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
         target.classList.add('active');
@@ -255,12 +255,4 @@ window.addEventListener('keydown', (e) => {
     }
 }, { once: true });
 
-window.setSettingsContext = function(context) {
-    settingsContext = context;
-};
-window.getSettingsPanel = function() {
-    return panelSettings;
-};
-window.openGlobalPanel = function(btn, panel) {
-    openPanel(btn, panel);
-};
+window.switchLanguage = switchLanguage;
