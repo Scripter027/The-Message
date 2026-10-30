@@ -10,7 +10,7 @@ body, html {
     height: 100%;
     overflow: hidden;
     background-color: #000;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Russo One', sans-serif;
 }
 
 .video-container {
@@ -145,7 +145,6 @@ video {
     text-transform: uppercase;
     letter-spacing: 6px;
     margin-bottom: 50px;
-    font-weight: bold;
     text-shadow: 
         0 0 5px #00ff66,
         0 0 10px #00ff66,
@@ -176,8 +175,8 @@ video {
     border-radius: 0 !important;
     color: #00ff66;
     padding: 15px 40px;
-    font-size: 1.5rem;
-    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.4rem;
+    font-family: 'Russo One', sans-serif;
     cursor: pointer;
     text-transform: uppercase;
     width: 320px;
