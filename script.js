@@ -141,7 +141,6 @@ function transitionToMenu() {
     setTimeout(() => {
         videoContainer.style.display = 'none';
         mainMenu.classList.remove('hidden');
-        setTimeout(() => mainMenu.classList.add('visible'), 50);
     }, 1000);
 }
 
@@ -188,33 +187,28 @@ function updateGraphics(level) {
     if (level === 'high') document.body.classList.add('gfx-high');
 }
 
-btnSettings.addEventListener('click', () => {
+btnSettings.addEventListener('click', (e) => {
+    e.stopPropagation();
     settingsContext = 'menu';
-    panelSettings.style.zIndex = "4";
     openPanel(btnSettings, panelSettings);
 });
 
-btnStart.addEventListener('click', () => {
+btnStart.addEventListener('click', (e) => {
+    e.stopPropagation();
     settingsContext = 'menu';
     openPanel(btnStart, panelStart);
 });
 
-btnFree.addEventListener('click', () => {
-    mainMenu.classList.remove('visible');
-    setTimeout(() => {
-        mainMenu.classList.add('hidden');
-        if (window.triggerLoading) {
-            window.triggerLoading(() => {
-                const desktopEnv = document.getElementById('desktopEnv');
-                desktopEnv.classList.remove('hidden');
-                setTimeout(() => desktopEnv.classList.add('visible'), 50);
-            });
-        } else {
+btnFree.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mainMenu.classList.add('hidden');
+    if (window.triggerLoading) {
+        window.triggerLoading(() => {
             const desktopEnv = document.getElementById('desktopEnv');
             desktopEnv.classList.remove('hidden');
-            desktopEnv.classList.add('visible');
-        }
-    }, 1000);
+            setTimeout(() => desktopEnv.classList.add('visible'), 50);
+        });
+    }
 });
 
 document.querySelectorAll('.back-btn').forEach(btn => {
@@ -225,7 +219,8 @@ document.querySelectorAll('.back-btn').forEach(btn => {
 });
 
 document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
         const siblings = this.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
         this.classList.add('active');
