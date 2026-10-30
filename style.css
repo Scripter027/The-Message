@@ -92,7 +92,7 @@ video {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #050c05;
+    background-color: #030803;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -123,15 +123,15 @@ video {
     width: 100%;
     height: 100%;
     background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.25) 50%
+        rgba(10, 10, 10, 0) 40%, 
+        rgba(0, 0, 0, 0.6) 40%
     ), linear-gradient(
         90deg, 
-        rgba(255, 0, 0, 0.06), 
-        rgba(0, 255, 0, 0.02), 
-        rgba(0, 0, 255, 0.06)
+        rgba(255, 0, 0, 0.12), 
+        rgba(0, 255, 0, 0.05), 
+        rgba(0, 0, 255, 0.12)
     );
-    background-size: 100% 4px, 6px 100%;
+    background-size: 100% 5px, 6px 100%;
     pointer-events: none !important;
 }
 
@@ -141,16 +141,19 @@ video {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 255, 0, 0.02);
+    background: rgba(0, 255, 102, 0.04);
     opacity: 0;
-    animation: tv-flicker 0.15s infinite;
+    animation: tv-flicker 0.1s infinite;
     pointer-events: none !important;
 }
 
 @keyframes tv-flicker {
-    0% { opacity: 0.18; }
-    50% { opacity: 0.22; }
-    100% { opacity: 0.15; }
+    0% { opacity: 0.25; }
+    30% { opacity: 0.40; }
+    40% { opacity: 0.28; }
+    70% { opacity: 0.45; }
+    80% { opacity: 0.32; }
+    100% { opacity: 0.25; }
 }
 
 .menu-content {
@@ -179,9 +182,9 @@ video {
     max-width: 420px;
     height: auto;
     display: block;
-    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
+    filter: brightness(1.3) contrast(1.2) sepia(1) hue-rotate(85deg) saturate(6);
     mix-blend-mode: screen;
-    opacity: 0.85;
+    opacity: 0.9;
     transition: filter 0.3s ease;
 }
 
@@ -207,7 +210,7 @@ video {
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
-    box-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
     letter-spacing: 1px;
     z-index: 25;
     pointer-events: auto !important;
@@ -216,7 +219,7 @@ video {
 .menu-btn:hover {
     background: #00ff66;
     color: #000;
-    box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
+    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
 }
 
 .menu-btn:active {
@@ -233,7 +236,7 @@ video {
     opacity: 1;
     background: transparent;
     color: #00ff66;
-    box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
+    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
     pointer-events: auto !important;
 }
 .side-panel {
