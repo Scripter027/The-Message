@@ -479,6 +479,34 @@ video {
     text-transform: uppercase;
 }
 
+.social-links {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    z-index: 25;
+}
+
+.social-btn {
+    text-decoration: none;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1rem;
+    padding: 8px 20px;
+    border: 2px solid #00ff66;
+    color: #00ff66;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+    text-shadow: 0 0 5px #00ff66;
+}
+
+.social-btn:hover {
+    background: #00ff66;
+    color: #000;
+    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
+    text-shadow: none;
+}
+
 .desktop-environment {
     position: fixed;
     top: 0;
@@ -627,12 +655,14 @@ body.gfx-low .loading-text,
 body.gfx-low .taskbar-clock,
 body.gfx-low .taskbar-btn,
 body.gfx-low .desktop-window,
-body.gfx-low .credits-text {
+body.gfx-low .credits-text,
+body.gfx-low .social-btn {
     text-shadow: none !important;
     box-shadow: none !important;
 }
 body.gfx-low .menu-btn:hover,
-body.gfx-low .taskbar-btn:hover {
+body.gfx-low .taskbar-btn:hover,
+body.gfx-low .social-btn:hover {
     box-shadow: none !important;
 }
 body.gfx-low .menu-logo {
