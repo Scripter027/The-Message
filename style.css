@@ -176,7 +176,7 @@ video {
     max-width: 450px;
     height: auto;
     display: block;
-    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5) drop-shadow(0 0 4px #00ff66);
+    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
     mix-blend-mode: screen;
     opacity: 0.85;
 }
