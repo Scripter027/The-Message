@@ -48,7 +48,7 @@
             <h2 class="panel-title" data-lang="settings_title">Настройки</h2>
             
             <div class="setting-row">
-                <span class="setting-label" data-lang="graphics">Graphics:</span>
+                <span class="setting-label" data-lang="graphics">Графика:</span>
                 <div class="setting-options">
                     <button class="select-btn active" data-lang="graphics_low">Низкая</button>
                     <button class="select-btn" data-lang="graphics_med">Средняя</button>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="setting-row">
-                <span class="setting-label" data-lang="language">Language:</span>
+                <span class="setting-label" data-lang="language">Язык:</span>
                 <div class="setting-options">
                     <button class="select-btn active" id="langRu">Русский</button>
                     <button class="select-btn" id="langEn">English</button>
@@ -110,7 +110,34 @@
             <div class="flicker"></div>
         </div>
         
-        <div class="desktop-main"></div>
+        <div class="desktop-main">
+            <div class="desktop-window hidden" id="desktopSettingsWindow">
+                <div class="window-header">
+                    <span class="window-title" data-lang="settings_title">Настройки</span>
+                    <button class="window-close-btn" id="btnCloseDesktopSettings">X</button>
+                </div>
+                <div class="window-content">
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="graphics">Графика:</span>
+                        <div class="setting-options">
+                            <button class="select-btn" data-gfx="low" data-lang="graphics_low">Низкая</button>
+                            <button class="select-btn" data-gfx="medium" data-lang="graphics_med">Средняя</button>
+                            <button class="select-btn" data-gfx="high" data-lang="graphics_high">Высокая</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="language">Язык:</span>
+                        <div class="setting-options">
+                            <button class="select-btn" id="desktopLangRu">Русский</button>
+                            <button class="select-btn" id="desktopLangEn">English</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <button class="action-btn text-danger" id="btnDesktopClearData" data-lang="clear_data">Стереть все данные</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="taskbar">
             <div class="taskbar-left"></div>
