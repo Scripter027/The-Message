@@ -85,21 +85,29 @@ function initGameLaunch() {
 
 function playNextVideo() {
     if (currentVideoIndex < videos.length) {
+        videoElement.pause();
+        videoElement.removeAttribute('src');
+        videoElement.load();
+        
         videoElement.src = videos[currentVideoIndex];
         videoElement.load();
         
         videoElement.muted = false;
-        let playPromise = videoElement.play();
         
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                videoElement.muted = true;
-                videoElement.play().catch(() => {
-                    transitionToMenu();
+        const onCanPlay = () => {
+            let playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    videoElement.muted = true;
+                    videoElement.play().catch(() => {
+                        transitionToMenu();
+                    });
                 });
-            });
-        }
+            }
+            videoElement.removeEventListener('canplaythrough', onCanPlay);
+        };
         
+        videoElement.addEventListener('canplaythrough', onCanPlay);
         currentVideoIndex++;
     } else {
         transitionToMenu();
@@ -108,7 +116,6 @@ function playNextVideo() {
 
 function skipCurrentVideo() {
     if (!isGameStarted || videoContainer.style.display === 'none') return;
-    videoElement.pause();
     playNextVideo();
 }
 
@@ -223,7 +230,6 @@ btnClearData.addEventListener('click', () => {
 });
 
 videoElement.addEventListener('ended', playNextVideo);
-videoElement.addEventListener('error', () => { transitionToMenu(); });
 
 startPrompt.addEventListener('click', initGameLaunch);
 window.addEventListener('keydown', (e) => {
