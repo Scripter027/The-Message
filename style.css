@@ -10,7 +10,7 @@ body, html {
     height: 100%;
     overflow: hidden;
     background-color: #000;
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Orbitron', sans-serif;
 }
 
 .video-container {
@@ -49,11 +49,13 @@ video {
 
 .prompt-text {
     color: #00ff66;
-    font-size: 2rem;
-    letter-spacing: 2px;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
     text-transform: uppercase;
     text-shadow: 0 0 10px #00ff66;
     animation: pulse 1.5s infinite alternate;
+    text-align: center;
+    padding: 20px;
 }
 
 @keyframes pulse {
@@ -138,11 +140,12 @@ video {
 }
 
 .neon-text {
-    font-size: 4rem;
+    font-size: 3.5rem;
     color: #00ff66;
     text-transform: uppercase;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
     margin-bottom: 50px;
+    font-weight: 900;
     text-shadow: 
         0 0 5px #00ff66,
         0 0 10px #00ff66,
@@ -169,18 +172,21 @@ video {
 
 .menu-btn {
     background: transparent;
-    border: 2px solid #00ff66;
+    border: 3px solid #00ff66;
+    border-radius: 0 !important;
     color: #00ff66;
     padding: 15px 40px;
-    font-size: 1.5rem;
-    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.3rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
     cursor: pointer;
     text-transform: uppercase;
-    width: 280px;
+    width: 320px;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     box-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
+    letter-spacing: 1px;
 }
 
 .menu-btn:hover {
@@ -191,5 +197,5 @@ video {
 }
 
 .menu-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.96);
 }
