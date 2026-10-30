@@ -55,6 +55,10 @@ function transitionToMenu() {
 
 videoElement.addEventListener('ended', playNextVideo);
 
+videoElement.addEventListener('error', () => {
+    transitionToMenu();
+});
+
 window.addEventListener('DOMContentLoaded', () => {
     playNextVideo();
 });
