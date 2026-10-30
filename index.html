@@ -18,21 +18,82 @@
         <video id="introVideo" preload="auto" playsinline></video>
     </div>
 
+    <div class="black-overlay" id="blackOverlay"></div>
+
     <div class="main-menu hidden" id="mainMenu">
         <div class="tv-effects">
             <div class="scanlines"></div>
             <div class="flicker"></div>
         </div>
         
-        <div class="menu-content">
+        <div class="menu-content" id="menuContent">
             <div class="logo-wrapper">
                 <img src="logo.png" alt="The Message" class="menu-logo">
             </div>
-            <div class="buttons-list">
-                <button class="menu-btn">Начать игру</button>
-                <button class="menu-btn">Свободная игра</button>
-                <button class="menu-btn">Настройки</button>
+            <div class="buttons-list" id="mainButtonsList">
+                <button class="menu-btn" id="btnStart">Начать игру</button>
+                <button class="menu-btn" id="btnFree">Свободная игра</button>
+                <button class="menu-btn" id="btnSettings">Настройки</button>
             </div>
+        </div>
+
+        <div class="side-panel hidden" id="panelSettings">
+            <h2 class="panel-title">Настройки</h2>
+            
+            <div class="setting-row">
+                <span class="setting-label">Графика:</span>
+                <div class="setting-options">
+                    <button class="select-btn active">Низкая</button>
+                    <button class="select-btn">Средняя</button>
+                    <button class="select-btn">Высокая</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">Язык:</span>
+                <div class="setting-options">
+                    <button class="select-btn active">Русский</button>
+                    <button class="select-btn">English</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <button class="action-btn text-danger" id="btnClearData">Стереть все данные</button>
+            </div>
+
+            <button class="menu-btn back-btn">Назад</button>
+        </div>
+
+        <div class="side-panel hidden" id="panelStart">
+            <h2 class="panel-title">Главы</h2>
+            <div class="chapters-grid">
+                <div class="chapter-card locked">
+                    <span class="chapter-num">Глава 1</span>
+                    <div class="lock-icon">🔒</div>
+                    <span class="coming-soon">скоро</span>
+                </div>
+                <div class="chapter-card locked">
+                    <span class="chapter-num">Глава 2</span>
+                    <div class="lock-icon">🔒</div>
+                    <span class="coming-soon">скоро</span>
+                </div>
+                <div class="chapter-card locked">
+                    <span class="chapter-num">Глава 3</span>
+                    <div class="lock-icon">🔒</div>
+                    <span class="coming-soon">скоро</span>
+                </div>
+                <div class="chapter-card locked">
+                    <span class="chapter-num">Глава 4</span>
+                    <div class="lock-icon">🔒</div>
+                    <span class="coming-soon">скоро</span>
+                </div>
+                <div class="chapter-card locked">
+                    <span class="chapter-num">Глава 5</span>
+                    <div class="lock-icon">🔒</div>
+                    <span class="coming-soon">скоро</span>
+                </div>
+            </div>
+            <button class="menu-btn back-btn">Назад</button>
         </div>
     </div>
 
