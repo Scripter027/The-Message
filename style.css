@@ -106,7 +106,7 @@ video {
 }
 
 .main-menu.hidden {
-    display: none;
+    display: none !important;
 }
 
 .tv-effects {
@@ -230,7 +230,6 @@ video {
     color: #00ff66;
     box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
 }
-
 .side-panel {
     position: absolute;
     right: -50%;
@@ -379,6 +378,128 @@ video {
     opacity: 0.7;
 }
 
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.loading-screen.visible {
+    opacity: 1;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.loading-text {
+    color: #00ff66;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px #00ff66;
+}
+
+.square-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #00ff66;
+    box-shadow: 0 0 10px #00ff66;
+    animation: square-move 1.5s ease-in-out infinite;
+}
+
+@keyframes square-move {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(90deg); border-radius: 0; }
+    50% { transform: rotate(180deg); }
+    75% { transform: rotate(270deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.desktop-environment {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #020502;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.desktop-environment.visible {
+    opacity: 1;
+}
+
+.desktop-environment.hidden {
+    display: none !important;
+}
+
+.desktop-main {
+    flex: 1;
+    width: 100%;
+    position: relative;
+}
+
+.taskbar {
+    width: 100%;
+    height: 45px;
+    background: rgba(5, 20, 5, 0.9);
+    border-top: 2px solid #00ff66;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 7;
+}
+
+.taskbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.taskbar-btn {
+    background: transparent;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.taskbar-btn:hover {
+    background: #00ff66;
+    color: #000;
+    box-shadow: 0 0 8px #00ff66;
+}
+
+.taskbar-clock {
+    color: #00ff66;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px #00ff66;
+    min-width: 90px;
+    text-align: right;
+}
+
 body.gfx-low .scanlines,
 body.gfx-low .flicker {
     display: none !important;
@@ -386,11 +507,16 @@ body.gfx-low .flicker {
 body.gfx-low .menu-btn,
 body.gfx-low .side-panel,
 body.gfx-low .prompt-text,
-body.gfx-low .panel-title {
+body.gfx-low .panel-title,
+body.gfx-low .square-spinner,
+body.gfx-low .loading-text,
+body.gfx-low .taskbar-clock,
+body.gfx-low .taskbar-btn {
     text-shadow: none !important;
     box-shadow: none !important;
 }
-body.gfx-low .menu-btn:hover {
+body.gfx-low .menu-btn:hover,
+body.gfx-low .taskbar-btn:hover {
     box-shadow: none !important;
 }
 body.gfx-low .menu-logo {
@@ -414,5 +540,5 @@ body.gfx-high .flicker {
     display: block !important;
 }
 body.gfx-high .menu-logo {
-    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5) drop-shadow(0 0 4px #00ff66);
+    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
 }
