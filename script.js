@@ -49,6 +49,7 @@ function playNextVideo() {
 
 function skipCurrentVideo() {
     if (!isGameStarted || videoContainer.style.display === 'none') return;
+    videoElement.pause();
     playNextVideo();
 }
 
@@ -68,6 +69,7 @@ function setupSkipListeners() {
 }
 
 function transitionToMenu() {
+    videoElement.pause();
     videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
     
