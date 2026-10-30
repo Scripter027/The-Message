@@ -1,6 +1,6 @@
 const videos = [
     'company_disclaimer.mp4',
-    'title_intro.mp4'
+    'company_disclaimer.mp4'
 ];
 
 let currentVideoIndex = 0;
@@ -10,6 +10,17 @@ const videoContainer = document.getElementById('videoContainer');
 const videoElement = document.getElementById('introVideo');
 const mainMenu = document.getElementById('mainMenu');
 const startPrompt = document.getElementById('startPrompt');
+const blackOverlay = document.getElementById('blackOverlay');
+
+const menuContent = document.getElementById('menuContent');
+const mainButtonsList = document.getElementById('mainButtonsList');
+const btnStart = document.getElementById('btnStart');
+const btnFree = document.getElementById('btnFree');
+const btnSettings = document.getElementById('btnSettings');
+
+const panelSettings = document.getElementById('panelSettings');
+const panelStart = document.getElementById('panelStart');
+const btnClearData = document.getElementById('btnClearData');
 
 function initGameLaunch() {
     if (isGameStarted) return;
@@ -84,11 +95,69 @@ function transitionToMenu() {
     }, 1000);
 }
 
-videoElement.addEventListener('ended', playNextVideo);
+function openPanel(clickedButton, targetPanel) {
+    mainButtonsList.classList.add('has-active');
+    clickedButton.classList.add('clicked');
+    menuContent.classList.add('shifted');
+    
+    targetPanel.classList.remove('hidden');
+    setTimeout(() => {
+        targetPanel.classList.add('visible');
+    }, 50);
+}
 
-videoElement.addEventListener('error', () => {
-    transitionToMenu();
+function closeAllPanels() {
+    mainButtonsList.classList.remove('has-active');
+    document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('clicked'));
+    menuContent.classList.remove('shifted');
+    
+    const openPanels = document.querySelectorAll('.side-panel.visible');
+    openPanels.forEach(panel => {
+        panel.classList.remove('visible');
+        setTimeout(() => {
+            if (!panel.classList.contains('visible')) {
+                panel.classList.add('hidden');
+            }
+        }, 800);
+    });
+}
+
+btnSettings.addEventListener('click', () => {
+    openPanel(btnSettings, panelSettings);
 });
+
+btnStart.addEventListener('click', () => {
+    openPanel(btnStart, panelStart);
+});
+
+btnFree.addEventListener('click', () => {
+    mainButtonsList.classList.add('has-active');
+    btnFree.classList.add('clicked');
+    
+    blackOverlay.classList.add('active');
+});
+
+document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAllPanels();
+    });
+});
+
+document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const siblings = this.parentElement.querySelectorAll('.select-btn');
+        siblings.forEach(s => s.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+btnClearData.addEventListener('click', () => {
+    location.reload();
+});
+
+videoElement.addEventListener('ended', playNextVideo);
+videoElement.addEventListener('error', () => { transitionToMenu(); });
 
 startPrompt.addEventListener('click', initGameLaunch);
 window.addEventListener('keydown', (e) => {
