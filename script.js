@@ -90,6 +90,7 @@ function playNextVideo() {
         videoElement.load();
         videoElement.muted = false;
         const onCanPlay = () => {
+            if (currentVideoIndex === 0) return; 
             let playPromise = videoElement.play();
             if (playPromise !== undefined) {
                 playPromise.catch(() => {
@@ -128,7 +129,11 @@ function setupSkipListeners() {
 }
 
 function transitionToMenu() {
+    currentVideoIndex = 999;
     videoElement.pause();
+    videoElement.src = '';
+    videoElement.removeAttribute('src');
+    videoElement.load();
     videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
     setTimeout(() => {
