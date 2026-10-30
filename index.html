@@ -13,7 +13,7 @@
 
     <div class="video-container" id="videoContainer">
         <div class="start-prompt" id="startPrompt">
-            <div class="prompt-text">НАЖМИТЕ НА ЭКРАН ДЛЯ СТАРТА</div>
+            <div class="prompt-text" data-lang="prompt">НАЖМИТЕ НА ЭКРАН ДЛЯ СТАРТА</div>
         </div>
         <video id="introVideo" preload="auto" playsinline></video>
     </div>
@@ -31,69 +31,69 @@
                 <img src="logo.png" alt="The Message" class="menu-logo">
             </div>
             <div class="buttons-list" id="mainButtonsList">
-                <button class="menu-btn" id="btnStart">Начать игру</button>
-                <button class="menu-btn" id="btnFree">Свободная игра</button>
-                <button class="menu-btn" id="btnSettings">Настройки</button>
+                <button class="menu-btn" id="btnStart" data-lang="start">Начать игру</button>
+                <button class="menu-btn" id="btnFree" data-lang="free">Свободная игра</button>
+                <button class="menu-btn" id="btnSettings" data-lang="settings">Настройки</button>
             </div>
         </div>
 
         <div class="side-panel hidden" id="panelSettings">
-            <h2 class="panel-title">Настройки</h2>
+            <h2 class="panel-title" data-lang="settings_title">Настройки</h2>
             
             <div class="setting-row">
-                <span class="setting-label">Графика:</span>
+                <span class="setting-label" data-lang="graphics">Графика:</span>
                 <div class="setting-options">
-                    <button class="select-btn active">Низкая</button>
-                    <button class="select-btn">Средняя</button>
-                    <button class="select-btn">Высокая</button>
+                    <button class="select-btn active" data-lang="graphics_low">Низкая</button>
+                    <button class="select-btn" data-lang="graphics_med">Средняя</button>
+                    <button class="select-btn" data-lang="graphics_high">Высокая</button>
                 </div>
             </div>
 
             <div class="setting-row">
-                <span class="setting-label">Язык:</span>
+                <span class="setting-label" data-lang="language">Язык:</span>
                 <div class="setting-options">
-                    <button class="select-btn active">Русский</button>
-                    <button class="select-btn">English</button>
+                    <button class="select-btn active" id="langRu">Русский</button>
+                    <button class="select-btn" id="langEn">English</button>
                 </div>
             </div>
 
             <div class="setting-row">
-                <button class="action-btn text-danger" id="btnClearData">Стереть все данные</button>
+                <button class="action-btn text-danger" id="btnClearData" data-lang="clear_data">Стереть все данные</button>
             </div>
 
-            <button class="menu-btn back-btn">Назад</button>
+            <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
 
         <div class="side-panel hidden" id="panelStart">
-            <h2 class="panel-title">Главы</h2>
+            <h2 class="panel-title" data-lang="chapters_title">Главы</h2>
             <div class="chapters-grid">
-                <div class="chapter-card locked">
-                    <span class="chapter-num">Глава 1</span>
-                    <div class="lock-icon">🔒</div>
-                    <span class="coming-soon">скоро</span>
-                </div>
-                <div class="chapter-card locked">
-                    <span class="chapter-num">Глава 2</span>
-                    <div class="lock-icon">🔒</div>
-                    <span class="coming-soon">скоро</span>
-                </div>
-                <div class="chapter-card locked">
-                    <span class="chapter-num">Глава 3</span>
-                    <div class="lock-icon">🔒</div>
-                    <span class="coming-soon">скоро</span>
-                </div>
-                <div class="chapter-card locked">
-                    <span class="chapter-num">Глава 4</span>
-                    <div class="lock-icon">🔒</div>
-                    <span class="coming-soon">скоро</span>
-                </div>
-                <div class="chapter-card locked">
-                    <span class="chapter-num">Глава 5</span>
-                    <div class="lock-icon">🔒</div>
-                    <span class="coming-soon">скоро</span>
-                </div>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch1">Глава 1</span>
+                    <span class="lock-icon">🔒</span>
+                    <span class="coming-soon" data-lang="soon">скоро</span>
+                </button>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch2">Глава 2</span>
+                    <span class="lock-icon">🔒</span>
+                    <span class="coming-soon" data-lang="soon">скоро</span>
+                </button>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch3">Глава 3</span>
+                    <span class="lock-icon">🔒</span>
+                    <span class="coming-soon" data-lang="soon">скоро</span>
+                </button>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch4">Глава 4</span>
+                    <span class="lock-icon">🔒</span>
+                    <span class="coming-soon" data-lang="soon">скоро</span>
+                </button>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch5">Глава 5</span>
+                    <span class="lock-icon">🔒</span>
+                    <span class="coming-soon" data-lang="soon">скоро</span>
+                </button>
             </div>
-            <button class="menu-btn back-btn">Назад</button>
+            <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
     </div>
 
