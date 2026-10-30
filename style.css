@@ -179,6 +179,7 @@ video {
     filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
     mix-blend-mode: screen;
     opacity: 0.85;
+    transition: filter 0.3s ease;
 }
 
 .buttons-list {
@@ -376,4 +377,42 @@ video {
     color: #00ff66;
     text-transform: lowercase;
     opacity: 0.7;
+}
+
+body.gfx-low .scanlines,
+body.gfx-low .flicker {
+    display: none !important;
+}
+body.gfx-low .menu-btn,
+body.gfx-low .side-panel,
+body.gfx-low .prompt-text,
+body.gfx-low .panel-title {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+body.gfx-low .menu-btn:hover {
+    box-shadow: none !important;
+}
+body.gfx-low .menu-logo {
+    filter: none !important;
+    mix-blend-mode: normal !important;
+    opacity: 1 !important;
+}
+
+body.gfx-medium .flicker {
+    display: none !important;
+}
+body.gfx-medium .menu-btn,
+body.gfx-medium .side-panel {
+    text-shadow: none !important;
+}
+body.gfx-medium .menu-logo {
+    filter: brightness(1.1) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(3);
+}
+
+body.gfx-high .flicker {
+    display: block !important;
+}
+body.gfx-high .menu-logo {
+    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5) drop-shadow(0 0 4px #00ff66);
 }
