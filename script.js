@@ -1,6 +1,6 @@
 const videos = [
-    'video/company_disclaimer.mp4',
-    'video/title_intro.mp4'
+    'company_disclaimer.mp4',
+    'title_intro.mp4'
 ];
 
 let currentVideoIndex = 0;
