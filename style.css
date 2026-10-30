@@ -137,29 +137,23 @@ video {
     position: relative;
     z-index: 3;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.neon-text {
-    font-size: 4rem;
-    color: #00ff66;
-    text-transform: uppercase;
-    letter-spacing: 6px;
-    margin-bottom: 50px;
-    text-shadow: 
-        0 0 5px #00ff66,
-        0 0 10px #00ff66,
-        0 0 20px #00ff66,
-        0 0 40px #003311;
-    animation: neon-glow 1.5s ease-in-out infinite alternate;
+.logo-wrapper {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-@keyframes neon-glow {
-    from {
-        text-shadow: 0 0 5px #00ff66, 0 0 10px #00ff66, 0 0 15px #00ff66;
-    }
-    to {
-        text-shadow: 0 0 10px #00ff66, 0 0 20px #00ff66, 0 0 30px #00ff66, 0 0 40px #00ff66;
-    }
+.menu-logo {
+    max-width: 450px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.8));
 }
 
 .buttons-list {
