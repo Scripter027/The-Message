@@ -20,6 +20,7 @@ function initGameLaunch() {
     setTimeout(() => {
         startPrompt.style.display = 'none';
         playNextVideo();
+        setupSkipListeners();
     }, 500);
 }
 
@@ -46,6 +47,26 @@ function playNextVideo() {
     }
 }
 
+function skipCurrentVideo() {
+    if (!isGameStarted || videoContainer.style.display === 'none') return;
+    playNextVideo();
+}
+
+function setupSkipListeners() {
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            skipCurrentVideo();
+        }
+    });
+    
+    videoContainer.addEventListener('click', (e) => {
+        if (e.target !== startPrompt && !startPrompt.contains(e.target)) {
+            skipCurrentVideo();
+        }
+    });
+}
+
 function transitionToMenu() {
     videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
@@ -68,4 +89,8 @@ videoElement.addEventListener('error', () => {
 });
 
 startPrompt.addEventListener('click', initGameLaunch);
-window.addEventListener('keydown', initGameLaunch, { once: true });
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'Enter') {
+        initGameLaunch();
+    }
+}, { once: true });
