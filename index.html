@@ -18,6 +18,13 @@
         <video id="introVideo" preload="auto" playsinline></video>
     </div>
 
+    <div class="loading-screen hidden" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-text" data-lang="loading">ЗАГРУЗКА...</div>
+            <div class="square-spinner"></div>
+        </div>
+    </div>
+
     <div class="black-overlay" id="blackOverlay"></div>
 
     <div class="main-menu hidden" id="mainMenu">
@@ -97,6 +104,26 @@
         </div>
     </div>
 
+    <div class="desktop-environment hidden" id="desktopEnv">
+        <div class="tv-effects">
+            <div class="scanlines"></div>
+            <div class="flicker"></div>
+        </div>
+        
+        <div class="desktop-main"></div>
+        
+        <div class="taskbar">
+            <div class="taskbar-left"></div>
+            <div class="taskbar-right">
+                <button class="taskbar-btn" id="btnDesktopSettings" data-lang="settings">Настройки</button>
+                <button class="taskbar-btn" id="btnDesktopExit" data-lang="exit">Выход</button>
+                <div class="taskbar-clock" id="taskbarClock">00:00:00</div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="loading.js"></script>
+    <script src="desktop.js"></script>
 </body>
 </html>
