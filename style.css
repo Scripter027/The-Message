@@ -168,7 +168,7 @@ video {
 }
 
 .logo-wrapper {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -176,7 +176,7 @@ video {
 }
 
 .menu-logo {
-    max-width: 450px;
+    max-width: 420px;
     height: auto;
     display: block;
     filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
@@ -188,7 +188,7 @@ video {
 .buttons-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     align-items: center;
     transition: opacity 0.3s ease;
 }
@@ -198,12 +198,12 @@ video {
     border: 3px solid #00ff66;
     border-radius: 0 !important;
     color: #00ff66;
-    padding: 15px 40px;
-    font-size: 1.4rem;
+    padding: 10px 40px;
+    font-size: 1.3rem;
     font-family: 'Russo One', sans-serif;
     cursor: pointer;
     text-transform: uppercase;
-    width: 320px;
+    width: 260px;
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
@@ -450,6 +450,35 @@ video {
     100% { top: -2px; left: -2px; width: 12px; height: 3px; }
 }
 
+.credits-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none !important;
+}
+
+.credits-overlay.visible {
+    opacity: 1;
+    pointer-events: auto !important;
+}
+
+.credits-text {
+    color: #00ff66;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #00ff66;
+    text-transform: uppercase;
+}
+
 .desktop-environment {
     position: fixed;
     top: 0;
@@ -597,7 +626,8 @@ body.gfx-low .square-spinner,
 body.gfx-low .loading-text,
 body.gfx-low .taskbar-clock,
 body.gfx-low .taskbar-btn,
-body.gfx-low .desktop-window {
+body.gfx-low .desktop-window,
+body.gfx-low .credits-text {
     text-shadow: none !important;
     box-shadow: none !important;
 }
