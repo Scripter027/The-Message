@@ -82,7 +82,9 @@ function initGameLaunch() {
         playNextVideo();
         setupSkipListeners();
         updateGraphics('high');
-        if (window.startClock) window.startClock();
+        if (window.startClock) {
+            window.startClock();
+        }
     }, 500);
 }
 
@@ -136,7 +138,6 @@ function transitionToMenu() {
     videoElement.pause();
     videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
-    
     setTimeout(() => {
         videoContainer.style.display = 'none';
         mainMenu.classList.remove('hidden');
@@ -208,6 +209,10 @@ btnFree.addEventListener('click', () => {
                 desktopEnv.classList.remove('hidden');
                 setTimeout(() => desktopEnv.classList.add('visible'), 50);
             });
+        } else {
+            const desktopEnv = document.getElementById('desktopEnv');
+            desktopEnv.classList.remove('hidden');
+            desktopEnv.classList.add('visible');
         }
     }, 1000);
 });
