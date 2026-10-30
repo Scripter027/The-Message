@@ -422,19 +422,32 @@ video {
 }
 
 .square-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #00ff66;
-    box-shadow: 0 0 10px #00ff66;
-    animation: square-move 1.5s ease-in-out infinite;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(0, 255, 102, 0.1);
 }
 
-@keyframes square-move {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(90deg); border-radius: 0; }
-    50% { transform: rotate(180deg); }
-    75% { transform: rotate(270deg); }
-    100% { transform: rotate(360deg); }
+.square-spinner::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 3px;
+    background: #00ff66;
+    box-shadow: 0 0 8px #00ff66;
+    animation: square-trace 2s linear infinite;
+}
+
+@keyframes square-trace {
+    0% { top: -2px; left: -2px; width: 12px; height: 3px; }
+    20% { top: -2px; left: calc(100% - 10px); width: 12px; height: 3px; transform: rotate(0deg); }
+    25% { top: -2px; left: calc(100% - 1px); width: 3px; height: 12px; }
+    45% { top: calc(100% - 10px); left: calc(100% - 1px); width: 3px; height: 12px; }
+    50% { top: calc(100% - 1px); left: calc(100% - 10px); width: 12px; height: 3px; }
+    70% { top: calc(100% - 1px); left: -2px; width: 12px; height: 3px; }
+    75% { top: calc(100% - 10px); left: -2px; width: 3px; height: 12px; }
+    95% { top: -2px; left: -2px; width: 3px; height: 12px; }
+    100% { top: -2px; left: -2px; width: 12px; height: 3px; }
 }
 
 .desktop-environment {
