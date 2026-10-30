@@ -23,7 +23,9 @@ const translations = {
         ch3: "Глава 3",
         ch4: "Глава 4",
         ch5: "Глава 5",
-        soon: "скоро"
+        soon: "скоро",
+        loading: "ЗАГРУЗКА...",
+        exit: "Выход"
     },
     en: {
         prompt: "CLICK ON SCREEN TO START",
@@ -44,18 +46,20 @@ const translations = {
         ch3: "Chapter 3",
         ch4: "Chapter 4",
         ch5: "Chapter 5",
-        soon: "soon"
+        soon: "soon",
+        loading: "LOADING...",
+        exit: "Exit"
     }
 };
 
 let currentVideoIndex = 0;
 let isGameStarted = false;
+let settingsContext = 'menu';
 
 const videoContainer = document.getElementById('videoContainer');
 const videoElement = document.getElementById('introVideo');
 const mainMenu = document.getElementById('mainMenu');
 const startPrompt = document.getElementById('startPrompt');
-const blackOverlay = document.getElementById('blackOverlay');
 
 const menuContent = document.getElementById('menuContent');
 const mainButtonsList = document.getElementById('mainButtonsList');
@@ -72,14 +76,13 @@ const langEn = document.getElementById('langEn');
 function initGameLaunch() {
     if (isGameStarted) return;
     isGameStarted = true;
-    
     startPrompt.classList.add('fade-out');
-    
     setTimeout(() => {
         startPrompt.style.display = 'none';
         playNextVideo();
         setupSkipListeners();
         updateGraphics('high');
+        if (window.startClock) window.startClock();
     }, 500);
 }
 
@@ -88,12 +91,9 @@ function playNextVideo() {
         videoElement.pause();
         videoElement.removeAttribute('src');
         videoElement.load();
-        
         videoElement.src = videos[currentVideoIndex];
         videoElement.load();
-        
         videoElement.muted = false;
-        
         const onCanPlay = () => {
             let playPromise = videoElement.play();
             if (playPromise !== undefined) {
@@ -106,7 +106,6 @@ function playNextVideo() {
             }
             videoElement.removeEventListener('canplaythrough', onCanPlay);
         };
-        
         videoElement.addEventListener('canplaythrough', onCanPlay);
         currentVideoIndex++;
     } else {
@@ -126,7 +125,6 @@ function setupSkipListeners() {
             skipCurrentVideo();
         }
     });
-    
     videoContainer.addEventListener('click', (e) => {
         if (e.target !== startPrompt && !startPrompt.contains(e.target)) {
             skipCurrentVideo();
@@ -142,30 +140,26 @@ function transitionToMenu() {
     setTimeout(() => {
         videoContainer.style.display = 'none';
         mainMenu.classList.remove('hidden');
-        
-        setTimeout(() => {
-            mainMenu.classList.add('visible');
-        }, 50);
-        
+        setTimeout(() => mainMenu.classList.add('visible'), 50);
     }, 1000);
 }
 
 function openPanel(clickedButton, targetPanel) {
-    mainButtonsList.classList.add('has-active');
-    clickedButton.classList.add('clicked');
-    menuContent.classList.add('shifted');
-    
+    if (settingsContext === 'menu') {
+        mainButtonsList.classList.add('has-active');
+        if (clickedButton) clickedButton.classList.add('clicked');
+        menuContent.classList.add('shifted');
+    }
     targetPanel.classList.remove('hidden');
-    setTimeout(() => {
-        targetPanel.classList.add('visible');
-    }, 50);
+    setTimeout(() => targetPanel.classList.add('visible'), 50);
 }
 
 function closeAllPanels() {
-    mainButtonsList.classList.remove('has-active');
-    document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('clicked'));
-    menuContent.classList.remove('shifted');
-    
+    if (settingsContext === 'menu') {
+        mainButtonsList.classList.remove('has-active');
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('clicked'));
+        menuContent.classList.remove('shifted');
+    }
     const openPanels = document.querySelectorAll('.side-panel.visible');
     openPanels.forEach(panel => {
         panel.classList.remove('visible');
@@ -193,13 +187,29 @@ function updateGraphics(level) {
     if (level === 'high') document.body.classList.add('gfx-high');
 }
 
-btnSettings.addEventListener('click', () => openPanel(btnSettings, panelSettings));
-btnStart.addEventListener('click', () => openPanel(btnStart, panelStart));
+btnSettings.addEventListener('click', () => {
+    settingsContext = 'menu';
+    panelSettings.style.zIndex = "4";
+    openPanel(btnSettings, panelSettings);
+});
+
+btnStart.addEventListener('click', () => {
+    settingsContext = 'menu';
+    openPanel(btnStart, panelStart);
+});
 
 btnFree.addEventListener('click', () => {
-    mainButtonsList.classList.add('has-active');
-    btnFree.classList.add('clicked');
-    blackOverlay.classList.add('active');
+    mainMenu.classList.remove('visible');
+    setTimeout(() => {
+        mainMenu.classList.add('hidden');
+        if (window.triggerLoading) {
+            window.triggerLoading(() => {
+                const desktopEnv = document.getElementById('desktopEnv');
+                desktopEnv.classList.remove('hidden');
+                setTimeout(() => desktopEnv.classList.add('visible'), 50);
+            });
+        }
+    }, 1000);
 });
 
 document.querySelectorAll('.back-btn').forEach(btn => {
@@ -214,7 +224,6 @@ document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
         const siblings = this.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
         this.classList.add('active');
-        
         const text = this.getAttribute('data-lang') || this.textContent.toLowerCase();
         if (text.includes('low') || text.includes('низк')) updateGraphics('low');
         if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
@@ -224,16 +233,22 @@ document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
 
 langRu.addEventListener('click', () => switchLanguage('ru'));
 langEn.addEventListener('click', () => switchLanguage('en'));
-
-btnClearData.addEventListener('click', () => {
-    location.reload();
-});
+btnClearData.addEventListener('click', () => location.reload());
 
 videoElement.addEventListener('ended', playNextVideo);
-
 startPrompt.addEventListener('click', initGameLaunch);
 window.addEventListener('keydown', (e) => {
     if (e.code === 'Space' || e.code === 'Enter') {
         initGameLaunch();
     }
 }, { once: true });
+
+window.setSettingsContext = function(context) {
+    settingsContext = context;
+};
+window.getSettingsPanel = function() {
+    return panelSettings;
+};
+window.openGlobalPanel = function(btn, panel) {
+    openPanel(btn, panel);
+};
