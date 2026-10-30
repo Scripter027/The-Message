@@ -10,7 +10,7 @@ body, html {
     height: 100%;
     overflow: hidden;
     background-color: #000;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Share Tech Mono', monospace;
 }
 
 .video-container {
@@ -140,12 +140,12 @@ video {
 }
 
 .neon-text {
-    font-size: 3.5rem;
+    font-size: 4rem;
     color: #00ff66;
     text-transform: uppercase;
     letter-spacing: 6px;
     margin-bottom: 50px;
-    font-weight: 900;
+    font-weight: bold;
     text-shadow: 
         0 0 5px #00ff66,
         0 0 10px #00ff66,
@@ -176,9 +176,8 @@ video {
     border-radius: 0 !important;
     color: #00ff66;
     padding: 15px 40px;
-    font-size: 1.3rem;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-family: 'Share Tech Mono', monospace;
     cursor: pointer;
     text-transform: uppercase;
     width: 320px;
