@@ -1,7 +1,52 @@
 const videos = [
     'company_disclaimer.mp4',
-    'company_disclaimer.mp4'
+    'title_intro.mp4'
 ];
+
+const translations = {
+    ru: {
+        prompt: "НАЖМИТЕ НА ЭКРАН ДЛЯ СТАРТА",
+        start: "Начать игру",
+        free: "Свободная игра",
+        settings: "Настройки",
+        settings_title: "Настройки",
+        graphics: "Графика:",
+        graphics_low: "Низкая",
+        graphics_med: "Средняя",
+        graphics_high: "Высокая",
+        language: "Язык:",
+        clear_data: "Стереть все данные",
+        back: "Назад",
+        chapters_title: "Главы",
+        ch1: "Глава 1",
+        ch2: "Глава 2",
+        ch3: "Глава 3",
+        ch4: "Глава 4",
+        ch5: "Глава 5",
+        soon: "скоро"
+    },
+    en: {
+        prompt: "CLICK ON SCREEN TO START",
+        start: "Start Game",
+        free: "Free Play",
+        settings: "Settings",
+        settings_title: "Settings",
+        graphics: "Graphics:",
+        graphics_low: "Low",
+        graphics_med: "Medium",
+        graphics_high: "High",
+        language: "Language:",
+        clear_data: "Wipe all data",
+        back: "Back",
+        chapters_title: "Chapters",
+        ch1: "Chapter 1",
+        ch2: "Chapter 2",
+        ch3: "Chapter 3",
+        ch4: "Chapter 4",
+        ch5: "Chapter 5",
+        soon: "soon"
+    }
+};
 
 let currentVideoIndex = 0;
 let isGameStarted = false;
@@ -21,6 +66,8 @@ const btnSettings = document.getElementById('btnSettings');
 const panelSettings = document.getElementById('panelSettings');
 const panelStart = document.getElementById('panelStart');
 const btnClearData = document.getElementById('btnClearData');
+const langRu = document.getElementById('langRu');
+const langEn = document.getElementById('langEn');
 
 function initGameLaunch() {
     if (isGameStarted) return;
@@ -122,18 +169,21 @@ function closeAllPanels() {
     });
 }
 
-btnSettings.addEventListener('click', () => {
-    openPanel(btnSettings, panelSettings);
-});
+function switchLanguage(lang) {
+    document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (translations[lang][key]) {
+            el.textContent = translations[lang][key];
+        }
+    });
+}
 
-btnStart.addEventListener('click', () => {
-    openPanel(btnStart, panelStart);
-});
+btnSettings.addEventListener('click', () => openPanel(btnSettings, panelSettings));
+btnStart.addEventListener('click', () => openPanel(btnStart, panelStart));
 
 btnFree.addEventListener('click', () => {
     mainButtonsList.classList.add('has-active');
     btnFree.classList.add('clicked');
-    
     blackOverlay.classList.add('active');
 });
 
@@ -151,6 +201,9 @@ document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
         this.classList.add('active');
     });
 });
+
+langRu.addEventListener('click', () => switchLanguage('ru'));
+langEn.addEventListener('click', () => switchLanguage('en'));
 
 btnClearData.addEventListener('click', () => {
     location.reload();
