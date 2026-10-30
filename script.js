@@ -79,6 +79,7 @@ function initGameLaunch() {
         startPrompt.style.display = 'none';
         playNextVideo();
         setupSkipListeners();
+        updateGraphics('high');
     }, 500);
 }
 
@@ -178,6 +179,13 @@ function switchLanguage(lang) {
     });
 }
 
+function updateGraphics(level) {
+    document.body.classList.remove('gfx-low', 'gfx-medium', 'gfx-high');
+    if (level === 'low') document.body.classList.add('gfx-low');
+    if (level === 'medium') document.body.classList.add('gfx-medium');
+    if (level === 'high') document.body.classList.add('gfx-high');
+}
+
 btnSettings.addEventListener('click', () => openPanel(btnSettings, panelSettings));
 btnStart.addEventListener('click', () => openPanel(btnStart, panelStart));
 
@@ -199,6 +207,11 @@ document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
         const siblings = this.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
         this.classList.add('active');
+        
+        const text = this.getAttribute('data-lang') || this.textContent.toLowerCase();
+        if (text.includes('low') || text.includes('низк')) updateGraphics('low');
+        if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
+        if (text.includes('high') || text.includes('выс')) updateGraphics('high');
     });
 });
 
