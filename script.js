@@ -63,15 +63,8 @@ const startPrompt = document.getElementById('startPrompt');
 
 const menuContent = document.getElementById('menuContent');
 const mainButtonsList = document.getElementById('mainButtonsList');
-const btnStart = document.getElementById('btnStart');
-const btnFree = document.getElementById('btnFree');
-const btnSettings = document.getElementById('btnSettings');
-
 const panelSettings = document.getElementById('panelSettings');
 const panelStart = document.getElementById('panelStart');
-const btnClearData = document.getElementById('btnClearData');
-const langRu = document.getElementById('langRu');
-const langEn = document.getElementById('langEn');
 
 function initGameLaunch() {
     if (isGameStarted) return;
@@ -189,63 +182,72 @@ function updateGraphics(level) {
     if (level === 'high') document.body.classList.add('gfx-high');
 }
 
-btnSettings.onclick = function(e) {
-    if(e) e.stopPropagation();
-    settingsContext = 'menu';
-    openPanel(btnSettings, panelSettings);
-};
-
-btnStart.onclick = function(e) {
-    if(e) e.stopPropagation();
-    settingsContext = 'menu';
-    openPanel(btnStart, panelStart);
-};
-
-btnFree.onclick = function(e) {
-    if(e) e.stopPropagation();
-    mainMenu.classList.remove('visible');
-    setTimeout(() => {
-        mainMenu.classList.add('hidden');
-        if (window.triggerLoading) {
-            window.triggerLoading(() => {
+document.addEventListener('click', function(e) {
+    const target = e.target;
+    
+    if (target === startPrompt || startPrompt.contains(target)) {
+        initGameLaunch();
+        return;
+    }
+    
+    if (target.id === 'btnSettings') {
+        settingsContext = 'menu';
+        openPanel(target, panelSettings);
+        return;
+    }
+    
+    if (target.id === 'btnStart') {
+        settingsContext = 'menu';
+        openPanel(target, panelStart);
+        return;
+    }
+    
+    if (target.id === 'btnFree') {
+        mainMenu.classList.remove('visible');
+        setTimeout(() => {
+            mainMenu.classList.add('hidden');
+            if (window.triggerLoading) {
+                window.triggerLoading(() => {
+                    const desktopEnv = document.getElementById('desktopEnv');
+                    desktopEnv.classList.remove('hidden');
+                    setTimeout(() => desktopEnv.classList.add('visible'), 50);
+                });
+            } else {
                 const desktopEnv = document.getElementById('desktopEnv');
                 desktopEnv.classList.remove('hidden');
-                setTimeout(() => desktopEnv.classList.add('visible'), 50);
-            });
-        } else {
-            const desktopEnv = document.getElementById('desktopEnv');
-            desktopEnv.classList.remove('hidden');
-            desktopEnv.classList.add('visible');
-        }
-    }, 1000);
-};
-
-document.querySelectorAll('.back-btn').forEach(btn => {
-    btn.onclick = function(e) {
-        if(e) e.stopPropagation();
+                desktopEnv.classList.add('visible');
+            }
+        }, 1000);
+        return;
+    }
+    
+    if (target.classList.contains('back-btn')) {
         closeAllPanels();
-    };
-});
-
-document.querySelectorAll('.setting-options .select-btn').forEach(btn => {
-    btn.onclick = function(e) {
-        if(e) e.stopPropagation();
-        const siblings = this.parentElement.querySelectorAll('.select-btn');
+        return;
+    }
+    
+    if (target.classList.contains('select-btn')) {
+        const siblings = target.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
-        this.classList.add('active');
-        const text = this.getAttribute('data-lang') || this.textContent.toLowerCase();
+        target.classList.add('active');
+        
+        if (target.id === 'langRu') { switchLanguage('ru'); return; }
+        if (target.id === 'langEn') { switchLanguage('en'); return; }
+        
+        const text = target.getAttribute('data-lang') || target.textContent.toLowerCase();
         if (text.includes('low') || text.includes('низк')) updateGraphics('low');
         if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
         if (text.includes('high') || text.includes('выс')) updateGraphics('high');
-    };
+        return;
+    }
+    
+    if (target.id === 'btnClearData') {
+        location.reload();
+        return;
+    }
 });
 
-langRu.onclick = function(e) { if(e) e.stopPropagation(); switchLanguage('ru'); };
-langEn.onclick = function(e) { if(e) e.stopPropagation(); switchLanguage('en'); };
-btnClearData.onclick = function(e) { if(e) e.stopPropagation(); location.reload(); };
-
 videoElement.addEventListener('ended', playNextVideo);
-startPrompt.onclick = initGameLaunch;
 
 window.addEventListener('keydown', (e) => {
     if (!isGameStarted && (e.code === 'Space' || e.code === 'Enter')) {
