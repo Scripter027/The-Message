@@ -7,6 +7,12 @@
     let initialTop = 0;
     let highestZIndex = 100;
 
+    window.bringToFront = function(win) {
+        if (!win) return;
+        highestZIndex++;
+        win.style.zIndex = highestZIndex;
+    };
+
     function initWindowManager() {
         const windows = document.querySelectorAll('.desktop-window');
         
@@ -15,7 +21,7 @@
             if (!header) return;
 
             win.addEventListener('mousedown', () => {
-                bringToFront(win);
+                window.bringToFront(win);
             });
 
             header.style.cursor = 'move';
@@ -25,7 +31,7 @@
                 
                 isDragging = true;
                 activeWindow = win;
-                bringToFront(win);
+                window.bringToFront(win);
 
                 startX = e.clientX;
                 startY = e.clientY;
@@ -44,11 +50,6 @@
                 e.preventDefault();
             });
         });
-    }
-
-    function bringToFront(win) {
-        highestZIndex++;
-        win.style.zIndex = highestZIndex;
     }
 
     document.addEventListener('mousemove', (e) => {
