@@ -424,35 +424,6 @@ video {
     text-shadow: 0 0 8px #00ff66;
 }
 
-.square-spinner {
-    position: relative;
-    width: 50px;
-    height: 50px;
-    border: 2px solid rgba(0, 255, 102, 0.1);
-}
-
-.square-spinner::before {
-    content: '';
-    position: absolute;
-    width: 12px;
-    height: 3px;
-    background: #00ff66;
-    box-shadow: 0 0 8px #00ff66;
-    animation: square-trace 2s linear infinite;
-}
-
-@keyframes square-trace {
-    0% { top: -2px; left: -2px; width: 12px; height: 3px; }
-    20% { top: -2px; left: calc(100% - 10px); width: 12px; height: 3px; transform: rotate(0deg); }
-    25% { top: -2px; left: calc(100% - 1px); width: 3px; height: 12px; }
-    45% { top: calc(100% - 10px); left: calc(100% - 1px); width: 3px; height: 12px; }
-    50% { top: calc(100% - 1px); left: calc(100% - 10px); width: 12px; height: 3px; }
-    70% { top: calc(100% - 1px); left: -2px; width: 12px; height: 3px; }
-    75% { top: calc(100% - 10px); left: -2px; width: 3px; height: 12px; }
-    95% { top: -2px; left: -2px; width: 3px; height: 12px; }
-    100% { top: -2px; left: -2px; width: 12px; height: 3px; }
-}
-
 .credits-overlay {
     position: fixed;
     top: 0;
@@ -523,6 +494,34 @@ video {
 .social-icon-btn:hover svg {
     filter: none;
 }
+.square-spinner {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(0, 255, 102, 0.1);
+}
+
+.square-spinner::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 3px;
+    background: #00ff66;
+    box-shadow: 0 0 8px #00ff66;
+    animation: square-trace 2s linear infinite;
+}
+
+@keyframes square-trace {
+    0% { top: -2px; left: -2px; width: 12px; height: 3px; }
+    20% { top: -2px; left: calc(100% - 10px); width: 12px; height: 3px; transform: rotate(0deg); }
+    25% { top: -2px; left: calc(100% - 1px); width: 3px; height: 12px; }
+    45% { top: calc(100% - 10px); left: calc(100% - 1px); width: 3px; height: 12px; }
+    50% { top: calc(100% - 1px); left: calc(100% - 10px); width: 12px; height: 3px; }
+    70% { top: calc(100% - 1px); left: -2px; width: 12px; height: 3px; }
+    75% { top: calc(100% - 10px); left: -2px; width: 3px; height: 12px; }
+    95% { top: -2px; left: -2px; width: 3px; height: 12px; }
+    100% { top: -2px; left: -2px; width: 12px; height: 3px; }
+}
 
 .desktop-environment {
     position: fixed;
@@ -544,7 +543,7 @@ video {
     pointer-events: auto !important;
 }
 
-.desktop-environment.hidden {
+.desktop-environment.hidden, .desktop-window.hidden {
     display: none !important;
 }
 
@@ -616,10 +615,6 @@ video {
     pointer-events: auto !important;
 }
 
-.desktop-window.hidden {
-    display: none !important;
-}
-
 .window-header {
     background: #00ff66;
     color: #000;
@@ -659,27 +654,71 @@ video {
     gap: 20px;
 }
 
-body.gfx-low .scanlines,
-body.gfx-low .flicker {
+.app-list-container {
+    flex: 1;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 255, 102, 0.2);
+    background: rgba(0, 5, 0, 0.4);
+    padding: 5px;
+    margin-bottom: 15px;
+}
+
+.app-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.app-list-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.app-list-container::-webkit-scrollbar-thumb {
+    background: #00ff66;
+}
+
+.desktop-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.1s ease;
+}
+
+.desktop-icon:hover {
+    background-color: rgba(0, 255, 102, 0.15);
+    border: 1px dashed rgba(0, 255, 102, 0.4);
+}
+
+.icon-visual {
+    font-size: 2.2rem;
+    line-height: 1;
+    margin-bottom: 5px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 102, 0.5));
+}
+
+.icon-name {
+    color: #00ff66;
+    font-size: 0.75rem;
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+}
+
+body.gfx-low .scanlines, body.gfx-low .flicker {
     display: none !important;
 }
-body.gfx-low .menu-btn,
-body.gfx-low .side-panel,
-body.gfx-low .prompt-text,
-body.gfx-low .panel-title,
-body.gfx-low .square-spinner,
-body.gfx-low .loading-text,
-body.gfx-low .taskbar-clock,
-body.gfx-low .taskbar-btn,
-body.gfx-low .desktop-window,
-body.gfx-low .credits-text,
-body.gfx-low .social-icon-btn {
+body.gfx-low .menu-btn, body.gfx-low .side-panel, body.gfx-low .prompt-text, body.gfx-low .panel-title, body.gfx-low .square-spinner, body.gfx-low .loading-text, body.gfx-low .taskbar-clock, body.gfx-low .taskbar-btn, body.gfx-low .desktop-window, body.gfx-low .credits-text, body.gfx-low .social-icon-btn, body.gfx-low .icon-visual {
     text-shadow: none !important;
     box-shadow: none !important;
 }
-body.gfx-low .menu-btn:hover,
-body.gfx-low .taskbar-btn:hover,
-body.gfx-low .social-icon-btn:hover {
+body.gfx-low .menu-btn:hover, body.gfx-low .taskbar-btn:hover, body.gfx-low .social-icon-btn:hover, body.gfx-low .desktop-icon:hover {
     box-shadow: none !important;
 }
 body.gfx-low .menu-logo {
@@ -687,12 +726,14 @@ body.gfx-low .menu-logo {
     mix-blend-mode: normal !important;
     opacity: 1 !important;
 }
+body.gfx-low .desktop-icon:hover {
+    border: 1px solid #00ff66;
+}
 
 body.gfx-medium .flicker {
     display: none !important;
 }
-body.gfx-medium .menu-btn,
-body.gfx-medium .side-panel {
+body.gfx-medium .menu-btn, body.gfx-medium .side-panel {
     text-shadow: none !important;
 }
 body.gfx-medium .menu-logo {
