@@ -112,6 +112,9 @@
     document.addEventListener("mouseup", () => {
         if (!draggedElement) return;
         
+        const appId = draggedElement.getAttribute("data-app-id");
+        const appData = window.AppConfig.allApps[appId];
+        
         let left = parseInt(draggedElement.style.left);
         let top = parseInt(draggedElement.style.top);
         
@@ -122,11 +125,22 @@
         left = Math.max(margin, Math.min(left, parentRect.width - draggedElement.offsetWidth));
         top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
 
+        const trashPos = window.AppConfig.state.positions["trash"];
+        if (trashPos && appData && appData.type !== 'system') {
+            if (Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
+                draggedElement.remove();
+                draggedElement = null;
+                if (window.moveAppToTrash) {
+                    window.moveAppToTrash(appId);
+                }
+                return;
+            }
+        }
+
         draggedElement.style.left = left + "px";
         draggedElement.style.top = top + "px";
         draggedElement.style.zIndex = "";
 
-        const appId = draggedElement.getAttribute("data-app-id");
         window.AppConfig.state.positions[appId] = { left, top };
         window.AppConfig.save();
 
@@ -134,9 +148,14 @@
     });
 
     window.openApplicationWindow = function(appId) {
-        if (appId === "trash" && window.initTrashApp) window.initTrashApp();
-        if (appId === "explorer" && window.initExplorerApp) window.initExplorerApp();
-        if (appId === "store" && window.initStoreApp) window.initStoreApp();
+        let win = null;
+        if (appId === "trash" && window.initTrashApp) { window.initTrashApp(); win = document.getElementById('windowTrash'); }
+        if (appId === "explorer" && window.initExplorerApp) { window.initExplorerApp(); win = document.getElementById('windowExplorer'); }
+        if (appId === "store" && window.initStoreApp) { window.initStoreApp(); win = document.getElementById('windowStore'); }
+        
+        if (win && window.bringToFront) {
+            window.bringToFront(win);
+        }
     };
 
     document.addEventListener("DOMContentLoaded", () => {
