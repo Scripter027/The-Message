@@ -6,8 +6,9 @@
     <title>The Message</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link href="https://googleapis.com" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style-desktop.css">
 </head>
 <body>
 
@@ -123,7 +124,6 @@
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
     </div>
-
     <div class="desktop-environment hidden" id="desktopEnv">
         <div class="tv-effects">
             <div class="scanlines"></div>
@@ -157,6 +157,37 @@
                     </div>
                 </div>
             </div>
+
+            <div class="desktop-window hidden" id="windowTrash">
+                <div class="window-header">
+                    <span class="window-title" id="titleTrash">Корзина</span>
+                    <button class="window-close-btn" id="btnCloseTrash">X</button>
+                </div>
+                <div class="window-content">
+                    <div id="trashContainer" class="app-list-container"></div>
+                    <button class="action-btn text-danger" id="btnClearTrash">Очистить корзину</button>
+                </div>
+            </div>
+
+            <div class="desktop-window hidden" id="windowExplorer">
+                <div class="window-header">
+                    <span class="window-title" id="titleExplorer">Проводник</span>
+                    <button class="window-close-btn" id="btnCloseExplorer">X</button>
+                </div>
+                <div class="window-content">
+                    <div id="explorerContainer" class="app-list-container"></div>
+                </div>
+            </div>
+
+            <div class="desktop-window hidden" id="windowStore">
+                <div class="window-header">
+                    <span class="window-title" id="titleStore">Магазин</span>
+                    <button class="window-close-btn" id="btnCloseStore">X</button>
+                </div>
+                <div class="window-content">
+                    <div id="storeContainer" class="app-list-container"></div>
+                </div>
+            </div>
         </div>
         
         <div class="taskbar">
@@ -171,6 +202,12 @@
 
     <script src="loading.js"></script>
     <script src="desktop.js"></script>
+    <script src="config.js"></script>
+    <script src="grid-manager.js"></script>
+    <script src="trash.js"></script>
+    <script src="explorer.js"></script>
+    <script src="store.js"></script>
     <script src="script.js"></script>
+    <script src="menu.js"></script>
 </body>
 </html>
