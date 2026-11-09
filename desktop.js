@@ -41,6 +41,15 @@
                 btn.classList.remove('active');
             }
         });
+
+        const currentLang = document.documentElement.lang || 'ru';
+        if (currentLang === 'ru') {
+            langRu.classList.add('active');
+            langEn.classList.remove('active');
+        } else {
+            langEn.classList.add('active');
+            langRu.classList.remove('active');
+        }
     }
 
     settingsWindow.addEventListener('click', function(e) {
@@ -66,14 +75,24 @@
 
     langRu.addEventListener('click', () => {
         if (window.switchLanguage) window.switchLanguage('ru');
+        langRu.parentElement.querySelectorAll('.select-btn').forEach(s => s.classList.remove('active'));
+        langRu.classList.add('active');
     });
 
     langEn.addEventListener('click', () => {
         if (window.switchLanguage) window.switchLanguage('en');
+        langEn.parentElement.querySelectorAll('.select-btn').forEach(s => s.classList.remove('active'));
+        langEn.classList.add('active');
     });
 
     btnClearData.addEventListener('click', () => {
-        location.reload();
+        if (window.AppConfig && window.AppConfig.resetToDesktopDefault) {
+            window.AppConfig.resetToDesktopDefault();
+        }
+        settingsWindow.classList.add('hidden');
+        document.querySelectorAll('.desktop-window').forEach(win => win.classList.add('hidden'));
+        if (window.renderDesktopIcons) window.renderDesktopIcons();
+        if (window.renderExplorerContents) window.renderExplorerContents();
     });
 
     btnDesktopExit.addEventListener('click', () => {
