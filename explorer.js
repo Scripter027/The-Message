@@ -46,6 +46,7 @@
             infoEl.style.gap = '15px';
             infoEl.style.color = '#00ff66';
             infoEl.style.cursor = 'pointer';
+            infoEl.style.flex = '1';
 
             const iconEl = document.createElement('span');
             iconEl.textContent = appData.icon;
@@ -75,7 +76,8 @@
                 deleteBtn.style.fontSize = '0.8rem';
                 deleteBtn.textContent = lang === 'ru' ? 'Удалить' : 'Delete';
 
-                deleteBtn.addEventListener('click', () => {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     if (window.moveAppToTrash) {
                         window.moveAppToTrash(appId);
                     }
