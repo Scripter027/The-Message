@@ -6,6 +6,34 @@
     let lastClickTime = 0;
     let lastClickTarget = null;
 
+    const cellWidth = 90;
+    const cellHeight = 90;
+    const margin = 20;
+
+    function findFreeGridPosition() {
+        const parentRect = desktopMain.getBoundingClientRect();
+        const cols = Math.floor((parentRect.width - margin) / cellWidth);
+        const rows = Math.floor((parentRect.height - margin - 45) / cellHeight);
+        
+        const takenPositions = Object.values(window.AppConfig.state.positions);
+
+        for (let c = 0; c < cols; c++) {
+            for (let r = 0; r < rows; r++) {
+                const checkLeft = c * cellWidth + margin;
+                const checkTop = r * cellHeight + margin;
+                
+                const isTaken = takenPositions.some(pos => {
+                    return Math.abs(pos.left - checkLeft) < 10 && Math.abs(pos.top - checkTop) < 10;
+                });
+
+                if (!isTaken) {
+                    return { left: checkLeft, top: checkTop };
+                }
+            }
+        }
+        return { left: margin, top: margin };
+    }
+
     window.renderDesktopIcons = function() {
         document.querySelectorAll(".desktop-icon").forEach(el => el.remove());
         const lang = document.documentElement.lang || "ru";
@@ -21,15 +49,15 @@
             iconEl.setAttribute("data-app-id", appId);
             iconEl.style.position = "absolute";
             
-            const savedPos = window.AppConfig.state.positions[appId];
-            if (savedPos) {
-                iconEl.style.left = savedPos.left + "px";
-                iconEl.style.top = savedPos.top + "px";
-            } else {
-                const index = window.AppConfig.state.installed.indexOf(appId);
-                iconEl.style.left = "30px";
-                iconEl.style.top = (30 + index * 100) + "px";
+            let savedPos = window.AppConfig.state.positions[appId];
+            if (!savedPos) {
+                savedPos = findFreeGridPosition();
+                window.AppConfig.state.positions[appId] = savedPos;
+                window.AppConfig.save();
             }
+
+            iconEl.style.left = savedPos.left + "px";
+            iconEl.style.top = savedPos.top + "px";
 
             const visualEl = document.createElement("div");
             visualEl.classList.add("icon-visual");
@@ -51,7 +79,6 @@
         el.addEventListener("mousedown", (e) => {
             draggedElement = el;
             const rect = el.getBoundingClientRect();
-            const parentRect = desktopMain.getBoundingClientRect();
             offsetX = e.clientX - rect.left;
             offsetY = e.clientY - rect.top;
             el.style.zIndex = 1000;
@@ -88,8 +115,12 @@
         let left = parseInt(draggedElement.style.left);
         let top = parseInt(draggedElement.style.top);
         
-        left = Math.round(left / 90) * 90 + 20;
-        top = Math.round(top / 90) * 90 + 20;
+        left = Math.round((left - margin) / cellWidth) * cellWidth + margin;
+        top = Math.round((top - margin) / cellHeight) * cellHeight + margin;
+
+        const parentRect = desktopMain.getBoundingClientRect();
+        left = Math.max(margin, Math.min(left, parentRect.width - draggedElement.offsetWidth));
+        top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
 
         draggedElement.style.left = left + "px";
         draggedElement.style.top = top + "px";
@@ -109,12 +140,13 @@
     };
 
     document.addEventListener("DOMContentLoaded", () => {
+        const desktopEnv = document.getElementById("desktopEnv");
         const observer = new MutationObserver(() => {
-            if (!document.getElementById("desktopEnv").classList.contains("hidden")) {
+            if (!desktopEnv.classList.contains("hidden")) {
                 window.renderDesktopIcons();
                 observer.disconnect();
             }
         });
-        observer.observe(document.getElementById("desktopEnv"), { attributes: true, attributeFilter: ["class"] });
+        observer.observe(desktopEnv, { attributes: true, attributeFilter: ["class"] });
     });
 })();
