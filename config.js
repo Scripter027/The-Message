@@ -25,6 +25,12 @@ window.AppConfig = {
         } else {
             this.save();
         }
+    },
+    resetToDesktopDefault: function() {
+        this.state.installed = ["trash", "explorer", "store"];
+        this.state.positions = {};
+        this.state.trashContents = [];
+        this.save();
     }
 };
 window.AppConfig.load();
