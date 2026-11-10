@@ -822,3 +822,137 @@ body.gfx-high .menu-logo {
         letter-spacing: 1px;
     }
 }
+
+#hackerOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Russo One', sans-serif;
+    color: #ff3333;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.hacker-bg-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle, rgba(30, 0, 0, 0.5) 0%, rgba(0, 0, 0, 1) 85%);
+}
+
+.hacker-noise {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) 1px, transparent 1px, transparent 2px);
+    opacity: 0.5;
+    animation: h-noise 0.15s infinite;
+}
+
+@keyframes h-noise {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(2px); }
+}
+
+.hacker-silhouette {
+    width: 260px;
+    height: 260px;
+    background: currentColor;
+    color: #1a0000;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 25px;
+    clip-path: polygon(50% 5%, 75% 18%, 85% 42%, 80% 75%, 70% 92%, 30% 92%, 20% 75%, 15% 42%, 25% 18%);
+    box-shadow: 0 0 35px rgba(255, 51, 51, 0.3);
+    border: 1px solid #ff3333;
+    animation: h-glitch 2.5s infinite alternate;
+}
+
+.hacker-silhouette::before {
+    content: '';
+    position: absolute;
+    top: 14%;
+    left: 18%;
+    width: 64%;
+    height: 68%;
+    background: #000;
+    clip-path: polygon(50% 8%, 88% 32%, 82% 92%, 18% 92%, 12% 32%);
+}
+
+@keyframes h-glitch {
+    0% { transform: translate(0) scale(1); filter: blur(0); }
+    88% { transform: translate(0) scale(1); filter: blur(0); }
+    90% { transform: translate(-6px, 3px) scale(1.03); filter: blur(1px); opacity: 0.85; }
+    93% { transform: translate(5px, -4px) scale(0.97); filter: blur(0); opacity: 0.9; }
+    97% { transform: translate(-3px, -2px) scale(1.02); filter: blur(2px); }
+    100% { transform: translate(0) scale(1); filter: blur(0); }
+}
+
+.hacker-text-container {
+    z-index: 2;
+    text-align: center;
+    max-width: 650px;
+    margin-bottom: 35px;
+    padding: 0 15px;
+}
+
+.hacker-msg {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255, 51, 51, 0.7);
+    color: #ff3333 !important;
+}
+
+@media (min-width: 768px) {
+    .hacker-silhouette { width: 320px; height: 320px; }
+    .hacker-msg { font-size: 1.25rem; }
+}
+
+.hacker-options-zone {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    padding: 0 15px;
+}
+
+.hacker-btn {
+    background: rgba(20, 0, 0, 0.6) !important;
+    border: 2px solid #ff3333 !important;
+    color: #ff3333 !important;
+    padding: 12px 20px !important;
+    font-family: 'Russo One', sans-serif !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-align: left !important;
+    box-shadow: 0 0 5px rgba(255, 51, 51, 0.2) !important;
+}
+
+.hacker-btn:hover {
+    background: #ff3333 !important;
+    color: #000 !important;
+    box-shadow: 0 0 20px #ff3333 !important;
+}
+
+.hacker-btn:active {
+    transform: scale(0.97) !important;
+}
