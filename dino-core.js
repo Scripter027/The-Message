@@ -8,8 +8,8 @@ window.initDinoGame = function() {
     let highscore = localStorage.getItem('kpr_dino_highscore') || 0;
     
     let gameSpeed = 300;
-    let speedIncrement = 10;
-    let dino = { x: 40, y: 115, w: 22, h: 30, vy: 0, gravity: 35, jumpForce: -630, isGrounded: true, animFrame: 0 };
+    let speedIncrement = 8;
+    let dino = { x: 40, y: 115, w: 18, h: 26, vy: 0, gravity: 38, jumpForce: -650, isGrounded: true, animFrame: 0, coyoteTimer: 0 };
     let obstacles = [];
     let lastTime = 0;
 
@@ -30,20 +30,20 @@ window.initDinoGame = function() {
     }
 
     function spawnObstacle() {
-        let minGap = 180 + ((gameSpeed / 60) * 12);
-        let maxGap = 350 + ((gameSpeed / 60) * 20);
+        let minGap = 200 + ((gameSpeed / 60) * 10);
+        let maxGap = 360 + ((gameSpeed / 60) * 18);
         let randomGap = Math.random() * (maxGap - minGap) + minGap;
         let lastObstacle = obstacles[obstacles.length - 1];
         let startX = lastObstacle ? lastObstacle.x + randomGap : canvas.width + 50;
         
         let randType = Math.random();
-        if (score > 150 && randType < 0.3) {
-            let birdY = Math.random() > 0.5 ? 85 : 110;
-            obstacles.push({ x: startX, y: birdY, w: 20, h: 14, type: 'bird', frame: 0 });
+        if (score > 150 && randType < 0.25) {
+            let birdY = Math.random() > 0.5 ? 90 : 112;
+            obstacles.push({ x: startX, y: birdY, w: 16, h: 10, type: 'bird', frame: 0 });
         } else if (randType < 0.65) {
-            obstacles.push({ x: startX, y: 115, w: 12, h: 30, type: 'cactus_small' });
+            obstacles.push({ x: startX, y: 115, w: 10, h: 24, type: 'cactus_small' });
         } else {
-            obstacles.push({ x: startX, y: 110, w: 24, h: 35, type: 'cactus_large' });
+            obstacles.push({ x: startX, y: 110, w: 20, h: 30, type: 'cactus_large' });
         }
     }
     function resetGame() {
@@ -53,6 +53,7 @@ window.initDinoGame = function() {
         dino.y = 115;
         dino.vy = 0;
         dino.isGrounded = true;
+        dino.coyoteTimer = 0;
         isPlaying = true;
         lastTime = performance.now();
         if (overBox) overBox.innerHTML = '';
@@ -65,9 +66,10 @@ window.initDinoGame = function() {
             resetGame();
             return;
         }
-        if (dino.isGrounded) {
+        if (dino.isGrounded || dino.coyoteTimer > 0) {
             dino.vy = dino.jumpForce;
             dino.isGrounded = false;
+            dino.coyoteTimer = 0;
         }
     }
     window.triggerDinoJump = jump;
@@ -90,7 +92,7 @@ window.initDinoGame = function() {
         if (!isPlaying) return;
         
         gameSpeed += speedIncrement * dt;
-        score += 9 * dt;
+        score += 10 * dt;
         
         if (score >= 301) {
             isPlaying = false;
@@ -109,10 +111,16 @@ window.initDinoGame = function() {
             dino.y = 115;
             dino.vy = 0;
             dino.isGrounded = true;
+            dino.coyoteTimer = 0;
+        } else {
+            if (dino.isGrounded) {
+                dino.coyoteTimer = 0.1;
+            }
+            dino.coyoteTimer -= dt;
         }
 
         if (dino.isGrounded) {
-            dino.animFrame += 9 * dt;
+            dino.animFrame += 12 * dt;
         }
 
         if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width) {
@@ -121,7 +129,7 @@ window.initDinoGame = function() {
         for (let i = obstacles.length - 1; i >= 0; i--) {
             let o = obstacles[i];
             o.x -= gameSpeed * dt;
-            if (o.type === 'bird') o.frame += 6 * dt;
+            if (o.type === 'bird') o.frame += 8 * dt;
 
             if (o.x + o.w < 0) {
                 obstacles.splice(i, 1);
@@ -135,7 +143,7 @@ window.initDinoGame = function() {
                     localStorage.setItem('kpr_dino_highscore', highscore);
                 }
                 if (overBox) {
-                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px;">${getLang() === 'ru' ? 'СИСТЕМА СБОЯ! НАЖМИТЕ ДЛЯ СТАРТА' : 'SYSTEM CRASH! CLICK TO REBOOT'}</span>`;
+                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px; font-family:Russo One;">${getLang() === 'ru' ? 'СИСТЕМА СБОЯ! НАЖМИТЕ ДЛЯ СТАРТА' : 'SYSTEM CRASH! CLICK TO REBOOT'}</span>`;
                 }
             }
         }
