@@ -4,7 +4,8 @@ window.AppConfig = {
         explorer: { id: "explorer", nameRu: "Проводник", nameEn: "File Explorer", icon: "📁", type: "system" },
         store: { id: "store", nameRu: "Магазин", nameEn: "App Store", icon: "🏪", type: "system" },
         tetris: { id: "tetris", nameRu: "Тетрис", nameEn: "Tetris", icon: "🧱", type: "game" },
-        dino: { id: "dino", nameRu: "Динозаврик", nameEn: "Dino Game", icon: "🦖", type: "game" }
+        dino: { id: "dino", nameRu: "Динозаврик", nameEn: "Dino Game", icon: "🦖", type: "game" },
+        messenger: { id: "messenger", nameRu: "Mess", nameEn: "Mess", icon: "💬", type: "system" }
     },
     state: {
         installed: ["trash", "explorer", "store"],
@@ -31,6 +32,14 @@ window.AppConfig = {
         this.state.positions = {};
         this.state.trashContents = [];
         this.save();
+    },
+    setupChapterOneMode: function() {
+        this.state.installed = ["messenger", "store"];
+        this.state.positions = {
+            "messenger": { left: 20, top: 20 },
+            "store": { left: 20, top: 110 }
+        };
+        this.state.trashContents = [];
     }
 };
 window.AppConfig.load();
