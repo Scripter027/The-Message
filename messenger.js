@@ -25,7 +25,6 @@
                 createMessWindow();
                 createDinoGameWindow();
                 createHackerOverlay();
-                createFailOverlay();
                 setTimeout(() => {
                     showMessNotification("Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?");
                 }, 1500);
@@ -312,44 +311,11 @@
         parent.appendChild(btn);
     }
 
-    function createFailOverlay() {
-        if (document.getElementById("failOverlay")) return;
-        const overlay = document.createElement("div");
-        overlay.id = "failOverlay";
-        overlay.style.position = "fixed", overlay.style.top = "0", overlay.style.left = "0", overlay.style.width = "100%", overlay.style.height = "100%";
-        overlay.style.background = "#000", overlay.style.zIndex = "20000", overlay.style.display = "none", overlay.style.flexDirection = "column";
-        overlay.style.alignItems = "center", overlay.style.justifyContent = "center", overlay.style.gap = "20px", overlay.style.fontFamily = "Russo One, sans-serif";
-        
-        overlay.innerHTML = `
-            <div id="failReasonText" style="color:#ff3333; font-size:1.3rem; text-align:center; max-width:500px; margin-bottom:20px; text-shadow:0 0 8px #ff3333;"></div>
-            <button id="btnRetryChapter" class="menu-btn" style="border-color:#00ff66; color:#00ff66; box-shadow:0 0 8px rgba(0,255,102,0.3);">Переиграть</button>
-            <button id="btnGoToMainMenu" class="menu-btn" style="border-color:#ff3333; color:#ff3333; box-shadow:0 0 8px rgba(255,51,51,0.3);">Главное меню</button>
-        `;
-        document.body.appendChild(overlay);
-
-        document.getElementById("btnRetryChapter").addEventListener("click", () => {
-            overlay.style.display = "none";
-            if (window.AppConfig) window.AppConfig.setupChapterOneMode();
-            currentStage = "start", selectedUser = null;
-            const env = document.getElementById("desktopEnv");
-            if (env) { env.style.display = "flex"; env.style.filter = "none"; }
-            window.initChapterOne();
-        });
-
-        document.getElementById("btnGoToMainMenu").addEventListener("click", () => {
-            overlay.style.display = "none";
-            if (window.AppConfig) window.AppConfig.resetToDesktopDefault();
-            location.reload();
-        });
-    }
-
     function triggerFail(text) {
         const env = document.getElementById("desktopEnv");
         if (env) env.style.display = "none";
-        const overlay = document.getElementById("failOverlay");
-        if (overlay) {
-            document.getElementById("failReasonText").textContent = text + " (Провал главы!)";
-            overlay.style.display = "flex";
+        if (window.triggerGameOverScreen) {
+            window.triggerGameOverScreen(text);
         }
     }
 })();
