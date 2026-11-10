@@ -2,13 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>The Message</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-desktop.css">
 </head>
 <body>
 
@@ -67,7 +66,6 @@
 
         <div class="side-panel hidden" id="panelSettings">
             <h2 class="panel-title" data-lang="settings_title">Настройки</h2>
-            
             <div class="setting-row">
                 <span class="setting-label" data-lang="graphics">Графика:</span>
                 <div class="setting-options">
@@ -76,7 +74,6 @@
                     <button class="select-btn" data-lang="graphics_high">Высокая</button>
                 </div>
             </div>
-
             <div class="setting-row">
                 <span class="setting-label" data-lang="language">Язык:</span>
                 <div class="setting-options">
@@ -84,14 +81,11 @@
                     <button class="select-btn" id="langEn">English</button>
                 </div>
             </div>
-
             <div class="setting-row">
                 <button class="action-btn text-danger" id="btnClearData" data-lang="clear_data">Стереть все данные</button>
             </div>
-
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
-
         <div class="side-panel hidden" id="panelStart">
             <h2 class="panel-title" data-lang="chapters_title">Главы</h2>
             <div class="chapters-grid">
@@ -124,12 +118,12 @@
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
     </div>
+
     <div class="desktop-environment hidden" id="desktopEnv">
         <div class="tv-effects">
             <div class="scanlines"></div>
             <div class="flicker"></div>
         </div>
-        
         <div class="desktop-main">
             <div class="desktop-window hidden" id="desktopSettingsWindow">
                 <div class="window-header">
@@ -157,7 +151,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="desktop-window hidden" id="windowTrash">
                 <div class="window-header">
                     <span class="window-title" id="titleTrash">Корзина</span>
@@ -168,7 +161,6 @@
                     <button class="action-btn text-danger" id="btnClearTrash">Очистить корзину</button>
                 </div>
             </div>
-
             <div class="desktop-window hidden" id="windowExplorer">
                 <div class="window-header">
                     <span class="window-title" id="titleExplorer">Проводник</span>
@@ -178,7 +170,6 @@
                     <div id="explorerContainer" class="app-list-container"></div>
                 </div>
             </div>
-
             <div class="desktop-window hidden" id="windowStore">
                 <div class="window-header">
                     <span class="window-title" id="titleStore">Магазин</span>
@@ -189,7 +180,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="taskbar">
             <div class="taskbar-left"></div>
             <div class="taskbar-right">
@@ -208,7 +198,6 @@
     <script src="explorer.js"></script>
     <script src="store.js"></script>
     <script src="script.js"></script>
-    <script src="menu.js"></script>
     <script src="window-manager.js"></script>
 </body>
 </html>
