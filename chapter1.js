@@ -25,12 +25,22 @@
                 window.AppConfig.save();
             }
         }
-        createMessengerWindow();
-        createHackerOverlay();
-        createDinoWindow();
-        setTimeout(() => {
-            showNotification("Бро", "Хей, Айв! Как дела?");
-        }, 3000);
+        
+        const checkVisible = () => {
+            const mainZone = document.querySelector(".desktop-main");
+            if (mainZone && mainZone.clientWidth > 0) {
+                createMessengerWindow();
+                createHackerOverlay();
+                createDinoWindow();
+                if (window.renderDesktopIcons) window.renderDesktopIcons();
+                setTimeout(() => {
+                    showNotification("Бро", "Хей, Айв! Как дела?");
+                }, 1500);
+            } else {
+                setTimeout(checkVisible, 200);
+            }
+        };
+        checkVisible();
     };
 
     function showNotification(from, text) {
@@ -45,6 +55,7 @@
         notify.style.fontFamily = "Russo One, sans-serif";
         notify.style.zIndex = "9999";
         notify.style.cursor = "pointer";
+        notify.style.boxShadow = "0 0 10px #00ff66";
         notify.textContent = `${from}: ${text}`;
         notify.addEventListener("click", () => {
             notify.remove();
@@ -57,6 +68,8 @@
     function createMessengerWindow() {
         if (document.getElementById("windowMessenger")) return;
         const mainZone = document.querySelector(".desktop-main");
+        if (!mainZone) return;
+        
         const win = document.createElement("div");
         win.id = "windowMessenger";
         win.classList.add("desktop-window", "hidden");
@@ -87,6 +100,8 @@
     function createDinoWindow() {
         if (document.getElementById("windowDino")) return;
         const mainZone = document.querySelector(".desktop-main");
+        if (!mainZone) return;
+        
         const win = document.createElement("div");
         win.id = "windowDino";
         win.classList.add("desktop-window", "hidden");
@@ -150,8 +165,6 @@
                         win.classList.remove("hidden");
                         if (window.bringToFront) window.bringToFront(win);
                     }
-                } else {
-                    alert("Приложение не установлено!");
                 }
                 return;
             }
@@ -162,6 +175,7 @@
     function renderMessenger() {
         const userList = document.getElementById("messUserList");
         const chatZone = document.getElementById("messChatZone");
+        if (!userList || !chatZone) return;
         userList.innerHTML = "";
         
         const userItem = document.createElement("div");
@@ -292,7 +306,7 @@
         setTimeout(() => {
             env.style.display = "none";
             const overlay = document.getElementById("hackerOverlay");
-            overlay.style.display = "flex";
+            if (overlay) overlay.style.display = "flex";
             runHackerDialog("start");
         }, 1500);
     }
@@ -313,6 +327,7 @@
     function runHackerDialog(node) {
         const msgEl = document.querySelector(".hacker-msg");
         const optZone = document.querySelector(".hacker-options-zone");
+        if (!msgEl || !optZone) return;
         msgEl.textContent = "";
         optZone.innerHTML = "";
 
