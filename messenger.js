@@ -1,10 +1,6 @@
 (function() {
     let currentStage = "start";
     let selectedUser = null;
-    let dinoScore = 0;
-    let dinoGameInterval = null;
-    let dinoObstacles = [];
-    let isDinoJumping = false;
 
     const storyState = {
         dinoDownloaded: false,
@@ -61,6 +57,7 @@
         document.body.appendChild(notify);
         setTimeout(() => { if (notify.parentNode) notify.remove(); }, 6000);
     }
+
     function createMessWindow() {
         if (document.getElementById("windowMessenger")) return;
         const mainZone = document.querySelector(".desktop-main");
@@ -91,7 +88,6 @@
             win.addEventListener("touchstart", () => window.bringToFront(win), {passive:true});
         }
     }
-
     window.openApplicationWindow = (originalOpen => {
         return function(appId) {
             if (appId === "messenger") {
@@ -109,7 +105,7 @@
                     if (win) {
                         win.classList.remove("hidden");
                         if (window.bringToFront) window.bringToFront(win);
-                        startDinoGameLoop();
+                        if (window.initDinoGame) window.initDinoGame();
                     }
                 }
                 return;
@@ -163,6 +159,7 @@
             renderHackerChat(chatZone);
         }
     }
+
     function renderBroChat(zone) {
         zone.innerHTML = `
             <div style="padding:10px; border-bottom:1px solid rgba(0,255,102,0.2); color:#00ff66; font-weight:bold; text-shadow:0 0 3px #00ff66;">Бро [В сети]</div>
@@ -235,7 +232,6 @@
         if (window.AppConfig) window.AppConfig.setupChapterOneMode();
         location.reload();
     }
-
     function createDinoGameWindow() {
         if (document.getElementById("windowDino")) return;
         const mainZone = document.querySelector(".desktop-main");
@@ -243,109 +239,30 @@
         win.id = "windowDino";
         win.classList.add("desktop-window", "hidden");
         win.style.width = "480px";
-        win.style.height = "320px";
+        win.style.height = "250px";
 
         win.innerHTML = `
             <div class="window-header">
                 <span class="window-title">Dino Game</span>
                 <button class="window-close-btn" id="btnCloseDino">X</button>
             </div>
-            <div class="window-content" style="padding:10px; background:#000; overflow:hidden; position:relative; justify-content:flex-start;">
-                <div id="dinoScore" style="color:#00ff66; font-size:1rem; position:absolute; top:10px; right:15px; font-family:Russo One;">Счет: 0 / 2001</div>
-                <div id="dinoGameArea" style="width:100%; height:180px; border-bottom:2px solid #00ff66; position:relative; margin-top:30px; overflow:hidden;">
-                    <div id="dinoAvatar" style="position:absolute; bottom:0; left:30px; font-size:1.8rem; line-height:1; transition: bottom 0.08s ease;">🦖</div>
-                </div>
-                <div style="color:rgba(0,255,102,0.6); font-size:0.75rem; text-align:center; margin-top:10px;">Нажимайте ПРОБЕЛ или КЛИКАЙТЕ по окну, чтобы прыгать!</div>
+            <div class="window-content" style="padding:8px; background:#000; overflow:hidden; position:relative;">
+                <canvas id="dinoCanvas" style="display:block; width:100%; height:150px; background:#000;"></canvas>
+                <div id="dino-over-box" style="text-align:center; margin-top:5px; font-family:Russo One; min-height:18px;"></div>
             </div>
         `;
         mainZone.appendChild(win);
         document.getElementById("btnCloseDino").addEventListener("click", () => {
             win.classList.add("hidden");
-            clearInterval(dinoGameInterval);
-        });
-
-        const triggerJump = () => {
-            if (isDinoJumping) return;
-            isDinoJumping = true;
-            let currentY = 0;
-            let upInterval = setInterval(() => {
-                currentY += 10;
-                document.getElementById("dinoAvatar").style.bottom = currentY + "px";
-                if (currentY >= 100) {
-                    clearInterval(upInterval);
-                    setTimeout(() => {
-                        let downInterval = setInterval(() => {
-                            currentY -= 10;
-                            document.getElementById("dinoAvatar").style.bottom = currentY + "px";
-                            if (currentY <= 0) {
-                                clearInterval(downInterval);
-                                isDinoJumping = false;
-                            }
-                        }, 15);
-                    }, 40);
-                }
-            }, 12);
-        };
-
-        win.addEventListener("mousedown", triggerJump);
-        window.addEventListener("keydown", (e) => {
-            if (e.code === "Space" && !win.classList.contains("hidden")) {
-                e.preventDefault();
-                triggerJump();
-            }
         });
     }
-    function startDinoGameLoop() {
-        dinoScore = 0;
-        dinoObstacles = [];
-        const area = document.getElementById("dinoGameArea");
-        clearInterval(dinoGameInterval);
 
-        dinoGameInterval = setInterval(() => {
-            if (storyState.dinoScoreBeaten) {
-                clearInterval(dinoGameInterval);
-                return;
-            }
-
-            dinoScore += 5;
-            document.getElementById("dinoScore").textContent = `Счет: ${dinoScore} / 2001`;
-
-            if (dinoScore >= 2001) {
-                clearInterval(dinoGameInterval);
-                storyState.dinoScoreBeaten = true;
-                selectedUser = "hacker";
-                document.getElementById("windowDino").classList.add("hidden");
-                renderMess();
-                showMessNotification("???", "Хочешь побольше новых игр? Кликай сюда: *ссылка*");
-                return;
-            }
-
-            if (Math.random() < 0.03 && dinoObstacles.length === 0) {
-                const cactus = document.createElement("div");
-                cactus.style.position = "absolute";
-                cactus.style.bottom = "0";
-                cactus.style.right = "0";
-                cactus.style.fontSize = "1.3rem";
-                cactus.textContent = "🌵";
-                area.appendChild(cactus);
-                dinoObstacles.push({ el: cactus, x: 440 });
-            }
-
-            dinoObstacles.forEach((obs, index) => {
-                obs.x -= 8;
-                obs.el.style.transform = `translateX(${obs.x - 440}px)`;
-
-                if (obs.x < 70 && obs.x > 30 && !isDinoJumping) {
-                    dinoScore = 0;
-                    obs.el.remove();
-                    dinoObstacles.splice(index, 1);
-                } else if (obs.x < 0) {
-                    obs.el.remove();
-                    dinoObstacles.splice(index, 1);
-                }
-            });
-        }, 30);
-    }
+    window.triggerDinoScoreBeaten = function() {
+        storyState.dinoScoreBeaten = true;
+        selectedUser = "hacker";
+        renderMess();
+        showMessNotification("???", "Хочешь побольше новых игр? Кликай сюда: *ссылка*");
+    };
 
     function renderHackerChat(zone) {
         zone.innerHTML = `
