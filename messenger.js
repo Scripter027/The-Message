@@ -173,7 +173,7 @@
             appendMessLog(msgContainer, "Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?", false);
             createMessOption(optContainer, "1. Отвали", () => triggerFail("Бро обиделся и перестал писать. Вы остались делать уроки."));
             createMessOption(optContainer, "2. Да, а что?", () => { currentStage = "bro_dino"; renderMess(); });
-            createMessOption(optContainer, "3. Ты кто?", () => triggerFail("Бро подумал, что вы сошли с ума, и заблокировал вас."));
+            createMessOption(optContainer, "3. Ты кто?", () => triggerFail("Бро подумал, что вы сошли с ума, and заблокировал вас."));
         } else if (currentStage === "bro_dino") {
             appendMessLog(msgContainer, "Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?", false);
             appendMessLog(msgContainer, "Вы", "Да, а что?", true);
@@ -183,7 +183,7 @@
             createMessOption(optContainer, "3. Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", () => { currentStage = "bro_record"; renderMess(); });
         } else if (currentStage === "bro_record") {
             appendMessLog(msgContainer, "Вы", "Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", true);
-            appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 2000! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false);
+            appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 300! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false);
             if (!storyState.dinoDownloaded) {
                 const hint = document.createElement("div");
                 hint.style.color = "#ffaa00";
