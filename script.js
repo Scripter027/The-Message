@@ -145,12 +145,14 @@ function transitionToMenu() {
 }
 
 function unlockFirstChapterButton() {
-    const chapters = panelStart.querySelectorAll(".chapter-btn");
-    if (chapters.length > 0) {
-        const ch1 = chapters[0];
-        ch1.classList.remove("locked");
-        const lockIcon = ch1.querySelector(".lock-icon");
-        const comingSoon = ch1.querySelector(".coming-soon");
+    const grid = panelStart.querySelector(".chapters-grid");
+    if (!grid) return;
+    const firstBtn = grid.querySelector("button");
+    if (firstBtn) {
+        firstBtn.classList.remove("locked");
+        firstBtn.classList.add("chapter-btn-active");
+        const lockIcon = firstBtn.querySelector(".lock-icon");
+        const comingSoon = firstBtn.querySelector(".coming-soon");
         if (lockIcon) lockIcon.remove();
         if (comingSoon) comingSoon.remove();
     }
@@ -220,34 +222,32 @@ function launchChapterOneProcess() {
 
 document.addEventListener('click', function(e) {
     const target = e.target;
+    const btn = target.closest("button");
     
     if (target === startPrompt || startPrompt.contains(target)) {
         initGameLaunch();
         return;
     }
     
-    if (target.id === 'btnSettings') {
+    if (btn && btn.id === 'btnSettings') {
         settingsContext = 'menu';
-        openPanel(target, panelSettings);
+        openPanel(btn, panelSettings);
         return;
     }
     
-    if (target.id === 'btnStart') {
+    if (btn && btn.id === 'btnStart') {
         settingsContext = 'menu';
-        openPanel(target, panelStart);
+        openPanel(btn, panelStart);
         return;
     }
     
-    if (target.classList.contains('chapter-btn') && !target.classList.contains('locked')) {
-        const spanText = target.querySelector('[data-lang]');
-        if (spanText && (spanText.getAttribute('data-lang') === 'ch1' || spanText.textContent.includes('1'))) {
-            closeAllPanels();
-            launchChapterOneProcess();
-            return;
-        }
+    if (btn && btn.classList.contains('chapter-btn-active')) {
+        closeAllPanels();
+        launchChapterOneProcess();
+        return;
     }
     
-    if (target.id === 'btnCredits') {
+    if (btn && btn.id === 'btnCredits') {
         creditsOverlay.classList.remove('hidden');
         setTimeout(() => creditsOverlay.classList.add('visible'), 50);
         setTimeout(() => {
@@ -257,7 +257,7 @@ document.addEventListener('click', function(e) {
         return;
     }
     
-    if (target.id === 'btnFree') {
+    if (btn && btn.id === 'btnFree') {
         mainMenu.classList.remove('visible');
         setTimeout(() => {
             mainMenu.classList.add('hidden');
@@ -272,32 +272,32 @@ document.addEventListener('click', function(e) {
         return;
     }
     
-    if (target.classList.contains('back-btn')) {
+    if (btn && btn.classList.contains('back-btn')) {
         closeAllPanels();
         return;
     }
     
-    if (target.classList.contains('select-btn') && !target.hasAttribute('data-gfx') && target.id !== 'desktopLangRu' && target.id !== 'desktopLangEn') {
-        const siblings = target.parentElement.querySelectorAll('.select-btn');
+    if (btn && btn.classList.contains('select-btn') && !btn.hasAttribute('data-gfx') && btn.id !== 'desktopLangRu' && btn.id !== 'desktopLangEn') {
+        const siblings = btn.parentElement.querySelectorAll('.select-btn');
         siblings.forEach(s => s.classList.remove('active'));
-        target.classList.add('active');
+        btn.classList.add('active');
         
-        if (target.id === 'langRu') { switchLanguage('ru'); return; }
-        if (target.id === 'langEn') { switchLanguage('en'); return; }
+        if (btn.id === 'langRu') { switchLanguage('ru'); return; }
+        if (btn.id === 'langEn') { switchLanguage('en'); return; }
         
-        const text = target.getAttribute('data-lang') || target.textContent.toLowerCase();
+        const text = btn.getAttribute('data-lang') || btn.textContent.toLowerCase();
         if (text.includes('low') || text.includes('низк')) updateGraphics('low');
         if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
         if (text.includes('high') || text.includes('выс')) updateGraphics('high');
         return;
     }
     
-    if (target.id === 'btnClearData') {
+    if (btn && btn.id === 'btnClearData') {
         location.reload();
         return;
     }
     
-    if (target.id === 'btnNews') {
+    if (btn && btn.id === 'btnNews') {
         alert("Новости: Разработка игры «The Message» идет полным ходом!");
         return;
     }
