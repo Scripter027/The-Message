@@ -92,9 +92,8 @@ window.initDinoGame = function() {
         gameSpeed += speedIncrement * dt;
         score += 9 * dt;
         
-        if (score >= 2001) {
+        if (score >= 301) {
             isPlaying = false;
-            clearInterval(window.dinoGameInterval);
             const win = document.getElementById('windowDino');
             if (win) win.classList.add('hidden');
             if (window.triggerDinoScoreBeaten) {
