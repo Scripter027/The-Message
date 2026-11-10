@@ -170,27 +170,21 @@ video {
     flex-direction: column;
     align-items: center;
     transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    width: 100%;
-    padding: 20px;
 }
 
-@media (min-width: 1024px) {
-    .menu-content.shifted {
-        transform: translateX(-25%);
-    }
+.menu-content.shifted {
+    transform: translateX(-25%);
 }
 
 .logo-wrapper {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
     pointer-events: none !important;
-    width: 100%;
 }
 
 .menu-logo {
-    width: 80%;
     max-width: 420px;
     height: auto;
     display: block;
@@ -203,10 +197,9 @@ video {
 .buttons-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
     align-items: center;
     transition: opacity 0.3s ease;
-    width: 100%;
 }
 
 .menu-btn {
@@ -214,13 +207,12 @@ video {
     border: 3px solid #00ff66;
     border-radius: 0 !important;
     color: #00ff66;
-    padding: 10px 20px;
-    font-size: 1.1rem;
+    padding: 10px 40px;
+    font-size: 1.3rem;
     font-family: 'Russo One', sans-serif;
     cursor: pointer;
     text-transform: uppercase;
-    width: 85%;
-    max-width: 260px;
+    width: 260px;
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
@@ -255,55 +247,65 @@ video {
 }
 
 .side-panel {
-    position: fixed;
+    position: absolute;
     right: -100%;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(5, 15, 5, 0.98);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 500px;
+    background: rgba(5, 15, 5, 0.95);
     border: 3px solid #00ff66;
-    padding: 30px 20px;
+    padding: 40px;
     box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
     z-index: 30;
-    transition: right 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+    transition: right 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
     opacity: 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
     pointer-events: none !important;
-    justify-content: center;
-}
-
-@media (min-width: 480px) {
-    .side-panel {
-        width: 440px;
-    }
-}
-
-@media (min-width: 1024px) {
-    .side-panel {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        height: auto;
-        width: 500px;
-        justify-content: flex-start;
-        gap: 30px;
-    }
-    .side-panel.visible {
-        right: 8%;
-    }
 }
 
 .side-panel.visible {
-    right: 0;
+    right: 8%;
     opacity: 1;
     pointer-events: auto !important;
+}
+
+.side-panel.hidden {
+    display: none !important;
+}
+
+@media (max-width: 1023px) {
+    .menu-content.shifted {
+        transform: none;
+    }
+    .side-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: auto;
+        transform: none;
+        width: 100%;
+        height: 100%;
+        background: rgba(3, 8, 3, 0.98);
+        border: none;
+        justify-content: center;
+        padding: 20px;
+    }
+    .side-panel.visible {
+        right: auto;
+        left: 0;
+    }
+    .menu-btn, .select-btn, .action-btn, .setting-options {
+        width: 100% !important;
+        max-width: 280px !important;
+        margin: 0 auto;
+    }
 }
 .panel-title {
     color: #00ff66;
     text-transform: uppercase;
-    font-size: 1.8rem;
+    font-size: 2rem;
     letter-spacing: 2px;
     text-shadow: 0 0 10px #00ff66;
     border-bottom: 2px solid #00ff66;
@@ -315,13 +317,13 @@ video {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
 }
 
 .setting-label {
     color: #00ff66;
     font-size: 1.1rem;
     text-transform: uppercase;
+    text-align: center;
 }
 
 .setting-options {
@@ -378,7 +380,7 @@ video {
     flex-direction: column;
     gap: 12px;
     width: 100%;
-    max-height: 45vh;
+    max-height: 320px;
     overflow-y: auto;
     padding-right: 5px;
 }
