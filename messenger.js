@@ -270,7 +270,17 @@
         if (document.getElementById("hackerOverlay")) return;
         const overlay = document.createElement("div");
         overlay.id = "hackerOverlay";
-        overlay.innerHTML = `<div class="hacker-bg-effects"><div class="hacker-noise"></div></div><div class="hacker-silhouette"></div><div class="hacker-text-container"><div class="hacker-msg"></div></div><div class="hacker-options-zone"></div>`;
+        overlay.innerHTML = `
+            <div class="hacker-bg-effects"><div class="hacker-noise"></div></div>
+            <div class="hacker-silhouette">
+                <div class="hacker-eyes-container">
+                    <div class="hacker-left-eye"></div>
+                    <div class="hacker-right-eye"></div>
+                </div>
+            </div>
+            <div class="hacker-text-container"><div class="hacker-msg"></div></div>
+            <div class="hacker-options-zone"></div>
+        `;
         document.body.appendChild(overlay);
     }
 
