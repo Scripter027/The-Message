@@ -58,12 +58,6 @@ const translations = {
     }
 };
 
-const graphicsLevels = ['low', 'medium', 'high'];
-const languages = ['ru', 'en'];
-
-let currentGfxIndex = 2;
-let currentLangIndex = 0;
-
 let currentVideoIndex = 0;
 let isGameStarted = false;
 let settingsContext = 'menu';
@@ -133,11 +127,6 @@ function setupSkipListeners() {
             skipCurrentVideo();
         }
     });
-    videoContainer.addEventListener('touchstart', (e) => {
-        if (e.target !== startPrompt && !startPrompt.contains(e.target)) {
-            skipCurrentVideo();
-        }
-    });
 }
 function transitionToMenu() {
     currentVideoIndex = 999;
@@ -150,7 +139,6 @@ function transitionToMenu() {
         mainMenu.classList.remove('hidden');
         setTimeout(() => {
             mainMenu.classList.add('visible');
-            buildArrowSettings();
         }, 50);
     }, 1000);
 }
@@ -177,7 +165,7 @@ function closeAllPanels() {
             if (!panel.classList.contains('visible')) {
                 panel.classList.add('hidden');
             }
-        }, 600);
+        }, 800);
     });
 }
 
@@ -189,78 +177,13 @@ function switchLanguage(lang) {
             el.textContent = translations[lang][key];
         }
     });
-    updateArrowValuesDisplay();
 }
 
 function updateGraphics(level) {
     document.body.classList.remove('gfx-low', 'gfx-medium', 'gfx-high');
-    document.body.classList.add('gfx-' + level);
-}
-
-function buildArrowSettings() {
-    const rows = panelSettings.querySelectorAll('.setting-row');
-    
-    rows.forEach(row => {
-        const optionsContainer = row.querySelector('.setting-options');
-        if (!optionsContainer) return;
-        
-        const isGfx = row.querySelector('[data-lang="graphics"]');
-        optionsContainer.innerHTML = '';
-        
-        const prevBtn = document.createElement('button');
-        prevBtn.classList.add('arrow-btn');
-        prevBtn.textContent = '◀';
-        
-        const valueDisplay = document.createElement('span');
-        valueDisplay.classList.add('current-value');
-        valueDisplay.id = isGfx ? 'gfxValueDisplay' : 'langValueDisplay';
-        
-        const nextBtn = document.createElement('button');
-        nextBtn.classList.add('arrow-btn');
-        nextBtn.textContent = '▶';
-        
-        if (isGfx) {
-            prevBtn.addEventListener('click', () => changeGfxSetting(-1));
-            nextBtn.addEventListener('click', () => changeGfxSetting(1));
-        } else {
-            prevBtn.addEventListener('click', () => changeLangSetting(-1));
-            nextBtn.addEventListener('click', () => changeLangSetting(1));
-        }
-        
-        optionsContainer.appendChild(prevBtn);
-        optionsContainer.appendChild(valueDisplay);
-        optionsContainer.appendChild(nextBtn);
-    });
-    
-    updateArrowValuesDisplay();
-}
-
-function changeGfxSetting(dir) {
-    currentGfxIndex = (currentGfxIndex + dir + graphicsLevels.length) % graphicsLevels.length;
-    const level = graphicsLevels[currentGfxIndex];
-    updateGraphics(level);
-    updateArrowValuesDisplay();
-}
-
-function changeLangSetting(dir) {
-    currentLangIndex = (currentLangIndex + dir + languages.length) % languages.length;
-    const lang = languages[currentLangIndex];
-    switchLanguage(lang);
-}
-
-function updateArrowValuesDisplay() {
-    const lang = document.documentElement.lang || 'ru';
-    
-    const gfxDisplay = document.getElementById('gfxValueDisplay');
-    if (gfxDisplay) {
-        const level = graphicsLevels[currentGfxIndex];
-        gfxDisplay.textContent = translations[lang]['graphics_' + (level === 'medium' ? 'med' : level)];
-    }
-    
-    const langDisplay = document.getElementById('langValueDisplay');
-    if (langDisplay) {
-        langDisplay.textContent = languages[currentLangIndex] === 'ru' ? 'Русский' : 'English';
-    }
+    if (level === 'low') document.body.classList.add('gfx-low');
+    if (level === 'medium') document.body.classList.add('gfx-medium');
+    if (level === 'high') document.body.classList.add('gfx-high');
 }
 
 document.addEventListener('click', function(e) {
@@ -310,6 +233,21 @@ document.addEventListener('click', function(e) {
     
     if (target.classList.contains('back-btn')) {
         closeAllPanels();
+        return;
+    }
+    
+    if (target.classList.contains('select-btn') && !target.hasAttribute('data-gfx') && target.id !== 'desktopLangRu' && target.id !== 'desktopLangEn') {
+        const siblings = target.parentElement.querySelectorAll('.select-btn');
+        siblings.forEach(s => s.classList.remove('active'));
+        target.classList.add('active');
+        
+        if (target.id === 'langRu') { switchLanguage('ru'); return; }
+        if (target.id === 'langEn') { switchLanguage('en'); return; }
+        
+        const text = target.getAttribute('data-lang') || target.textContent.toLowerCase();
+        if (text.includes('low') || text.includes('низк')) updateGraphics('low');
+        if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
+        if (text.includes('high') || text.includes('выс')) updateGraphics('high');
         return;
     }
     
