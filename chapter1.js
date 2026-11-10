@@ -2,6 +2,7 @@
     let currentStage = "start";
     let messAppOpen = false;
     let selectedUser = null;
+    let dinoScore = 0;
 
     const storyState = {
         messNotificationShown: false,
@@ -26,6 +27,7 @@
         }
         createMessengerWindow();
         createHackerOverlay();
+        createDinoWindow();
         setTimeout(() => {
             showNotification("Бро", "Хей, Айв! Как дела?");
         }, 3000);
@@ -82,6 +84,53 @@
         }
     }
 
+    function createDinoWindow() {
+        if (document.getElementById("windowDino")) return;
+        const mainZone = document.querySelector(".desktop-main");
+        const win = document.createElement("div");
+        win.id = "windowDino";
+        win.classList.add("desktop-window", "hidden");
+        win.style.width = "400px";
+        win.style.height = "300px";
+
+        win.innerHTML = `
+            <div class="window-header">
+                <span class="window-title">Dino Game</span>
+                <button class="window-close-btn" id="btnCloseDino">X</button>
+            </div>
+            <div class="window-content" style="align-items:center; justify-content:center; text-align:center; gap:20px;">
+                <div style="font-size:3rem; filter:drop-shadow(0 0 5px #00ff66);">🦖</div>
+                <div id="dinoScoreBoard" style="color:#00ff66; font-size:1.2rem;">Рекорд Бро: 2000 | Ваш Счет: 0</div>
+                <button id="btnPlayDino" class="action-btn" style="border:2px solid #00ff66; color:#00ff66; width:auto; padding:10px 30px;">Прыгнуть через кактус!</button>
+            </div>
+        `;
+        mainZone.appendChild(win);
+        document.getElementById("btnCloseDino").addEventListener("click", () => {
+            win.classList.add("hidden");
+        });
+        document.getElementById("btnPlayDino").addEventListener("click", () => {
+            if (storyState.dinoScoreBeaten) return;
+            dinoScore += Math.floor(Math.random() * 150) + 100;
+            if (dinoScore > 2000) {
+                dinoScore = 2001;
+                document.getElementById("dinoScoreBoard").textContent = `Рекорд Бро: 2000 | Ваш Счет: ${dinoScore}`;
+                setTimeout(() => {
+                    win.classList.add("hidden");
+                    storyState.dinoScoreBeaten = true;
+                    selectedUser = "hacker";
+                    if (messAppOpen) renderMessenger();
+                    showNotification("дЬяВоЛ68", "Хочешь побольше новых игр? Кликай сюда...");
+                }, 800);
+            } else {
+                document.getElementById("dinoScoreBoard").textContent = `Рекорд Бро: 2000 | Ваш Счет: ${dinoScore}`;
+            }
+        });
+        if (window.bringToFront) {
+            win.addEventListener("mousedown", () => window.bringToFront(win));
+            win.addEventListener("touchstart", () => window.bringToFront(win), {passive:true});
+        }
+    }
+
     window.openApplicationWindow = (originalOpen => {
         return function(appId) {
             if (appId === "messenger") {
@@ -91,6 +140,18 @@
                     messAppOpen = true;
                     renderMessenger();
                     if (window.bringToFront) window.bringToFront(win);
+                }
+                return;
+            }
+            if (appId === "dino") {
+                if (storyState.dinoDownloaded) {
+                    const win = document.getElementById("windowDino");
+                    if (win) {
+                        win.classList.remove("hidden");
+                        if (window.bringToFront) window.bringToFront(win);
+                    }
+                } else {
+                    alert("Приложение не установлено!");
                 }
                 return;
             }
@@ -120,6 +181,7 @@
             hackerItem.textContent = "💀 дЬяВоЛ68";
             hackerItem.style.padding = "5px";
             hackerItem.style.color = "#ff3333";
+            hackerItem.style.borderBottom = "1px solid rgba(255,51,51,0.1)";
             if (selectedUser === "hacker") hackerItem.style.background = "rgba(255,51,51,0.2)";
             hackerItem.addEventListener("click", () => {
                 selectedUser = "hacker";
@@ -129,7 +191,7 @@
         }
 
         if (!selectedUser) {
-            chatZone.innerHTML = `<div style="color:rgba(0,255,102,0.5); text-align:center; margin-top:40%; font-size:0.9rem;">Mess был обновлен и все старые истории были стерты. Приносим извинения за неполадки. Обещаем все исправить очень скоро!</div>`;
+            chatZone.innerHTML = `<div style="color:rgba(0,255,102,0.5); text-align:center; margin-top:40%; font-size:0.9rem; padding:10px;">Mess был обновлен и все старые истории были стерты. Приносим извинения за неполадки. Обещаем все исправить очень скоро!</div>`;
             return;
         }
 
@@ -165,11 +227,11 @@
             `;
             createOption(optContainer, "1. Ты кто?", () => triggerFail("Бро решил не общаться с шутником."));
             createOption(optContainer, "2. Отвали, я хочу доделать уроки!", () => triggerFail("Вы зарылись в учебники и проиграли жизнь."));
-            createOption(optContainer, "3. Черт, кажись удалил! Какой там рекорд?", () => { currentStage = "bro_record"; renderMessenger(); });
+            createOption(optContainer, "3. Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", () => { currentStage = "bro_record"; renderMessenger(); });
         } else if (currentStage === "bro_record") {
             msgContainer.innerHTML = `
                 <div style="margin-bottom:5px;"><b>Бро:</b> ...Попробуй побить рекорд в динозаврике! Ты ведь его не удалил?</div>
-                <div style="color:rgba(0,255,102,0.7)"><b>Вы:</b> Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?</div>
+                <div style="color:rgba(0,255,102,0.7)"><b>Вы:</b> Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе...</div>
                 <div style="margin-top:5px;"><b>Бро:</b> Вот он! Старый добрый Айв! Мой рекорд 2000! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!</div>
             `;
             if (!storyState.dinoDownloaded) {
@@ -178,7 +240,7 @@
                 hint.style.marginTop = "10px";
                 hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 msgContainer.appendChild(hint);
-                enableDinoInStore();
+                storyState.dinoDownloaded = true;
             }
         }
         zone.appendChild(msgContainer);
@@ -205,35 +267,13 @@
         location.reload();
     }
 
-    function enableDinoInStore() {
-        storyState.dinoDownloaded = true;
-        window.openApplicationWindow = (originalOpen => {
-            return function(appId) {
-                if (appId === "dino" && storyState.dinoDownloaded) {
-                    mockDinoGame();
-                    return;
-                }
-                originalOpen(appId);
-            };
-        })(window.openApplicationWindow);
-    }
-
-    function mockDinoGame() {
-        alert("Вы запустили Динозаврика и усердно играете...");
-        alert("Ура! Вы набрали 2001 очко и побили рекорд Бро!");
-        storyState.dinoScoreBeaten = true;
-        selectedUser = "hacker";
-        if (messAppOpen) renderMessenger();
-        showNotification("дЬяВоЛ68", "Хочешь побольше новых игр? Кликай сюда...");
-    }
-
     function renderHackerChat(zone) {
         zone.innerHTML = "";
         const msgContainer = document.createElement("div");
         msgContainer.style.flex = "1";
         msgContainer.style.color = "#ff3333";
         msgContainer.style.fontSize = "0.85rem";
-        msgContainer.innerHTML = `<div><b>дЬяВоЛ68:</b> Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00;">*ссылка*</span></div>`;
+        msgContainer.innerHTML = `<div><b>дЬяВоЛ68:</b> Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">*ссылка*</span></div>`;
         zone.appendChild(msgContainer);
         
         setTimeout(() => {
@@ -261,67 +301,41 @@
         if (document.getElementById("hackerOverlay")) return;
         const overlay = document.createElement("div");
         overlay.id = "hackerOverlay";
-        overlay.style.position = "fixed";
-        overlay.style.top = "0";
-        overlay.style.left = "0";
-        overlay.style.width = "100%";
-        overlay.style.height = "100%";
-        overlay.style.background = "#000";
-        overlay.style.zIndex = "10000";
-        overlay.style.display = "none";
-        overlay.style.flexDirection = "column";
-        overlay.style.alignItems = "center";
-        overlay.style.justifyContent = "center";
-        overlay.style.fontFamily = "Russo One, sans-serif";
-        overlay.style.color = "#ff3333";
-        overlay.style.padding = "20px";
+        overlay.innerHTML = `
+            <div class="hacker-bg-effects"><div class="hacker-noise"></div></div>
+            <div class="hacker-silhouette"></div>
+            <div class="hacker-text-container"><div class="hacker-msg"></div></div>
+            <div class="hacker-options-zone"></div>
+        `;
         document.body.appendChild(overlay);
     }
 
     function runHackerDialog(node) {
-        const overlay = document.getElementById("hackerOverlay");
-        overlay.innerHTML = "";
-        
-        const textZone = document.createElement("div");
-        textZone.style.fontSize = "1.2rem";
-        textZone.style.textAlign = "center";
-        textZone.style.marginBottom = "40px";
-        textZone.style.maxWidth = "600px";
-        
-        const optZone = document.createElement("div");
-        optZone.style.display = "flex";
-        optZone.style.flexDirection = "column";
-        optZone.style.gap = "15px";
-        optZone.style.width = "100%";
-        optZone.style.maxWidth = "400px";
+        const msgEl = document.querySelector(".hacker-msg");
+        const optZone = document.querySelector(".hacker-options-zone");
+        msgEl.textContent = "";
+        optZone.innerHTML = "";
 
         if (node === "start") {
-            textZone.textContent = "Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!";
+            msgEl.textContent = "Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!";
             createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => runHackerDialog("ans1"));
             createHackerOption(optZone, "2. Я позвоню в полицию!", () => runHackerDialog("ans2"));
             createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans1") {
-            textZone.textContent = "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.";
+            msgEl.textContent = "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.";
             createFinalOptions(optZone);
         } else if (node === "ans2") {
-            textZone.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!";
+            msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!";
             createFinalOptions(optZone);
         } else if (node === "ans3") {
-            textZone.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
+            msgEl.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
             createFinalOptions(optZone);
         }
-        overlay.appendChild(textZone);
-        overlay.appendChild(optZone);
     }
 
     function createHackerOption(parent, text, callback) {
         const btn = document.createElement("button");
-        btn.style.background = "transparent";
-        btn.style.border = "2px solid #ff3333";
-        btn.style.color = "#ff3333";
-        btn.style.padding = "10px";
-        btn.style.cursor = "pointer";
-        btn.style.fontFamily = "Russo One, sans-serif";
+        btn.classList.add("hacker-btn");
         btn.textContent = text;
         btn.addEventListener("click", callback);
         parent.appendChild(btn);
