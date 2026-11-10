@@ -273,6 +273,17 @@
         overlay.innerHTML = `
             <div class="hacker-bg-effects"><div class="hacker-noise"></div></div>
             <div class="hacker-silhouette">
+                <div class="hacker-hood-body">
+                    <div class="hacker-hood-monster">
+                        <div class="hacker-hood-monster-eyes">
+                            <div class="hacker-monster-left"></div>
+                            <div class="hacker-monster-right"></div>
+                        </div>
+                        <div class="hacker-monster-mouth"></div>
+                    </div>
+                </div>
+                <div class="hacker-mask-diamond"></div>
+                <div class="hacker-mask-smile"></div>
                 <div class="hacker-eyes-container">
                     <div class="hacker-left-eye"></div>
                     <div class="hacker-right-eye"></div>
@@ -302,7 +313,7 @@
             });
             createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans3") {
-            msgEl.innerHTML = `<span style="color:#ff3333; font-weight:bold; display:block; font-size:1.4rem; margin-bottom:15px; text-shadow:0 0 10px #ff3333;">дЬяВоЛ68</span>Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?`;
+            msgEl.innerHTML = `<span style="color:#ff3333; font-weight:bold; display:block; font-size:1.4rem; margin-bottom:15px; text-shadow:0 0 10px #ff3333;">дЬяВоЛ68</span>Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да even обычным людям, то что я скажу, а также жить только как я скажу! Готов?`;
             for (let i = 0; i < 3; i++) {
                 createHackerOption(optZone, "Да", () => {
                     alert("Глава 1 успешно пройдена! Вы в ловушке дЬяВоЛа68...");
