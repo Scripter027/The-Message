@@ -139,8 +139,21 @@ function transitionToMenu() {
         mainMenu.classList.remove('hidden');
         setTimeout(() => {
             mainMenu.classList.add('visible');
+            unlockFirstChapterButton();
         }, 50);
     }, 1000);
+}
+
+function unlockFirstChapterButton() {
+    const chapters = panelStart.querySelectorAll(".chapter-btn");
+    if (chapters.length > 0) {
+        const ch1 = chapters[0];
+        ch1.classList.remove("locked");
+        const lockIcon = ch1.querySelector(".lock-icon");
+        const comingSoon = ch1.querySelector(".coming-soon");
+        if (lockIcon) lockIcon.remove();
+        if (comingSoon) comingSoon.remove();
+    }
 }
 
 function openPanel(clickedButton, targetPanel) {
@@ -186,6 +199,25 @@ function updateGraphics(level) {
     if (level === 'high') document.body.classList.add('gfx-high');
 }
 
+function launchChapterOneProcess() {
+    mainMenu.classList.remove('visible');
+    setTimeout(() => {
+        mainMenu.classList.add('hidden');
+        if (window.triggerLoading) {
+            window.triggerLoading(() => {
+                const desktopEnv = document.getElementById('desktopEnv');
+                desktopEnv.classList.remove('hidden');
+                setTimeout(() => {
+                    desktopEnv.classList.add('visible');
+                    if (window.initChapterOne) {
+                        window.initChapterOne();
+                    }
+                }, 50);
+            });
+        }
+    }, 1000);
+}
+
 document.addEventListener('click', function(e) {
     const target = e.target;
     
@@ -204,6 +236,15 @@ document.addEventListener('click', function(e) {
         settingsContext = 'menu';
         openPanel(target, panelStart);
         return;
+    }
+    
+    if (target.classList.contains('chapter-btn') && !target.classList.contains('locked')) {
+        const spanText = target.querySelector('[data-lang]');
+        if (spanText && (spanText.getAttribute('data-lang') === 'ch1' || spanText.textContent.includes('1'))) {
+            closeAllPanels();
+            launchChapterOneProcess();
+            return;
+        }
     }
     
     if (target.id === 'btnCredits') {
@@ -253,6 +294,11 @@ document.addEventListener('click', function(e) {
     
     if (target.id === 'btnClearData') {
         location.reload();
+        return;
+    }
+    
+    if (target.id === 'btnNews') {
+        alert("Новости: Разработка игры «The Message» идет полным ходом!");
         return;
     }
 });
