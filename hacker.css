@@ -24,7 +24,7 @@
     height: 100%;
     pointer-events: none;
     z-index: 1;
-    background: radial-gradient(circle, rgba(40, 0, 0, 0.6) 0%, rgba(0, 0, 0, 1) 85%);
+    background: radial-gradient(circle, rgba(50, 0, 0, 0.6) 0%, rgba(0, 0, 0, 1) 85%);
 }
 
 .hacker-noise {
@@ -33,9 +33,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 1px, transparent 1px, transparent 2px);
-    opacity: 0.6;
-    animation: h-noise 0.12s infinite;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) 1px, transparent 1px, transparent 2px);
+    opacity: 0.7;
+    animation: h-noise 0.1s infinite;
 }
 
 @keyframes h-noise {
@@ -43,59 +43,81 @@
     100% { transform: translateY(2px); }
 }
 .hacker-silhouette {
-    width: 240px;
-    height: 280px;
+    width: 260px;
+    height: 320px;
     position: relative;
     z-index: 2;
     margin-bottom: 25px;
-    background: #110000;
-    border: 2px solid #ff3333;
-    box-shadow: 0 0 35px rgba(255, 51, 51, 0.3);
-    clip-path: polygon(10% 100%, 20% 55%, 35% 38%, 50% 8%, 65% 38%, 80% 55%, 90% 100%);
+    background: #000;
     animation: h-glitch 2.5s infinite alternate;
 }
 
 .hacker-silhouette::before {
     content: '';
     position: absolute;
-    top: 15%;
-    left: 33%;
-    width: 34%;
-    height: 30%;
-    background: #000;
-    border: 2px solid #ff3333;
-    transform: rotate(45deg);
-    box-shadow: inset 0 0 10px rgba(255, 51, 51, 0.5);
+    top: 0;
+    left: 40px;
+    width: 180px;
+    height: 240px;
+    background: #050000;
+    border: 3px solid #ff3333;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    box-shadow: 0 0 40px rgba(255, 51, 51, 0.4);
 }
 
 .hacker-silhouette::after {
-    content: 'V I';
+    content: '';
     position: absolute;
-    top: 22%;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #ff3333;
-    letter-spacing: 12px;
-    text-shadow: 0 0 8px #ff3333;
-    animation: wink-eye 1.8s infinite steps(1);
+    top: 75px;
+    left: 75px;
+    width: 110px;
+    height: 35px;
+    border-left: 4px solid #ff3333;
+    border-right: 4px solid #ff3333;
+    clip-path: polygon(0% 0%, 15% 100%, 30% 0%, 45% 100%, 60% 0%, 75% 100%, 100% 0%);
+    background: transparent;
 }
 
-@keyframes wink-eye {
-    0%, 100% { content: 'V I'; opacity: 1; }
-    40% { content: 'V -'; opacity: 0.9; }
-    50% { content: 'V I'; opacity: 1; }
+.hacker-eyes-container {
+    position: absolute;
+    top: 40px;
+    left: 65px;
+    width: 130px;
+    height: 40px;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.hacker-left-eye {
+    width: 35px;
+    height: 35px;
+    border-left: 5px solid #ff3333;
+    border-bottom: 5px solid #ff3333;
+    transform: rotate(-45deg);
+    filter: drop-shadow(0 0 5px #ff3333);
+}
+
+.hacker-right-eye {
+    width: 6px;
+    height: 35px;
+    background: #ff3333;
+    box-shadow: 0 0 10px #ff3333;
+    animation: tg-wink 2s infinite steps(1);
+}
+
+@keyframes tg-wink {
+    0%, 100% { height: 35px; margin-top: 0; }
+    45%, 55% { height: 5px; margin-top: 15px; }
 }
 
 @keyframes h-glitch {
-    0% { transform: translate(0) scale(1); filter: blur(0); }
-    90% { transform: translate(0) scale(1); filter: blur(0); }
-    92% { transform: translate(-4px, 2px); opacity: 0.85; }
-    95% { transform: translate(5px, -3px); opacity: 0.9; }
-    98% { transform: translate(-1px, -1px); filter: blur(1px); }
-    100% { transform: translate(0) scale(1); filter: blur(0); }
+    0% { transform: translate(0); filter: blur(0); }
+    92% { transform: translate(-3px, 2px); }
+    95% { transform: translate(4px, -2px); opacity: 0.9; }
+    98% { transform: translate(-1px, 1px); filter: blur(1px); }
+    100% { transform: translate(0); filter: blur(0); }
 }
 .hacker-text-container {
     z-index: 2;
@@ -106,7 +128,7 @@
 }
 
 .hacker-msg {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     line-height: 1.5;
     letter-spacing: 1px;
     text-shadow: 0 0 8px rgba(255, 51, 51, 0.8);
@@ -124,7 +146,7 @@
 }
 
 .hacker-btn {
-    background: rgba(20, 0, 0, 0.7) !important;
+    background: rgba(15, 0, 0, 0.8) !important;
     border: 2px solid #ff3333 !important;
     color: #ff3333 !important;
     padding: 12px 20px !important;
@@ -132,16 +154,12 @@
     font-size: 0.9rem !important;
     text-transform: uppercase !important;
     cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    text-align: left !important;
+    transition: all 0.15s ease !important;
+    text-align: left;
 }
 
 .hacker-btn:hover {
     background: #ff3333 !important;
     color: #000 !important;
-    box-shadow: 0 0 20px #ff3333 !important;
-}
-
-.hacker-btn:active {
-    transform: scale(0.96) !important;
+    box-shadow: 0 0 25px #ff3333 !important;
 }
