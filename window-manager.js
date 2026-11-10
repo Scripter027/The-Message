@@ -20,21 +20,27 @@
             const header = win.querySelector('.window-header');
             if (!header) return;
 
-            win.addEventListener('mousedown', () => {
+            const onMouseDown = () => {
                 window.bringToFront(win);
-            });
+            };
+
+            win.addEventListener('mousedown', onMouseDown);
+            win.addEventListener('touchstart', onMouseDown, { passive: true });
 
             header.style.cursor = 'move';
             
-            header.addEventListener('mousedown', (e) => {
+            const onDragStart = (e) => {
                 if (e.target.classList.contains('window-close-btn')) return;
                 
                 isDragging = true;
                 activeWindow = win;
                 window.bringToFront(win);
 
-                startX = e.clientX;
-                startY = e.clientY;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                startX = clientX;
+                startY = clientY;
 
                 const rect = win.getBoundingClientRect();
                 const parentRect = document.getElementById('desktopEnv').getBoundingClientRect();
@@ -47,16 +53,23 @@
                 win.style.top = initialTop + 'px';
 
                 document.body.style.cursor = 'move';
-                e.preventDefault();
-            });
+                if (!e.touches) {
+                    e.preventDefault();
+                }
+            };
+
+            header.addEventListener('mousedown', onDragStart);
+            header.addEventListener('touchstart', onDragStart, { passive: true });
         });
     }
-
-    document.addEventListener('mousemove', (e) => {
+    const onDragMove = (e) => {
         if (!isDragging || !activeWindow) return;
 
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        const deltaX = clientX - startX;
+        const deltaY = clientY - startY;
 
         const parentRect = document.getElementById('desktopEnv').getBoundingClientRect();
         
@@ -68,15 +81,21 @@
 
         activeWindow.style.left = newLeft + 'px';
         activeWindow.style.top = newTop + 'px';
-    });
+    };
 
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('touchmove', onDragMove, { passive: false });
+
+    const onDragEnd = () => {
         if (isDragging) {
             isDragging = false;
             activeWindow = null;
             document.body.style.cursor = '';
         }
-    });
+    };
+
+    document.addEventListener('mouseup', onDragEnd);
+    document.addEventListener('touchend', onDragEnd);
 
     document.addEventListener('DOMContentLoaded', () => {
         const desktopEnv = document.getElementById('desktopEnv');
