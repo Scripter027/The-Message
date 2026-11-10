@@ -202,6 +202,9 @@ function updateGraphics(level) {
 }
 
 function launchChapterOneProcess() {
+    if (window.AppConfig) {
+        window.AppConfig.setupChapterOneMode();
+    }
     mainMenu.classList.remove('visible');
     setTimeout(() => {
         mainMenu.classList.add('hidden');
@@ -258,6 +261,9 @@ document.addEventListener('click', function(e) {
     }
     
     if (btn && btn.id === 'btnFree') {
+        if (window.AppConfig) {
+            window.AppConfig.resetToDesktopDefault();
+        }
         mainMenu.classList.remove('visible');
         setTimeout(() => {
             mainMenu.classList.add('hidden');
