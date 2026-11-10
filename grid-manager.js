@@ -12,20 +12,17 @@
 
     function findFreeGridPosition() {
         const parentRect = desktopMain.getBoundingClientRect();
-        const cols = Math.floor((parentRect.width - margin) / cellWidth);
-        const rows = Math.floor((parentRect.height - margin - 45) / cellHeight);
-        
+        const cols = Math.max(1, Math.floor((parentRect.width - margin) / cellWidth));
+        const rows = Math.max(1, Math.floor((parentRect.height - margin - 45) / cellHeight));
         const takenPositions = Object.values(window.AppConfig.state.positions);
 
         for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
                 const checkLeft = c * cellWidth + margin;
                 const checkTop = r * cellHeight + margin;
-                
                 const isTaken = takenPositions.some(pos => {
                     return Math.abs(pos.left - checkLeft) < 10 && Math.abs(pos.top - checkTop) < 10;
                 });
-
                 if (!isTaken) {
                     return { left: checkLeft, top: checkTop };
                 }
@@ -75,41 +72,49 @@
         });
     };
 
-    function setupIconEvents(el) {
-        el.addEventListener("mousedown", (e) => {
-            draggedElement = el;
-            const rect = el.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            el.style.zIndex = 1000;
-        });
+    function handleDragStart(e, el) {
+        draggedElement = el;
+        const rect = el.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+        el.style.zIndex = 1000;
+    }
 
-        el.addEventListener("click", (e) => {
+    function setupIconEvents(el) {
+        el.addEventListener("mousedown", (e) => handleDragStart(e, el));
+        el.addEventListener("touchstart", (e) => handleDragStart(e, el), { passive: true });
+
+        const handleSelect = () => {
             const currentTime = new Date().getTime();
             const appId = el.getAttribute("data-app-id");
-            
             if (lastClickTarget === el && (currentTime - lastClickTime) < 300) {
                 window.openApplicationWindow(appId);
             }
             lastClickTime = currentTime;
             lastClickTarget = el;
-        });
-    }
+        };
 
-    document.addEventListener("mousemove", (e) => {
+        el.addEventListener("click", handleSelect);
+    }
+    function handleDragMove(e) {
         if (!draggedElement) return;
         const parentRect = desktopMain.getBoundingClientRect();
-        let left = e.clientX - parentRect.left - offsetX;
-        let top = e.clientY - parentRect.top - offsetY;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        let left = clientX - parentRect.left - offsetX;
+        let top = clientY - parentRect.top - offsetY;
 
         left = Math.max(0, Math.min(left, parentRect.width - draggedElement.offsetWidth));
         top = Math.max(0, Math.min(top, parentRect.height - draggedElement.offsetHeight));
 
         draggedElement.style.left = left + "px";
         draggedElement.style.top = top + "px";
-    });
+    }
 
-    document.addEventListener("mouseup", () => {
+    function handleDragEnd() {
         if (!draggedElement) return;
         
         const appId = draggedElement.getAttribute("data-app-id");
@@ -145,7 +150,13 @@
         window.AppConfig.save();
 
         draggedElement = null;
-    });
+    }
+
+    document.addEventListener("mousemove", handleDragMove);
+    document.addEventListener("touchmove", handleDragMove, { passive: false });
+
+    document.addEventListener("mouseup", handleDragEnd);
+    document.addEventListener("touchend", handleDragEnd);
 
     window.openApplicationWindow = function(appId) {
         let win = null;
