@@ -4,7 +4,6 @@
     padding: 0;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none;
 }
 
 body, html {
@@ -221,7 +220,7 @@ video {
     cursor: pointer;
     text-transform: uppercase;
     width: 85%;
-    max-width: 280px;
+    max-width: 260px;
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
@@ -262,9 +261,9 @@ video {
     width: 100%;
     height: 100%;
     background: rgba(5, 15, 5, 0.98);
-    border-left: 3px solid #00ff66;
+    border: 3px solid #00ff66;
     padding: 30px 20px;
-    box-shadow: -5px 0 20px rgba(0, 255, 102, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
     z-index: 30;
     transition: right 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
     opacity: 0;
@@ -277,7 +276,7 @@ video {
 
 @media (min-width: 480px) {
     .side-panel {
-        width: 420px;
+        width: 440px;
     }
 }
 
@@ -287,13 +286,12 @@ video {
         top: 50%;
         transform: translateY(-50%);
         height: auto;
-        border: 3px solid #00ff66;
-        width: 480px;
+        width: 500px;
         justify-content: flex-start;
-        gap: 25px;
+        gap: 30px;
     }
     .side-panel.visible {
-        right: 5%;
+        right: 8%;
     }
 }
 
@@ -305,7 +303,7 @@ video {
 .panel-title {
     color: #00ff66;
     text-transform: uppercase;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     letter-spacing: 2px;
     text-shadow: 0 0 10px #00ff66;
     border-bottom: 2px solid #00ff66;
@@ -316,65 +314,52 @@ video {
 .setting-row {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    align-items: center;
+    gap: 10px;
     width: 100%;
 }
 
 .setting-label {
     color: #00ff66;
-    font-size: 1rem;
+    font-size: 1.1rem;
     text-transform: uppercase;
-    text-align: center;
 }
 
 .setting-options {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 85%;
-    max-width: 280px;
-    border: 2px solid #00ff66;
-    padding: 5px;
-    background: rgba(0, 0, 0, 0.4);
+    gap: 10px;
+    width: 100%;
 }
 
-.arrow-btn {
-    background: transparent;
-    border: none;
-    color: #00ff66;
-    font-size: 1.3rem;
-    cursor: pointer;
-    padding: 0 10px;
-    font-family: 'Russo One', sans-serif;
-    transition: transform 0.1s ease;
-}
-
-.arrow-btn:active {
-    transform: scale(0.8);
-}
-
-.current-value {
-    color: #00ff66;
-    font-size: 1rem;
-    text-transform: uppercase;
-    text-align: center;
+.select-btn {
     flex: 1;
-}
-
-.action-btn {
     background: transparent;
-    border: 2px solid #ff3333;
-    color: #ff3333;
-    width: 85%;
-    max-width: 280px;
+    border: 2px solid #00ff66;
+    color: #00ff66;
     padding: 10px;
     font-family: 'Russo One', sans-serif;
     text-transform: uppercase;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.2s ease;
-    margin: 0 auto;
+}
+
+.select-btn.active, .select-btn:hover {
+    background: #00ff66;
+    color: #000;
+    box-shadow: 0 0 10px #00ff66;
+}
+
+.action-btn {
+    background: transparent;
+    border: 2px solid #ff3333;
+    color: #ff3333;
+    width: 100%;
+    padding: 12px;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
 .action-btn:hover {
@@ -384,25 +369,22 @@ video {
 }
 
 .back-btn {
-    width: 85% !important;
-    max-width: 280px !important;
-    margin: 10px auto 0 auto;
+    width: 100% !important;
+    margin-top: 10px;
 }
 
 .chapters-grid {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    width: 85%;
-    max-width: 280px;
-    margin: 0 auto;
-    max-height: 50vh;
+    width: 100%;
+    max-height: 45vh;
     overflow-y: auto;
     padding-right: 5px;
 }
 
 .chapters-grid::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
 }
 
 .chapters-grid::-webkit-scrollbar-thumb {
@@ -411,11 +393,10 @@ video {
 
 .chapter-btn {
     width: 100% !important;
-    max-width: none !important;
     display: flex !important;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px !important;
+    padding: 12px 25px !important;
     font-size: 1.1rem !important;
 }
 
@@ -431,12 +412,12 @@ video {
 }
 
 .lock-icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     filter: drop-shadow(0 0 3px #00ff66);
 }
 
 .coming-soon {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: #00ff66;
     text-transform: lowercase;
     opacity: 0.7;
