@@ -15,7 +15,13 @@
         storyState.dinoScoreBeaten = false;
 
         const hackerOverlay = document.getElementById("hackerOverlay");
-        if (hackerOverlay) hackerOverlay.style.display = "none";
+        if (hackerOverlay) {
+            hackerOverlay.classList.remove("visible");
+            hackerOverlay.style.display = "none";
+        }
+
+        const crashOverlay = document.getElementById("systemCrashOverlay");
+        if (crashOverlay) crashOverlay.remove();
 
         document.querySelectorAll('.desktop-window').forEach(w => w.classList.add('hidden'));
 
@@ -265,6 +271,71 @@
         renderMess();
         showMessNotification("???", "Хочешь помогу побить рекорд? Свяжись со мной");
     };
+    function triggerErrorSequence() {
+        const dinoWin = document.getElementById("windowDino");
+        if (dinoWin) dinoWin.classList.add("hidden");
+        const messWin = document.getElementById("windowMessenger");
+        if (messWin) messWin.classList.add("hidden");
+
+        const crash = document.createElement("div");
+        crash.id = "systemCrashOverlay";
+
+        const particlesLayer = document.createElement("div");
+        particlesLayer.className = "crash-particles-layer";
+
+        const colors = ["#ff3333", "#00ff66", "#ffffff", "#ffaa00"];
+        for (let i = 0; i < 65; i++) {
+            const p = document.createElement("div");
+            p.className = "crash-particle";
+            p.style.left = Math.random() * 100 + "vw";
+            p.style.top = Math.random() * 100 + "vh";
+            p.style.width = (Math.random() * 24 + 4) + "px";
+            p.style.height = (Math.random() * 14 + 3) + "px";
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = (Math.random() * 0.25) + "s";
+            particlesLayer.appendChild(p);
+        }
+
+        const errText = document.createElement("div");
+        errText.className = "crash-error-text";
+        errText.textContent = "ERROR";
+
+        crash.appendChild(particlesLayer);
+        crash.appendChild(errText);
+        document.body.appendChild(crash);
+
+        const particleShuffle = setInterval(() => {
+            particlesLayer.querySelectorAll(".crash-particle").forEach(p => {
+                p.style.left = Math.random() * 100 + "vw";
+                p.style.top = Math.random() * 100 + "vh";
+            });
+            errText.style.opacity = Math.random() > 0.25 ? "1" : "0.15";
+        }, 120);
+
+        setTimeout(() => {
+            clearInterval(particleShuffle);
+            crash.remove();
+
+            const env = document.getElementById("desktopEnv");
+            if (env) env.style.display = "none";
+
+            setTimeout(() => {
+                const overlay = document.getElementById("hackerOverlay");
+                if (overlay) {
+                    overlay.style.opacity = "0";
+                    overlay.style.display = "flex";
+                    runHackerDialog("start");
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            overlay.classList.add("visible");
+                            overlay.style.opacity = "1";
+                        });
+                    });
+                }
+            }, 1400);
+        }, 2200);
+    }
+
     function renderHackerChat(zone) {
         zone.innerHTML = `
             <div style="padding:10px; border-bottom:1px solid #ff3333; color:#ff3333; font-weight:bold;">❓ ???</div>
@@ -283,16 +354,7 @@
         const link = document.getElementById("hackerLink");
         if (link) {
             link.addEventListener("click", () => {
-                const dinoWin = document.getElementById("windowDino");
-                if (dinoWin) dinoWin.classList.add("hidden");
-                const env = document.getElementById("desktopEnv");
-                if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
-                setTimeout(() => {
-                    if (env) env.style.display = "none";
-                    const overlay = document.getElementById("hackerOverlay");
-                    if (overlay) overlay.style.display = "flex";
-                    runHackerDialog("start");
-                }, 1500);
+                triggerErrorSequence();
             });
         }
     }
@@ -368,7 +430,10 @@
         for (let i = 0; i < 3; i++) {
             createHackerOption(parent, "Да", () => {
                 const overlay = document.getElementById("hackerOverlay");
-                if (overlay) overlay.style.display = "none";
+                if (overlay) {
+                    overlay.classList.remove("visible");
+                    overlay.style.display = "none";
+                }
                 
                 if (window.triggerChapterCompleteScreen) {
                     window.triggerChapterCompleteScreen(1, "Вы в ловушке дЬяВоЛа68...");
