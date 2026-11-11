@@ -35,44 +35,42 @@
         overlay.style.fontFamily = "'Russo One', sans-serif";
         overlay.style.overflow = "hidden";
         overlay.style.display = "flex";
-        overlay.style.flexDirection = "column";
-        overlay.style.justifyContent = "space-between";
         overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
 
         overlay.innerHTML = `
-            <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(45,0,0,0.4) 0%, rgba(0,0,0,1) 82%); pointer-events:none; z-index:1;"></div>
+            <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(45,0,0,0.38) 0%, rgba(0,0,0,1) 82%); pointer-events:none; z-index:1;"></div>
             <div style="position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.4) 1px, transparent 1px, transparent 2px); opacity:0.8; pointer-events:none; z-index:2;"></div>
 
-            <div style="position:relative; z-index:5; width:100%; max-width:960px; flex:1; display:flex; align-items:flex-start; justify-content:space-between; padding:35px 40px 0 40px; box-sizing:border-box;">
-                <div style="width:110px; height:140px; flex-shrink:0; animation: go-glitch 3.2s infinite alternate;">
-                    <svg viewBox="0 0 110 140" fill="none" style="width:100%; height:100%; filter:drop-shadow(0 0 10px rgba(255,51,51,0.75));">
-                        <path d="M 18 14 L 54 126 L 92 14" stroke="#ff3333" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M 27 24 L 54 106 L 81 24" stroke="#ff3333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.55" />
-                    </svg>
-                </div>
+            <div style="position:absolute; top:32px; left:40px; width:105px; height:135px; pointer-events:none; z-index:4; animation: go-glitch 3.2s infinite alternate;">
+                <svg viewBox="0 0 110 140" fill="none" style="width:100%; height:100%; filter:drop-shadow(0 0 10px rgba(255,51,51,0.75));">
+                    <path d="M 18 14 L 54 126 L 92 14" stroke="#ff3333" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 27 24 L 54 106 L 81 24" stroke="#ff3333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.55" />
+                </svg>
+            </div>
 
-                <div style="flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:5px 20px 0 20px;">
-                    <div style="color:#ff3333; font-size:clamp(2.2rem, 5vw, 3.8rem); letter-spacing:3px; text-shadow:0 0 16px rgba(255,51,51,0.85); line-height:1.1; margin-bottom:14px; animation: go-glitch 2.8s infinite alternate;">GaMe OvEr</div>
-                    <div style="color:#ff3333; font-size:1.15rem; letter-spacing:1px; margin-bottom:8px; text-shadow:0 0 8px rgba(255,51,51,0.6);">${reasonLabel}</div>
-                    <div id="failReasonText" style="color:rgba(255,85,85,0.85); font-size:0.95rem; max-width:460px; line-height:1.45; min-height:42px; margin-bottom:22px; border-bottom:1px dashed rgba(255,51,51,0.3); padding-bottom:10px;"></div>
-                    <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:250px;">
-                        <button id="btnRetryChapter" class="go-action-btn">${retryLabel}</button>
-                        <button id="btnGoToMainMenu" class="go-action-btn">${menuLabel}</button>
-                    </div>
-                </div>
+            <div style="position:absolute; top:32px; right:40px; width:105px; height:135px; pointer-events:none; z-index:4; animation: go-glitch 3.5s infinite alternate;">
+                <svg viewBox="0 0 110 140" fill="none" style="width:100%; height:100%; filter:drop-shadow(0 0 10px rgba(255,51,51,0.75)); transform-origin:55px 70px; animation: go-eye-wink 3.6s infinite steps(1);">
+                    <path d="M 56 12 L 52 128" stroke="#ff3333" stroke-width="7" stroke-linecap="round" />
+                    <path d="M 65 28 L 57 62" stroke="#ff3333" stroke-width="3" stroke-linecap="round" stroke-opacity="0.75" />
+                </svg>
+            </div>
 
-                <div style="width:110px; height:140px; flex-shrink:0; display:flex; justify-content:center; animation: go-glitch 3.5s infinite alternate;">
-                    <svg viewBox="0 0 110 140" fill="none" style="width:100%; height:100%; filter:drop-shadow(0 0 10px rgba(255,51,51,0.75)); transform-origin:55px 70px; animation: go-eye-wink 3.6s infinite steps(1);">
-                        <path d="M 56 12 L 52 128" stroke="#ff3333" stroke-width="7" stroke-linecap="round" />
-                        <path d="M 65 28 L 57 62" stroke="#ff3333" stroke-width="3" stroke-linecap="round" stroke-opacity="0.75" />
-                    </svg>
+            <div style="position:relative; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; max-width:520px; width:100%;">
+                <div style="color:#ff3333; font-size:clamp(2.3rem, 5vw, 3.8rem); letter-spacing:3px; text-shadow:0 0 16px rgba(255,51,51,0.85); line-height:1.1; margin-bottom:14px; animation: go-glitch 2.8s infinite alternate;">GaMe OvEr</div>
+                <div style="color:#ff3333; font-size:1.15rem; letter-spacing:1px; margin-bottom:8px; text-shadow:0 0 8px rgba(255,51,51,0.6);">${reasonLabel}</div>
+                <div id="failReasonText" style="color:rgba(255,85,85,0.88); font-size:0.95rem; max-width:460px; line-height:1.45; min-height:42px; margin-bottom:24px; border-bottom:1px dashed rgba(255,51,51,0.3); padding-bottom:10px;"></div>
+                <div style="display:flex; flex-direction:column; gap:12px; width:100%; max-width:250px;">
+                    <button id="btnRetryChapter" class="go-action-btn">${retryLabel}</button>
+                    <button id="btnGoToMainMenu" class="go-action-btn">${menuLabel}</button>
                 </div>
             </div>
 
-            <div style="position:relative; z-index:4; width:100%; height:34vh; min-height:160px; max-height:270px; pointer-events:none; margin-top:-15px; animation: go-lurk-pulse 6s infinite ease-in-out;">
-                <svg viewBox="0 0 1000 260" preserveAspectRatio="none" fill="none" style="width:100%; height:100%;">
-                    <path d="M 55 18 L 118 112 L 155 135 L 182 192 L 218 152 L 258 214 L 302 168 L 348 228 L 398 180 L 450 236 L 500 184 L 550 236 L 602 180 L 652 228 L 698 168 L 742 214 L 782 152 L 818 192 L 845 135 L 882 112 L 945 18 L 868 122 L 828 165 L 775 202 L 710 226 L 635 240 L 500 246 L 365 240 L 290 226 L 225 202 L 172 165 L 132 122 Z" stroke="#520808" stroke-width="2.2" stroke-linejoin="miter" fill="rgba(28, 2, 2, 0.28)" />
-                    <path d="M 48 12 L 135 128 L 220 198 L 350 238 L 500 245 L 650 238 L 780 198 L 865 128 L 952 12" stroke="#7a0d0d" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.65" />
+            <div style="position:absolute; bottom:0; left:0; width:100%; height:36vh; min-height:170px; max-height:290px; pointer-events:none; z-index:3; animation: go-lurk-pulse 6s infinite ease-in-out;">
+                <svg viewBox="0 0 1000 280" preserveAspectRatio="none" fill="none" style="width:100%; height:100%;">
+                    <path d="M 48 16 L 135 112 L 220 164 L 350 192 L 500 198 L 650 192 L 780 164 L 865 112 L 952 16 L 872 128 L 785 198 L 650 246 L 500 256 L 350 246 L 215 198 L 128 128 Z" fill="rgba(22, 2, 2, 0.34)" stroke="#520808" stroke-width="1.8" stroke-linejoin="miter" />
+                    <path d="M 110 86 L 146 154 L 182 138 L 218 202 L 258 172 L 302 228 L 348 188 L 398 242 L 450 194 L 500 248 L 550 194 L 602 242 L 652 188 L 698 228 L 742 172 L 782 202 L 818 138 L 854 154 L 890 86" stroke="#680a0a" stroke-width="2" stroke-linejoin="miter" fill="rgba(35, 3, 3, 0.25)" />
+                    <path d="M 118 118 L 155 142 L 182 198 L 218 162 L 258 222 L 302 182 L 348 238 L 398 194 L 450 248 L 500 202 L 550 248 L 602 194 L 652 238 L 698 182 L 742 222 L 782 162 L 818 198 L 845 142 L 882 118" stroke="#680a0a" stroke-width="2" stroke-linejoin="miter" fill="rgba(35, 3, 3, 0.25)" />
                 </svg>
             </div>
         `;
@@ -104,10 +102,10 @@
                     transform: scale(0.97);
                 }
                 @keyframes go-lurk-pulse {
-                    0%, 100% { opacity: 0.22; }
-                    45% { opacity: 0.34; }
-                    50% { opacity: 0.52; }
-                    55% { opacity: 0.26; }
+                    0%, 100% { opacity: 0.24; }
+                    45% { opacity: 0.36; }
+                    50% { opacity: 0.54; }
+                    55% { opacity: 0.28; }
                 }
                 @keyframes go-eye-wink {
                     0%, 91%, 100% { transform: scaleY(1); }
@@ -118,11 +116,18 @@
                     95% { transform: translate(-2px, 1px); }
                     98% { transform: translate(2px, -1px); }
                 }
-                @media (max-height: 540px) {
-                    #failOverlay > div:nth-child(3) {
-                        padding-top: 15px !important;
-                    }
+                @media (max-width: 768px) {
+                    #failOverlay > div:nth-child(3),
                     #failOverlay > div:nth-child(4) {
+                        width: 70px !important;
+                        height: 90px !important;
+                        top: 18px !important;
+                    }
+                    #failOverlay > div:nth-child(3) { left: 18px !important; }
+                    #failOverlay > div:nth-child(4) { right: 18px !important; }
+                }
+                @media (max-height: 540px) {
+                    #failOverlay > div:nth-child(6) {
                         height: 28vh !important;
                         min-height: 120px !important;
                     }
