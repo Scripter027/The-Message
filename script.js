@@ -27,9 +27,7 @@ const translations = {
         loading: "ЗАГРУЗКА...",
         exit: "Выход",
         credits: "Титры",
-        news: "Новости",
-        credits_soon: "Титров пока нет ;)",
-        news_text: "Разработка игры «The Message» идет полным ходом!"
+        credits_soon: "Титров пока нет ;)"
     },
     en: {
         prompt: "CLICK ON SCREEN TO START",
@@ -54,9 +52,7 @@ const translations = {
         loading: "LOADING...",
         exit: "Exit",
         credits: "Credits",
-        news: "News",
-        credits_soon: "No credits yet ;)",
-        news_text: "Development of «The Message» is in full swing!"
+        credits_soon: "No credits yet ;)"
     }
 };
 
@@ -403,11 +399,6 @@ document.addEventListener('click', function(e) {
         }
         localStorage.removeItem('kpr_dino_highscore');
         showOverlayMessage('clear_data');
-        return;
-    }
-    
-    if (btn && btn.id === 'btnNews') {
-        showOverlayMessage('news_text');
         return;
     }
 });
