@@ -41,6 +41,8 @@
         overlay.style.display = "flex";
         overlay.style.alignItems = "center";
         overlay.style.justifyContent = "center";
+        overlay.style.opacity = "0";
+        overlay.style.transition = "opacity 0.7s ease-in-out";
 
         overlay.innerHTML = `
             <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(45,0,0,0.38) 0%, rgba(0,0,0,1) 82%); pointer-events:none; z-index:1;"></div>
@@ -167,52 +169,63 @@
         }
 
         document.body.appendChild(overlay);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.style.opacity = "1";
+            });
+        });
 
         document.getElementById("failReasonText").textContent = reasonText;
 
         document.getElementById("btnRetryChapter").addEventListener("click", () => {
-            overlay.remove();
-            if (window.AppConfig) {
-                window.AppConfig.setupChapterOneMode();
-            }
-            const env = document.getElementById("desktopEnv");
-            if (env) {
-                env.style.display = "flex";
-                env.style.filter = "none";
-            }
-            if (window.YandexModule) {
-                window.YandexModule.startGameplay();
-            }
-            if (window.initChapterOne) {
-                window.initChapterOne();
-            }
+            overlay.style.opacity = "0";
+            setTimeout(() => {
+                overlay.remove();
+                if (window.AppConfig) {
+                    window.AppConfig.setupChapterOneMode();
+                }
+                const env = document.getElementById("desktopEnv");
+                if (env) {
+                    env.style.display = "flex";
+                    env.style.filter = "none";
+                }
+                if (window.YandexModule) {
+                    window.YandexModule.startGameplay();
+                }
+                if (window.initChapterOne) {
+                    window.initChapterOne();
+                }
+            }, 400);
         });
 
         document.getElementById("btnGoToMainMenu").addEventListener("click", () => {
-            overlay.remove();
-            if (window.AppConfig) {
-                window.AppConfig.resetToDesktopDefault();
-            }
-            const env = document.getElementById("desktopEnv");
-            if (env) {
-                env.style.display = "none";
-                env.classList.remove("visible");
-                env.classList.add("hidden");
-            }
-            const goMenu = () => {
-                window.triggerLoading(() => {
-                    const mainMenu = document.getElementById("mainMenu");
-                    if (mainMenu) {
-                        mainMenu.classList.remove("hidden");
-                        setTimeout(() => mainMenu.classList.add("visible"), 50);
-                    }
-                });
-            };
-            if (window.YandexModule) {
-                window.YandexModule.showAd(goMenu);
-            } else {
-                goMenu();
-            }
+            overlay.style.opacity = "0";
+            setTimeout(() => {
+                overlay.remove();
+                if (window.AppConfig) {
+                    window.AppConfig.resetToDesktopDefault();
+                }
+                const env = document.getElementById("desktopEnv");
+                if (env) {
+                    env.style.display = "none";
+                    env.classList.remove("visible");
+                    env.classList.add("hidden");
+                }
+                const goMenu = () => {
+                    window.triggerLoading(() => {
+                        const mainMenu = document.getElementById("mainMenu");
+                        if (mainMenu) {
+                            mainMenu.classList.remove("hidden");
+                            setTimeout(() => mainMenu.classList.add("visible"), 50);
+                        }
+                    });
+                };
+                if (window.YandexModule) {
+                    window.YandexModule.showAd(goMenu);
+                } else {
+                    goMenu();
+                }
+            }, 400);
         });
     };
     window.triggerChapterCompleteScreen = function(chapterNum, subtitleText) {
@@ -241,6 +254,8 @@
         overlay.style.display = "flex";
         overlay.style.alignItems = "center";
         overlay.style.justifyContent = "center";
+        overlay.style.opacity = "0";
+        overlay.style.transition = "opacity 0.7s ease-in-out";
 
         overlay.innerHTML = `
             <div style="position:absolute; inset:0; background:radial-gradient(circle, rgba(0,55,20,0.42) 0%, rgba(0,0,0,1) 82%); pointer-events:none; z-index:1;"></div>
@@ -278,32 +293,40 @@
         `;
 
         document.body.appendChild(overlay);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.style.opacity = "1";
+            });
+        });
 
         document.getElementById("btnWinMainMenu").addEventListener("click", () => {
-            overlay.remove();
-            if (window.AppConfig) {
-                window.AppConfig.resetToDesktopDefault();
-            }
-            const env = document.getElementById("desktopEnv");
-            if (env) {
-                env.style.display = "none";
-                env.classList.remove("visible");
-                env.classList.add("hidden");
-            }
-            const goMenu = () => {
-                window.triggerLoading(() => {
-                    const mainMenu = document.getElementById("mainMenu");
-                    if (mainMenu) {
-                        mainMenu.classList.remove("hidden");
-                        setTimeout(() => mainMenu.classList.add("visible"), 50);
-                    }
-                });
-            };
-            if (window.YandexModule) {
-                window.YandexModule.showAd(goMenu);
-            } else {
-                goMenu();
-            }
+            overlay.style.opacity = "0";
+            setTimeout(() => {
+                overlay.remove();
+                if (window.AppConfig) {
+                    window.AppConfig.resetToDesktopDefault();
+                }
+                const env = document.getElementById("desktopEnv");
+                if (env) {
+                    env.style.display = "none";
+                    env.classList.remove("visible");
+                    env.classList.add("hidden");
+                }
+                const goMenu = () => {
+                    window.triggerLoading(() => {
+                        const mainMenu = document.getElementById("mainMenu");
+                        if (mainMenu) {
+                            mainMenu.classList.remove("hidden");
+                            setTimeout(() => mainMenu.classList.add("visible"), 50);
+                        }
+                    });
+                };
+                if (window.YandexModule) {
+                    window.YandexModule.showAd(goMenu);
+                } else {
+                    goMenu();
+                }
+            }, 400);
         });
     };
 })();
