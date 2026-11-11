@@ -34,10 +34,12 @@ window.AppConfig = {
         this.save();
     },
     setupChapterOneMode: function() {
-        this.state.installed = ["messenger", "store"];
+        this.state.installed = ["trash", "explorer", "messenger", "store"];
         this.state.positions = {
-            "messenger": { left: 20, top: 20 },
-            "store": { left: 20, top: 110 }
+            "trash": { left: 20, top: 20 },
+            "explorer": { left: 20, top: 110 },
+            "messenger": { left: 20, top: 200 },
+            "store": { left: 20, top: 290 }
         };
         this.state.trashContents = [];
     }
