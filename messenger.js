@@ -295,7 +295,7 @@
         }
     }
 
-           function renderHackerChat(zone) {
+               function renderHackerChat(zone) {
         zone.innerHTML = `
             <div style="padding:10px; border-bottom:1px solid #ff3333; color:#ff3333; font-weight:bold;">❓ ???</div>
             <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px;"></div>
@@ -398,14 +398,26 @@
                 const overlay = document.getElementById("hackerOverlay");
                 if (overlay) overlay.style.display = "none";
                 
-                if (window.triggerLoading) {
-                    window.triggerLoading(() => {
-                        const mainMenu = document.getElementById("mainMenu");
-                        if (mainMenu) {
-                            mainMenu.classList.remove("hidden");
-                            setTimeout(() => mainMenu.classList.add("visible"), 50);
-                        }
-                    });
+                if (window.YandexModule) {
+                    window.YandexModule.stopGameplay();
+                }
+
+                const finishChapter = () => {
+                    if (window.triggerLoading) {
+                        window.triggerLoading(() => {
+                            const mainMenu = document.getElementById("mainMenu");
+                            if (mainMenu) {
+                                mainMenu.classList.remove("hidden");
+                                setTimeout(() => mainMenu.classList.add("visible"), 50);
+                            }
+                        });
+                    }
+                };
+
+                if (window.YandexModule) {
+                    window.YandexModule.showAd(finishChapter);
+                } else {
+                    finishChapter();
                 }
             });
         }
