@@ -13,26 +13,49 @@
     const cellHeight = 90;
     const margin = 20;
 
-    function findFreeGridPosition() {
+    function isPositionTaken(checkLeft, checkTop, ignoreAppId) {
+        const installed = window.AppConfig.state.installed;
+        const trash = window.AppConfig.state.trashContents;
+        const positions = window.AppConfig.state.positions;
+
+        return installed.some(id => {
+            if (id === ignoreAppId || trash.includes(id)) return false;
+            const pos = positions[id];
+            if (!pos) return false;
+            return Math.abs(pos.left - checkLeft) < 10 && Math.abs(pos.top - checkTop) < 10;
+        });
+    }
+
+    function findFreeGridPosition(ignoreAppId) {
         const parentRect = desktopMain.getBoundingClientRect();
         const cols = Math.max(1, Math.floor((parentRect.width - margin) / cellWidth));
         const rows = Math.max(1, Math.floor((parentRect.height - margin - 45) / cellHeight));
-        const takenPositions = Object.values(window.AppConfig.state.positions);
 
         for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
                 const checkLeft = c * cellWidth + margin;
                 const checkTop = r * cellHeight + margin;
-                const isTaken = takenPositions.some(pos => {
-                    return Math.abs(pos.left - checkLeft) < 10 && Math.abs(pos.top - checkTop) < 10;
-                });
-                if (!isTaken) {
+                if (!isPositionTaken(checkLeft, checkTop, ignoreAppId)) {
                     return { left: checkLeft, top: checkTop };
                 }
             }
         }
         return { left: margin, top: margin };
     }
+
+    window.restoreAppPosition = function(appId) {
+        if (!window.AppConfig.state.lastPositions) {
+            window.AppConfig.state.lastPositions = {};
+        }
+        const savedLast = window.AppConfig.state.lastPositions[appId];
+        if (savedLast && !isPositionTaken(savedLast.left, savedLast.top, appId)) {
+            window.AppConfig.state.positions[appId] = { left: savedLast.left, top: savedLast.top };
+        } else {
+            window.AppConfig.state.positions[appId] = findFreeGridPosition(appId);
+        }
+        delete window.AppConfig.state.lastPositions[appId];
+        window.AppConfig.save();
+    };
 
     window.renderDesktopIcons = function() {
         if (!desktopMain) return;
@@ -52,7 +75,7 @@
             
             let savedPos = window.AppConfig.state.positions[appId];
             if (!savedPos) {
-                savedPos = findFreeGridPosition();
+                savedPos = findFreeGridPosition(appId);
                 window.AppConfig.state.positions[appId] = savedPos;
                 window.AppConfig.save();
             }
@@ -75,7 +98,6 @@
             setupIconEvents(iconEl);
         });
     };
-
     function handleDragStart(e, el) {
         draggedElement = el;
         hasMoved = false;
@@ -155,14 +177,23 @@
             top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
 
             const trashPos = window.AppConfig.state.positions["trash"];
-            if (trashPos && appData && appData.type !== 'system') {
-                if (Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
+            const prevPos = window.AppConfig.state.positions[appId] || { left: margin, top: margin };
+
+            if (trashPos && Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
+                if (appData && appData.type !== 'system') {
+                    if (!window.AppConfig.state.lastPositions) {
+                        window.AppConfig.state.lastPositions = {};
+                    }
+                    window.AppConfig.state.lastPositions[appId] = { left: prevPos.left, top: prevPos.top };
                     draggedElement.remove();
                     draggedElement = null;
                     if (window.moveAppToTrash) {
                         window.moveAppToTrash(appId);
                     }
                     return;
+                } else {
+                    left = prevPos.left;
+                    top = prevPos.top;
                 }
             }
 
