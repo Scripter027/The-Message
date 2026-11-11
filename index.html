@@ -53,17 +53,18 @@
             <h2 class="panel-title" data-lang="settings_title">Настройки</h2>
             <div class="setting-row">
                 <span class="setting-label" data-lang="graphics">Графика:</span>
-                <div class="setting-options">
-                    <button class="select-btn active" data-lang="graphics_low">Низкая</button>
-                    <button class="select-btn" data-lang="graphics_med">Средняя</button>
-                    <button class="select-btn" data-lang="graphics_high">Высокая</button>
+                <div class="arrow-selector">
+                    <button class="arrow-btn" id="menuGfxPrev">◀</button>
+                    <span class="arrow-value" id="menuGfxVal" data-lang="graphics_high">Высокая</span>
+                    <button class="arrow-btn" id="menuGfxNext" disabled>▶</button>
                 </div>
             </div>
             <div class="setting-row">
                 <span class="setting-label" data-lang="language">Язык:</span>
-                <div class="setting-options">
-                    <button class="select-btn active" id="langRu">Русский</button>
-                    <button class="select-btn" id="langEn">English</button>
+                <div class="arrow-selector">
+                    <button class="arrow-btn" id="menuLangPrev">◀</button>
+                    <span class="arrow-value" id="menuLangVal">Русский</span>
+                    <button class="arrow-btn" id="menuLangNext" disabled>▶</button>
                 </div>
             </div>
             <div class="setting-row">
@@ -71,6 +72,7 @@
             </div>
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
+
         <div class="side-panel hidden" id="panelStart">
             <h2 class="panel-title" data-lang="chapters_title">Главы</h2>
             <div class="chapters-grid">
@@ -118,17 +120,18 @@
                 <div class="window-content">
                     <div class="setting-row">
                         <span class="setting-label" data-lang="graphics">Графика:</span>
-                        <div class="setting-options">
-                            <button class="select-btn" data-gfx="low" data-lang="graphics_low">Низкая</button>
-                            <button class="select-btn" data-gfx="medium" data-lang="graphics_med">Средняя</button>
-                            <button class="select-btn" data-gfx="high" data-lang="graphics_high">Высокая</button>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="deskGfxPrev">◀</button>
+                            <span class="arrow-value" id="deskGfxVal" data-lang="graphics_high">Высокая</span>
+                            <button class="arrow-btn" id="deskGfxNext" disabled>▶</button>
                         </div>
                     </div>
                     <div class="setting-row">
                         <span class="setting-label" data-lang="language">Язык:</span>
-                        <div class="setting-options">
-                            <button class="select-btn" id="desktopLangRu">Русский</button>
-                            <button class="select-btn" id="desktopLangEn">English</button>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="deskLangPrev">◀</button>
+                            <span class="arrow-value" id="deskLangVal">Русский</span>
+                            <button class="arrow-btn" id="deskLangNext" disabled>▶</button>
                         </div>
                     </div>
                     <div class="setting-row">
