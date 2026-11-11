@@ -54,17 +54,17 @@
             <div class="setting-row">
                 <span class="setting-label" data-lang="graphics">Графика:</span>
                 <div class="arrow-selector">
-                    <button class="arrow-btn" id="menuGfxPrev">◀</button>
-                    <span class="arrow-value" id="menuGfxVal" data-lang="graphics_high">Высокая</span>
-                    <button class="arrow-btn" id="menuGfxNext" disabled>▶</button>
+                    <button class="arrow-btn" id="menuGfxPrev">&lt;</button>
+                    <div class="arrow-value" id="menuGfxValue">Высокая</div>
+                    <button class="arrow-btn" id="menuGfxNext" disabled>&gt;</button>
                 </div>
             </div>
             <div class="setting-row">
                 <span class="setting-label" data-lang="language">Язык:</span>
                 <div class="arrow-selector">
-                    <button class="arrow-btn" id="menuLangPrev">◀</button>
-                    <span class="arrow-value" id="menuLangVal">Русский</span>
-                    <button class="arrow-btn" id="menuLangNext" disabled>▶</button>
+                    <button class="arrow-btn" id="menuLangPrev">&lt;</button>
+                    <div class="arrow-value" id="menuLangValue">Русский</div>
+                    <button class="arrow-btn" id="menuLangNext" disabled>&gt;</button>
                 </div>
             </div>
             <div class="setting-row">
@@ -76,27 +76,27 @@
         <div class="side-panel hidden" id="panelStart">
             <h2 class="panel-title" data-lang="chapters_title">Главы</h2>
             <div class="chapters-grid">
-                <button class="menu-btn locked">
-                    <span data-lang="ch1">Глава 1</span>
+                <button class="menu-btn chapter-btn locked">
+                    <span data-lang="ch1">Глава 1: "Динозаврик и Ссылка"</span>
                     <span class="lock-icon">🔒</span>
                     <span class="coming-soon" data-lang="soon">скоро</span>
                 </button>
-                <button class="menu-btn locked">
+                <button class="menu-btn chapter-btn locked">
                     <span data-lang="ch2">Глава 2</span>
                     <span class="lock-icon">🔒</span>
                     <span class="coming-soon" data-lang="soon">скоро</span>
                 </button>
-                <button class="menu-btn locked">
+                <button class="menu-btn chapter-btn locked">
                     <span data-lang="ch3">Глава 3</span>
                     <span class="lock-icon">🔒</span>
                     <span class="coming-soon" data-lang="soon">скоро</span>
                 </button>
-                <button class="menu-btn locked">
+                <button class="menu-btn chapter-btn locked">
                     <span data-lang="ch4">Глава 4</span>
                     <span class="lock-icon">🔒</span>
                     <span class="coming-soon" data-lang="soon">скоро</span>
                 </button>
-                <button class="menu-btn locked">
+                <button class="menu-btn chapter-btn locked">
                     <span data-lang="ch5">Глава 5</span>
                     <span class="lock-icon">🔒</span>
                     <span class="coming-soon" data-lang="soon">скоро</span>
@@ -105,7 +105,6 @@
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
     </div>
-
     <div class="desktop-environment hidden" id="desktopEnv">
         <div class="tv-effects">
             <div class="scanlines"></div>
@@ -121,17 +120,17 @@
                     <div class="setting-row">
                         <span class="setting-label" data-lang="graphics">Графика:</span>
                         <div class="arrow-selector">
-                            <button class="arrow-btn" id="deskGfxPrev">◀</button>
-                            <span class="arrow-value" id="deskGfxVal" data-lang="graphics_high">Высокая</span>
-                            <button class="arrow-btn" id="deskGfxNext" disabled>▶</button>
+                            <button class="arrow-btn" id="desktopGfxPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopGfxValue">Высокая</div>
+                            <button class="arrow-btn" id="desktopGfxNext" disabled>&gt;</button>
                         </div>
                     </div>
                     <div class="setting-row">
                         <span class="setting-label" data-lang="language">Язык:</span>
                         <div class="arrow-selector">
-                            <button class="arrow-btn" id="deskLangPrev">◀</button>
-                            <span class="arrow-value" id="deskLangVal">Русский</span>
-                            <button class="arrow-btn" id="deskLangNext" disabled>▶</button>
+                            <button class="arrow-btn" id="desktopLangPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopLangValue">Русский</div>
+                            <button class="arrow-btn" id="desktopLangNext" disabled>&gt;</button>
                         </div>
                     </div>
                     <div class="setting-row">
