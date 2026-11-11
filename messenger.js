@@ -3,14 +3,21 @@
     let selectedUser = null;
     let notifyTimeout = null;
     let typingTimeout = null;
+    let hackerTypeInterval = null;
     let isTyping = false;
+    let isChapterOneActive = false;
 
     const storyState = {
-        dinoDownloaded: false,
+        dinoTaskReceived: false,
         dinoScoreBeaten: false,
         unreadBro: 1,
         unreadHacker: 0,
         pinnedNotice: true
+    };
+
+    window.canPlayDino = function() {
+        if (!isChapterOneActive) return true;
+        return storyState.dinoTaskReceived;
     };
 
     function getCurrentTimeStr() {
@@ -19,16 +26,18 @@
     }
 
     window.initChapterOne = function() {
+        isChapterOneActive = true;
         currentStage = "start";
         selectedUser = null;
         isTyping = false;
-        storyState.dinoDownloaded = false;
+        storyState.dinoTaskReceived = false;
         storyState.dinoScoreBeaten = false;
         storyState.unreadBro = 1;
         storyState.unreadHacker = 0;
         storyState.pinnedNotice = true;
 
         if (typingTimeout) clearTimeout(typingTimeout);
+        if (hackerTypeInterval) clearInterval(hackerTypeInterval);
 
         const hackerOverlay = document.getElementById("hackerOverlay");
         if (hackerOverlay) {
@@ -136,6 +145,10 @@
                 return;
             }
             if (appId === "dino") {
+                if (window.canPlayDino && !window.canPlayDino()) {
+                    showMessNotification("Система", "Сначала проверьте сообщения в Mess и получите задание!");
+                    return;
+                }
                 if (!document.getElementById("windowDino")) createDinoGameWindow();
                 const win = document.getElementById("windowDino");
                 if (win) {
@@ -150,6 +163,7 @@
     })(window.openApplicationWindow);
 
     function triggerFail(reasonText) {
+        isChapterOneActive = false;
         if (window.triggerGameOverScreen) {
             window.triggerGameOverScreen(reasonText);
         }
@@ -240,6 +254,9 @@
         typingTimeout = setTimeout(() => {
             isTyping = false;
             currentStage = nextStage;
+            if (nextStage === "bro_record") {
+                storyState.dinoTaskReceived = true;
+            }
             if (selectedUser !== "bro") {
                 storyState.unreadBro = 1;
             }
@@ -249,6 +266,7 @@
 
     function renderBroChat(zone) {
         const statusText = isTyping ? "печатает..." : "в сети";
+        const showPin = storyState.dinoTaskReceived && storyState.pinnedNotice;
         zone.innerHTML = `
             <div style="padding:8px 12px; border-bottom:1px solid rgba(0,255,102,0.25); display:flex; justify-content:space-between; align-items:center; background:rgba(0,15,0,0.6);">
                 <div>
@@ -257,7 +275,7 @@
                 </div>
                 <button id="btnMessBack" style="background:transparent; border:1px solid rgba(0,255,102,0.4); color:#00ff66; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.7rem; cursor:pointer;">Назад</button>
             </div>
-            ${storyState.pinnedNotice ? `
+            ${showPin ? `
             <div id="messPinnedBar" style="padding:5px 10px; background:rgba(0,255,102,0.08); border-bottom:1px solid rgba(0,255,102,0.2); display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#00ff66;">
                 <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📌 Закреплено: Цель — 1000 очков в Dino</span>
                 <span id="closePinBtn" style="cursor:pointer; padding-left:8px; opacity:0.7;">✕</span>
@@ -316,7 +334,6 @@
                 hint.style.border = "1px dashed #ffaa00";
                 hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 msgContainer.appendChild(hint);
-                storyState.dinoDownloaded = true;
             }
         }
     }
@@ -437,13 +454,15 @@
                 if (overlay) {
                     overlay.style.opacity = "0";
                     overlay.style.display = "flex";
-                    runHackerDialog("start");
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             overlay.classList.add("visible");
                             overlay.style.opacity = "1";
                         });
                     });
+                    setTimeout(() => {
+                        runHackerDialog("start");
+                    }, 900);
                 }
             }, 1400);
         }, 2200);
@@ -526,27 +545,46 @@
         document.body.appendChild(overlay);
     }
 
+    function typeHackerText(msgEl, fullText, onComplete) {
+        if (hackerTypeInterval) clearInterval(hackerTypeInterval);
+        msgEl.textContent = "";
+        let index = 0;
+        hackerTypeInterval = setInterval(() => {
+            if (index < fullText.length) {
+                msgEl.textContent += fullText.charAt(index);
+                index++;
+            } else {
+                clearInterval(hackerTypeInterval);
+                hackerTypeInterval = null;
+                if (onComplete) onComplete();
+            }
+        }, 28);
+    }
+
     function runHackerDialog(node) {
         const msgEl = document.querySelector(".hacker-msg");
         const optZone = document.querySelector(".hacker-options-zone");
         if (!msgEl || !optZone) return;
-        msgEl.textContent = "";
         optZone.innerHTML = "";
 
         if (node === "start") {
-            msgEl.textContent = "Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!";
-            createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => runHackerDialog("ans1"));
-            createHackerOption(optZone, "2. Я позвоню в полицию!", () => runHackerDialog("ans2"));
-            createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            typeHackerText(msgEl, "Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!", () => {
+                createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => runHackerDialog("ans1"));
+                createHackerOption(optZone, "2. Я позвоню в полицию!", () => runHackerDialog("ans2"));
+                createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            });
         } else if (node === "ans1") {
-            msgEl.textContent = "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.";
-            createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            typeHackerText(msgEl, "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.", () => {
+                createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            });
         } else if (node === "ans2") {
-            msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!";
-            createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            typeHackerText(msgEl, "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!", () => {
+                createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+            });
         } else if (node === "ans3") {
-            msgEl.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
-            createFinalOptions(optZone);
+            typeHackerText(msgEl, "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?", () => {
+                createFinalOptions(optZone);
+            });
         }
     }
 
@@ -561,6 +599,7 @@
     function createFinalOptions(parent) {
         for (let i = 0; i < 3; i++) {
             createHackerOption(parent, "Да", () => {
+                isChapterOneActive = false;
                 const overlay = document.getElementById("hackerOverlay");
                 if (overlay) {
                     overlay.classList.remove("visible");
