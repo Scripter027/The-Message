@@ -1,6 +1,7 @@
 (function() {
     let currentStage = "start";
     let selectedUser = null;
+    let notifyTimeout = null;
 
     const storyState = {
         dinoDownloaded: false,
@@ -8,13 +9,18 @@
     };
 
     window.initChapterOne = function() {
+        currentStage = "start";
+        selectedUser = null;
+        storyState.dinoDownloaded = false;
+        storyState.dinoScoreBeaten = false;
+
+        const hackerOverlay = document.getElementById("hackerOverlay");
+        if (hackerOverlay) hackerOverlay.style.display = "none";
+
+        document.querySelectorAll('.desktop-window').forEach(w => w.classList.add('hidden'));
+
         if (window.AppConfig) {
-            window.AppConfig.state.installed = ["messenger", "store"];
-            window.AppConfig.state.positions = {
-                "messenger": { left: 20, top: 20 },
-                "store": { left: 20, top: 110 }
-            };
-            window.AppConfig.state.trashContents = [];
+            window.AppConfig.setupChapterOneMode();
             window.AppConfig.save();
         }
         
@@ -27,7 +33,7 @@
                 createHackerOverlay();
                 setTimeout(() => {
                     showMessNotification("Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?");
-                }, 1500);
+                }, 1200);
             } else {
                 setTimeout(checkVisible, 200);
             }
@@ -36,7 +42,12 @@
     };
 
     function showMessNotification(from, text) {
+        const oldNotify = document.getElementById("activeMessNotify");
+        if (oldNotify) oldNotify.remove();
+        if (notifyTimeout) clearTimeout(notifyTimeout);
+
         const notify = document.createElement("div");
+        notify.id = "activeMessNotify";
         notify.style.position = "fixed";
         notify.style.bottom = "60px";
         notify.style.right = "20px";
@@ -55,8 +66,9 @@
             window.openApplicationWindow("messenger");
         });
         document.body.appendChild(notify);
-        setTimeout(() => { if (notify.parentNode) notify.remove(); }, 6000);
+        notifyTimeout = setTimeout(() => { if (notify.parentNode) notify.remove(); }, 6000);
     }
+
     function createMessWindow() {
         if (document.getElementById("windowMessenger")) return;
         const mainZone = document.querySelector(".desktop-main");
@@ -82,12 +94,8 @@
         document.getElementById("btnCloseMessenger").addEventListener("click", () => {
             win.classList.add("hidden");
         });
-        if (window.bringToFront) {
-            win.addEventListener("mousedown", () => window.bringToFront(win));
-            win.addEventListener("touchstart", () => window.bringToFront(win), {passive:true});
-        }
+        if (window.makeWindowDraggable) window.makeWindowDraggable(win);
     }
-
     window.openApplicationWindow = (originalOpen => {
         return function(appId) {
             if (appId === "messenger") {
@@ -100,19 +108,24 @@
                 return;
             }
             if (appId === "dino") {
-                if (storyState.dinoDownloaded) {
-                    const win = document.getElementById("windowDino");
-                    if (win) {
-                        win.classList.remove("hidden");
-                        if (window.bringToFront) window.bringToFront(win);
-                        if (window.initDinoGame) window.initDinoGame();
-                    }
+                if (!document.getElementById("windowDino")) createDinoGameWindow();
+                const win = document.getElementById("windowDino");
+                if (win) {
+                    win.classList.remove("hidden");
+                    if (window.bringToFront) window.bringToFront(win);
+                    if (window.initDinoGame) window.initDinoGame();
                 }
                 return;
             }
-            originalOpen(appId);
+            if (originalOpen) originalOpen(appId);
         };
     })(window.openApplicationWindow);
+
+    function triggerFail(reasonText) {
+        if (window.triggerGameOverScreen) {
+            window.triggerGameOverScreen(reasonText);
+        }
+    }
 
     function renderMess() {
         const userList = document.getElementById("messUserList");
@@ -183,24 +196,28 @@
         } else if (currentStage === "bro_record") {
             appendMessLog(msgContainer, "Вы", "Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", true);
             appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 300! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false);
-            if (!storyState.dinoDownloaded) {
-                const hint = document.createElement("div");
-                hint.style.color = "#ffaa00";
-                hint.style.textAlign = "center";
-                hint.style.fontSize = "0.8rem";
-                hint.style.marginTop = "10px";
-                hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
-                msgContainer.appendChild(hint);
-                storyState.dinoDownloaded = true;
-            }
+            
+            const hint = document.createElement("div");
+            hint.style.color = "#ffaa00";
+            hint.style.textAlign = "center";
+            hint.style.fontSize = "0.8rem";
+            hint.style.marginTop = "10px";
+            hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
+            msgContainer.appendChild(hint);
+            storyState.dinoDownloaded = true;
         }
     }
 
     function appendMessLog(container, sender, text, isOut) {
         const msg = document.createElement("div");
-        msg.style.maxWidth = "80%", msg.style.padding = "8px 12px", msg.style.fontSize = "0.85rem", msg.style.lineHeight = "1.4";
-        msg.style.border = "1px solid " + (isOut ? "#00ff66" : "rgba(0,255,102,0.3)"), msg.style.background = isOut ? "rgba(0,255,102,0.1)" : "transparent";
-        msg.style.color = "#00ff66", msg.style.alignSelf = isOut ? "flex-end" : "flex-start";
+        msg.style.maxWidth = "80%";
+        msg.style.padding = "8px 12px";
+        msg.style.fontSize = "0.85rem";
+        msg.style.lineHeight = "1.4";
+        msg.style.border = "1px solid " + (isOut ? "#00ff66" : "rgba(0,255,102,0.3)");
+        msg.style.background = isOut ? "rgba(0,255,102,0.1)" : "transparent";
+        msg.style.color = "#00ff66";
+        msg.style.alignSelf = isOut ? "flex-end" : "flex-start";
         msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">${sender}:</span>${text}`;
         container.appendChild(msg);
         container.scrollTop = container.scrollHeight;
@@ -208,8 +225,14 @@
 
     function createMessOption(parent, text, callback) {
         const btn = document.createElement("button");
-        btn.style.background = "transparent", btn.style.border = "1px solid #00ff66", btn.style.color = "#00ff66", btn.style.padding = "8px";
-        btn.style.textAlign = "left", btn.style.cursor = "pointer", btn.style.fontFamily = "Russo One, sans-serif", btn.style.fontSize = "0.8rem";
+        btn.style.background = "transparent";
+        btn.style.border = "1px solid #00ff66";
+        btn.style.color = "#00ff66";
+        btn.style.padding = "8px";
+        btn.style.textAlign = "left";
+        btn.style.cursor = "pointer";
+        btn.style.fontFamily = "Russo One, sans-serif";
+        btn.style.fontSize = "0.8rem";
         btn.textContent = text;
         btn.addEventListener("click", callback);
         parent.appendChild(btn);
@@ -221,7 +244,8 @@
         const win = document.createElement("div");
         win.id = "windowDino";
         win.classList.add("desktop-window", "hidden");
-        win.style.width = "480px", win.style.height = "250px";
+        win.style.width = "480px";
+        win.style.height = "250px";
         win.innerHTML = `
             <div class="window-header"><span class="window-title">Dino Game</span><button class="window-close-btn" id="btnCloseDino">X</button></div>
             <div class="window-content" style="padding:8px; background:#000; overflow:hidden; position:relative;">
@@ -231,10 +255,13 @@
         `;
         mainZone.appendChild(win);
         document.getElementById("btnCloseDino").addEventListener("click", () => win.classList.add("hidden"));
+        if (window.makeWindowDraggable) window.makeWindowDraggable(win);
     }
 
     window.triggerDinoScoreBeaten = function() {
-        storyState.dinoScoreBeaten = true, selectedUser = "hacker";
+        if (storyState.dinoScoreBeaten) return;
+        storyState.dinoScoreBeaten = true;
+        selectedUser = "hacker";
         renderMess();
         showMessNotification("???", "Хочешь побольше новых игр? Кликай сюда: *ссылка*");
     };
@@ -245,25 +272,27 @@
         `;
         const container = document.getElementById("messHackerLogs");
         const msg = document.createElement("div");
-        msg.style.maxWidth = "80%", msg.style.padding = "8px 12px", msg.style.fontSize = "0.85rem", msg.style.border = "1px solid #ff3333", msg.style.color = "#ff3333";
+        msg.style.maxWidth = "80%";
+        msg.style.padding = "8px 12px";
+        msg.style.fontSize = "0.85rem";
+        msg.style.border = "1px solid #ff3333";
+        msg.style.color = "#ff3333";
         msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">???:</span>Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">*ссылка*</span>`;
         container.appendChild(msg);
         
-        setTimeout(() => {
-            const link = document.getElementById("hackerLink");
-            if (link) {
-                link.addEventListener("click", () => {
-                    const env = document.getElementById("desktopEnv");
-                    if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
-                    setTimeout(() => {
-                        if (env) env.style.display = "none";
-                        const overlay = document.getElementById("hackerOverlay");
-                        if (overlay) overlay.style.display = "flex";
-                        runHackerDialog("start");
-                    }, 1500);
-                });
-            }
-        }, 100);
+        const link = document.getElementById("hackerLink");
+        if (link) {
+            link.addEventListener("click", () => {
+                const env = document.getElementById("desktopEnv");
+                if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
+                setTimeout(() => {
+                    if (env) env.style.display = "none";
+                    const overlay = document.getElementById("hackerOverlay");
+                    if (overlay) overlay.style.display = "flex";
+                    runHackerDialog("start");
+                }, 1500);
+            });
+        }
     }
 
     function createHackerOverlay() {
@@ -275,7 +304,7 @@
             <div class="hacker-silhouette">
                 <div class="hacker-hood-body">
                     <div class="hacker-hood-monster">
-                        <div class="hacker-hood-monster-eyes">
+                        <div class="hacker-monster-eyes">
                             <div class="hacker-monster-left"></div>
                             <div class="hacker-monster-right"></div>
                         </div>
@@ -299,28 +328,23 @@
         const msgEl = document.querySelector(".hacker-msg");
         const optZone = document.querySelector(".hacker-options-zone");
         if (!msgEl || !optZone) return;
-        msgEl.textContent = "", optZone.innerHTML = "";
+        msgEl.textContent = "";
+        optZone.innerHTML = "";
 
         if (node === "start") {
             msgEl.innerHTML = `<span style="color:#ff3333; font-weight:bold; display:block; font-size:1.4rem; margin-bottom:15px; text-shadow:0 0 10px #ff3333;">дЬяВоЛ68</span>Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!`;
-            createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => {
-                alert("Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.");
-                runHackerDialog("start");
-            });
-            createHackerOption(optZone, "2. Я позвоню в полицию!", () => {
-                alert("Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!");
-                runHackerDialog("start");
-            });
+            createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => runHackerDialog("ans1"));
+            createHackerOption(optZone, "2. Я позвоню в полицию!", () => runHackerDialog("ans2"));
             createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
+        } else if (node === "ans1") {
+            msgEl.textContent = "Думаешь, сможешь просто закрыть это окно? Я уже скопировал все твои личные данные, пароли и адреса твоих близких. Будешь спорить — пострадают все.";
+            createFinalOptions(optZone);
+        } else if (node === "ans2") {
+            msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь — звони, только твой комп сгорит раньше, чем ты наберешь номер. Но ты рискни!";
+            createFinalOptions(optZone);
         } else if (node === "ans3") {
-            msgEl.innerHTML = `<span style="color:#ff3333; font-weight:bold; display:block; font-size:1.4rem; margin-bottom:15px; text-shadow:0 0 10px #ff3333;">дЬяВоЛ68</span>Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да even обычным людям, то что я скажу, а также жить только как я скажу! Готов?`;
-            for (let i = 0; i < 3; i++) {
-                createHackerOption(optZone, "Да", () => {
-                    alert("Глава 1 успешно пройдена! Вы в ловушке дЬяВоЛа68...");
-                    if (window.AppConfig) window.AppConfig.resetToDesktopDefault();
-                    location.reload();
-                });
-            }
+            msgEl.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
+            createFinalOptions(optZone);
         }
     }
 
@@ -332,11 +356,22 @@
         parent.appendChild(btn);
     }
 
-    function triggerFail(text) {
-        const env = document.getElementById("desktopEnv");
-        if (env) env.style.display = "none";
-        if (window.triggerGameOverScreen) {
-            window.triggerGameOverScreen(text);
+    function createFinalOptions(parent) {
+        for (let i = 0; i < 3; i++) {
+            createHackerOption(parent, "Да", () => {
+                const overlay = document.getElementById("hackerOverlay");
+                if (overlay) overlay.style.display = "none";
+                
+                if (window.triggerLoading) {
+                    window.triggerLoading(() => {
+                        const mainMenu = document.getElementById("mainMenu");
+                        if (mainMenu) {
+                            mainMenu.classList.remove("hidden");
+                            setTimeout(() => mainMenu.classList.add("visible"), 50);
+                        }
+                    });
+                }
+            });
         }
     }
 })();
