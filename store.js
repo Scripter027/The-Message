@@ -33,7 +33,6 @@
             infoEl.style.color = '#00ff66';
 
             const iconEl = document.createElement('span');
-            iconEl.style.fontSize = '1.2rem';
             iconEl.textContent = appData.icon;
 
             const nameEl = document.createElement('span');
@@ -62,7 +61,11 @@
                     const index = window.AppConfig.state.trashContents.indexOf(appId);
                     if (index !== -1) {
                         window.AppConfig.state.trashContents.splice(index, 1);
-                        window.AppConfig.save();
+                        if (window.restoreAppPosition) {
+                            window.restoreAppPosition(appId);
+                        } else {
+                            window.AppConfig.save();
+                        }
                         renderStoreContents();
                         if (window.renderDesktopIcons) window.renderDesktopIcons();
                         if (window.renderExplorerContents) window.renderExplorerContents();
