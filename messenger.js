@@ -77,20 +77,22 @@
         if (oldNotify) oldNotify.remove();
         if (notifyTimeout) clearTimeout(notifyTimeout);
 
+        const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
         const notify = document.createElement("div");
         notify.id = "activeMessNotify";
         notify.style.position = "fixed";
-        notify.style.bottom = "60px";
-        notify.style.right = "20px";
+        notify.style.bottom = isMobile ? "46px" : "60px";
+        notify.style.right = isMobile ? "12px" : "20px";
+        notify.style.maxWidth = isMobile ? "calc(100vw - 24px)" : "340px";
         notify.style.background = "#000";
         notify.style.border = "2px solid #00ff66";
-        notify.style.padding = "12px 16px";
+        notify.style.padding = isMobile ? "8px 12px" : "12px 16px";
         notify.style.color = "#00ff66";
         notify.style.fontFamily = "Russo One, sans-serif";
         notify.style.zIndex = "10000";
         notify.style.cursor = "pointer";
         notify.style.boxShadow = "0 0 12px #00ff66";
-        notify.innerHTML = `<div style="font-weight:bold; text-shadow:0 0 5px #00ff66; margin-bottom:4px;">${from}</div><div style="font-size:0.85rem;">${text}</div>`;
+        notify.innerHTML = `<div style="font-weight:bold; text-shadow:0 0 5px #00ff66; margin-bottom:3px; font-size:${isMobile ? "0.85rem" : "0.95rem"};">${from}</div><div style="font-size:${isMobile ? "0.78rem" : "0.85rem"};">${text}</div>`;
         
         notify.addEventListener("click", () => {
             notify.remove();
@@ -108,23 +110,23 @@
         const win = document.createElement("div");
         win.id = "windowMessenger";
         win.classList.add("desktop-window", "hidden");
-        win.style.width = "560px";
-        win.style.height = "410px";
+        win.style.width = "min(560px, 94vw)";
+        win.style.height = "min(410px, calc(100dvh - 50px))";
 
         win.innerHTML = `
             <div class="window-header">
                 <span class="window-title">Mess</span>
                 <button class="window-close-btn" id="btnCloseMessenger">X</button>
             </div>
-            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 35px); gap:0;">
-                <div style="width:36%; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
-                    <div style="padding:8px 10px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.8rem;">
+            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 32px); gap:0; overflow:hidden;">
+                <div style="width:35%; min-width:110px; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
+                    <div style="padding:6px 8px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.76rem;">
                         <span>☰ Чаты</span>
-                        <span style="opacity:0.6; font-size:0.7rem;">v2.4</span>
+                        <span style="opacity:0.6; font-size:0.68rem;">v2.4</span>
                     </div>
-                    <div id="messUserList" style="flex:1; overflow-y:auto; color:#00ff66; font-size:0.85rem; cursor:pointer;"></div>
+                    <div id="messUserList" style="flex:1; overflow-y:auto; color:#00ff66; font-size:0.82rem; cursor:pointer;"></div>
                 </div>
-                <div id="messChatZone" style="width:64%; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative;"></div>
+                <div id="messChatZone" style="width:65%; flex:1; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"></div>
             </div>
         `;
         mainZone.appendChild(win);
@@ -176,13 +178,13 @@
         userList.innerHTML = "";
         
         const broItem = document.createElement("div");
-        broItem.style.padding = "10px";
+        broItem.style.padding = "8px";
         broItem.style.borderBottom = "1px solid rgba(0,255,102,0.12)";
         broItem.style.color = "#00ff66";
         broItem.style.display = "flex";
         broItem.style.justifyContent = "space-between";
         broItem.style.alignItems = "center";
-        broItem.style.gap = "6px";
+        broItem.style.gap = "5px";
         if (selectedUser === "bro") {
             broItem.style.background = "rgba(0,255,102,0.18)";
             storyState.unreadBro = 0;
@@ -191,13 +193,13 @@
         const broPreview = isTyping && selectedUser === "bro" ? "печатает..." : (currentStage === "bro_record" ? "Мой рекорд 1000!..." : "Хей, Айв! Как дела?...");
         broItem.innerHTML = `
             <div style="overflow:hidden; flex:1;">
-                <div style="font-weight:bold; display:flex; align-items:center; gap:5px;">
-                    <span style="display:inline-block; width:7px; height:7px; background:#00ff66; border-radius:50%; box-shadow:0 0 5px #00ff66;"></span>
-                    <span>Бро</span>
+                <div style="font-weight:bold; display:flex; align-items:center; gap:5px; font-size:0.8rem;">
+                    <span style="display:inline-block; width:6px; height:6px; background:#00ff66; border-radius:50%; box-shadow:0 0 5px #00ff66; flex-shrink:0;"></span>
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Бро</span>
                 </div>
-                <div style="font-size:0.72rem; opacity:${isTyping && selectedUser === "bro" ? "1" : "0.6"}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${broPreview}</div>
+                <div style="font-size:0.68rem; opacity:${isTyping && selectedUser === "bro" ? "1" : "0.6"}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${broPreview}</div>
             </div>
-            ${storyState.unreadBro > 0 ? `<div style="background:#00ff66; color:#000; font-size:0.7rem; padding:2px 6px; font-weight:bold;">${storyState.unreadBro}</div>` : ""}
+            ${storyState.unreadBro > 0 ? `<div style="background:#00ff66; color:#000; font-size:0.68rem; padding:2px 5px; font-weight:bold; flex-shrink:0;">${storyState.unreadBro}</div>` : ""}
         `;
         
         broItem.addEventListener("click", () => {
@@ -209,23 +211,23 @@
 
         if (storyState.dinoScoreBeaten) {
             const hackerItem = document.createElement("div");
-            hackerItem.style.padding = "10px";
+            hackerItem.style.padding = "8px";
             hackerItem.style.borderBottom = "1px solid rgba(255,51,51,0.18)";
             hackerItem.style.color = "#ff3333";
             hackerItem.style.display = "flex";
             hackerItem.style.justifyContent = "space-between";
             hackerItem.style.alignItems = "center";
-            hackerItem.style.gap = "6px";
+            hackerItem.style.gap = "5px";
             if (selectedUser === "hacker") {
                 hackerItem.style.background = "rgba(255,51,51,0.18)";
                 storyState.unreadHacker = 0;
             }
             hackerItem.innerHTML = `
                 <div style="overflow:hidden; flex:1;">
-                    <div style="font-weight:bold;">❓ ???</div>
-                    <div style="font-size:0.72rem; opacity:0.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Хочешь помогу...</div>
+                    <div style="font-weight:bold; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">❓ ???</div>
+                    <div style="font-size:0.68rem; opacity:0.7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Хочешь помогу...</div>
                 </div>
-                ${storyState.unreadHacker > 0 ? `<div style="background:#ff3333; color:#000; font-size:0.7rem; padding:2px 6px; font-weight:bold;">${storyState.unreadHacker}</div>` : ""}
+                ${storyState.unreadHacker > 0 ? `<div style="background:#ff3333; color:#000; font-size:0.68rem; padding:2px 5px; font-weight:bold; flex-shrink:0;">${storyState.unreadHacker}</div>` : ""}
             `;
             
             hackerItem.addEventListener("click", () => {
@@ -237,7 +239,7 @@
         }
 
         if (!selectedUser) {
-            chatZone.innerHTML = `<div style="color:rgba(0,255,102,0.45); text-align:center; margin:auto; font-size:0.8rem; max-width:85%; padding:15px; border:1px dashed rgba(0,255,102,0.25);">Выберите чат слева, чтобы начать общение.<br><br>Mess был обновлен и все старые истории были стерты.</div>`;
+            chatZone.innerHTML = `<div style="color:rgba(0,255,102,0.45); text-align:center; margin:auto; font-size:0.76rem; max-width:88%; padding:12px; border:1px dashed rgba(0,255,102,0.25);">Выберите чат слева, чтобы начать общение.<br><br>Mess был обновлен и все старые истории были стерты.</div>`;
             return;
         }
 
@@ -268,20 +270,20 @@
         const statusText = isTyping ? "печатает..." : "в сети";
         const showPin = storyState.dinoTaskReceived && storyState.pinnedNotice;
         zone.innerHTML = `
-            <div style="padding:8px 12px; border-bottom:1px solid rgba(0,255,102,0.25); display:flex; justify-content:space-between; align-items:center; background:rgba(0,15,0,0.6);">
+            <div style="padding:6px 10px; border-bottom:1px solid rgba(0,255,102,0.25); display:flex; justify-content:space-between; align-items:center; background:rgba(0,15,0,0.6); flex-shrink:0;">
                 <div>
-                    <div style="color:#00ff66; font-weight:bold; font-size:0.9rem; text-shadow:0 0 3px #00ff66;">👦 Бро</div>
-                    <div style="color:#00ff66; font-size:0.7rem; opacity:${isTyping ? "1" : "0.65"};">${statusText}</div>
+                    <div style="color:#00ff66; font-weight:bold; font-size:0.85rem; text-shadow:0 0 3px #00ff66;">👦 Бро</div>
+                    <div style="color:#00ff66; font-size:0.68rem; opacity:${isTyping ? "1" : "0.65"};">${statusText}</div>
                 </div>
-                <button id="btnMessBack" style="background:transparent; border:1px solid rgba(0,255,102,0.4); color:#00ff66; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.7rem; cursor:pointer;">Назад</button>
+                <button id="btnMessBack" style="background:transparent; border:1px solid rgba(0,255,102,0.4); color:#00ff66; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.68rem; cursor:pointer;">Назад</button>
             </div>
             ${showPin ? `
-            <div id="messPinnedBar" style="padding:5px 10px; background:rgba(0,255,102,0.08); border-bottom:1px solid rgba(0,255,102,0.2); display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#00ff66;">
+            <div id="messPinnedBar" style="padding:4px 8px; background:rgba(0,255,102,0.08); border-bottom:1px solid rgba(0,255,102,0.2); display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; color:#00ff66; flex-shrink:0;">
                 <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📌 Закреплено: Цель — 1000 очков в Dino</span>
                 <span id="closePinBtn" style="cursor:pointer; padding-left:8px; opacity:0.7;">✕</span>
             </div>` : ""}
-            <div id="messLogs" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;"></div>
-            <div id="messOptions" style="padding:8px 10px; display:flex; flex-direction:column; gap:6px; border-top:1px solid rgba(0,255,102,0.2); background:rgba(0,10,0,0.8);"></div>
+            <div id="messLogs" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;"></div>
+            <div id="messOptions" style="padding:6px 8px; display:flex; flex-direction:column; gap:5px; border-top:1px solid rgba(0,255,102,0.2); background:rgba(0,10,0,0.8); flex-shrink:0; max-height:46%; overflow-y:auto;"></div>
         `;
 
         const backBtn = document.getElementById("btnMessBack");
@@ -328,30 +330,31 @@
                 const hint = document.createElement("div");
                 hint.style.color = "#ffaa00";
                 hint.style.textAlign = "center";
-                hint.style.fontSize = "0.78rem";
-                hint.style.marginTop = "6px";
-                hint.style.padding = "6px";
+                hint.style.fontSize = "0.74rem";
+                hint.style.marginTop = "4px";
+                hint.style.padding = "5px";
                 hint.style.border = "1px dashed #ffaa00";
                 hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 msgContainer.appendChild(hint);
+                msgContainer.scrollTop = msgContainer.scrollHeight;
             }
         }
     }
     function appendMessLog(container, sender, text, isOut, timeStr) {
         const msg = document.createElement("div");
-        msg.style.maxWidth = "82%";
-        msg.style.padding = "7px 11px";
-        msg.style.fontSize = "0.82rem";
-        msg.style.lineHeight = "1.4";
+        msg.style.maxWidth = "86%";
+        msg.style.padding = "6px 10px";
+        msg.style.fontSize = "0.78rem";
+        msg.style.lineHeight = "1.35";
         msg.style.border = "1px solid " + (isOut ? "#00ff66" : "rgba(0,255,102,0.35)");
         msg.style.background = isOut ? "rgba(0,255,102,0.12)" : "rgba(0,12,0,0.6)";
         msg.style.color = "#00ff66";
         msg.style.alignSelf = isOut ? "flex-end" : "flex-start";
-        const ticks = isOut ? ` <span style="font-size:0.68rem;">✓✓</span>` : "";
+        const ticks = isOut ? ` <span style="font-size:0.65rem;">✓✓</span>` : "";
         msg.innerHTML = `
-            <span style="font-weight:bold; display:block; margin-bottom:2px; font-size:0.75rem; opacity:0.85;">${sender}</span>
+            <span style="font-weight:bold; display:block; margin-bottom:2px; font-size:0.72rem; opacity:0.85;">${sender}</span>
             <div>${text}</div>
-            <div style="text-align:right; font-size:0.65rem; opacity:0.65; margin-top:4px;">${timeStr || "00:00"}${ticks}</div>
+            <div style="text-align:right; font-size:0.62rem; opacity:0.65; margin-top:3px;">${timeStr || "00:00"}${ticks}</div>
         `;
         container.appendChild(msg);
         container.scrollTop = container.scrollHeight;
@@ -362,11 +365,12 @@
         btn.style.background = "transparent";
         btn.style.border = "1px solid #00ff66";
         btn.style.color = "#00ff66";
-        btn.style.padding = "7px 9px";
+        btn.style.padding = "6px 8px";
         btn.style.textAlign = "left";
         btn.style.cursor = "pointer";
         btn.style.fontFamily = "Russo One, sans-serif";
-        btn.style.fontSize = "0.78rem";
+        btn.style.fontSize = "0.74rem";
+        btn.style.lineHeight = "1.25";
         btn.textContent = text;
         btn.addEventListener("click", callback);
         parent.appendChild(btn);
@@ -378,13 +382,12 @@
         const win = document.createElement("div");
         win.id = "windowDino";
         win.classList.add("desktop-window", "hidden");
-        win.style.width = "480px";
-        win.style.height = "250px";
+        win.style.width = "min(480px, 94vw)";
         win.innerHTML = `
             <div class="window-header"><span class="window-title">Dino Game</span><button class="window-close-btn" id="btnCloseDino">X</button></div>
-            <div class="window-content" style="padding:8px; background:#000; overflow:hidden; position:relative;">
+            <div class="window-content" style="padding:8px; background:#000; overflow:hidden; position:relative; gap:4px;">
                 <canvas id="dinoCanvas" style="display:block; width:100%; height:150px; background:#000;"></canvas>
-                <div id="dino-over-box" style="text-align:center; margin-top:5px; font-family:Russo One; min-height:18px;"></div>
+                <div id="dino-over-box" style="text-align:center; margin-top:4px; font-family:Russo One; min-height:16px;"></div>
             </div>
         `;
         mainZone.appendChild(win);
@@ -470,14 +473,14 @@
     function renderHackerChat(zone) {
         const timeStr = getCurrentTimeStr();
         zone.innerHTML = `
-            <div style="padding:8px 12px; border-bottom:1px solid #ff3333; display:flex; justify-content:space-between; align-items:center; background:rgba(25,0,0,0.7);">
+            <div style="padding:6px 10px; border-bottom:1px solid #ff3333; display:flex; justify-content:space-between; align-items:center; background:rgba(25,0,0,0.7); flex-shrink:0;">
                 <div>
-                    <div style="color:#ff3333; font-weight:bold; font-size:0.9rem;">❓ ???</div>
-                    <div style="color:#ff3333; font-size:0.7rem; opacity:0.75;">был(а) только что</div>
+                    <div style="color:#ff3333; font-weight:bold; font-size:0.85rem;">❓ ???</div>
+                    <div style="color:#ff3333; font-size:0.68rem; opacity:0.75;">был(а) только что</div>
                 </div>
-                <button id="btnHackerBack" style="background:transparent; border:1px solid rgba(255,51,51,0.5); color:#ff3333; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.7rem; cursor:pointer;">Назад</button>
+                <button id="btnHackerBack" style="background:transparent; border:1px solid rgba(255,51,51,0.5); color:#ff3333; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.68rem; cursor:pointer;">Назад</button>
             </div>
-            <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px;"></div>
+            <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;"></div>
         `;
         const backBtn = document.getElementById("btnHackerBack");
         if (backBtn) {
@@ -489,16 +492,16 @@
 
         const container = document.getElementById("messHackerLogs");
         const msg = document.createElement("div");
-        msg.style.maxWidth = "82%";
-        msg.style.padding = "8px 12px";
-        msg.style.fontSize = "0.85rem";
+        msg.style.maxWidth = "86%";
+        msg.style.padding = "8px 10px";
+        msg.style.fontSize = "0.8rem";
         msg.style.border = "1px solid #ff3333";
         msg.style.background = "rgba(30,0,0,0.45)";
         msg.style.color = "#ff3333";
         msg.innerHTML = `
-            <span style="font-weight:bold; display:block; margin-bottom:2px; font-size:0.75rem;">???</span>
+            <span style="font-weight:bold; display:block; margin-bottom:2px; font-size:0.72rem;">???</span>
             <div>Хочешь помогу побить рекорд? <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">Свяжись со мной</span></div>
-            <div style="text-align:right; font-size:0.65rem; opacity:0.65; margin-top:4px;">${timeStr}</div>
+            <div style="text-align:right; font-size:0.62rem; opacity:0.65; margin-top:4px;">${timeStr}</div>
         `;
         container.appendChild(msg);
         
