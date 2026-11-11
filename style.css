@@ -5,6 +5,7 @@
     font-style: normal;
     font-display: swap;
 }
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -468,48 +469,8 @@ video {
     letter-spacing: 2px;
     text-shadow: 0 0 10px #00ff66;
     text-transform: uppercase;
-}
-
-.side-social-bar {
-    position: absolute;
-    left: 30px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    z-index: 40;
-}
-
-.social-icon-btn {
-    width: 50px;
-    height: 50px;
-    border: 2px solid #00ff66;
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #00ff66;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
-    cursor: pointer;
-    pointer-events: auto !important;
-}
-
-.social-icon-btn svg {
-    width: 24px;
-    height: 24px;
-    filter: drop-shadow(0 0 4px #00ff66);
-}
-
-.social-icon-btn:hover {
-    background: #00ff66;
-    color: #000;
-    box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66;
-}
-
-.social-icon-btn:hover svg {
-    filter: none;
+    text-align: center;
+    padding: 0 20px;
 }
 
 .square-spinner {
@@ -560,7 +521,7 @@ video {
     pointer-events: auto !important;
 }
 
-.desktop-environment.hidden, .desktop-window.hidden {
+.desktop-environment.hidden {
     display: none !important;
 }
 
@@ -629,7 +590,21 @@ video {
     z-index: 50;
     display: flex;
     flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+    filter: blur(0px);
+    margin-top: 0px;
     pointer-events: auto !important;
+    transition: opacity 0.26s ease, filter 0.26s ease, margin-top 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0.26s;
+}
+
+.desktop-window.hidden {
+    display: flex !important;
+    opacity: 0;
+    visibility: hidden;
+    filter: blur(3px);
+    margin-top: 14px;
+    pointer-events: none !important;
 }
 
 .window-header {
@@ -756,11 +731,11 @@ video {
 body.gfx-low .scanlines, body.gfx-low .flicker {
     display: none !important;
 }
-body.gfx-low .menu-btn, body.gfx-low .side-panel, body.gfx-low .prompt-text, body.gfx-low .panel-title, body.gfx-low .square-spinner, body.gfx-low .loading-text, body.gfx-low .taskbar-clock, body.gfx-low .taskbar-btn, body.gfx-low .desktop-window, body.gfx-low .credits-text, body.gfx-low .social-icon-btn, body.gfx-low .icon-visual {
+body.gfx-low .menu-btn, body.gfx-low .side-panel, body.gfx-low .prompt-text, body.gfx-low .panel-title, body.gfx-low .square-spinner, body.gfx-low .loading-text, body.gfx-low .taskbar-clock, body.gfx-low .taskbar-btn, body.gfx-low .desktop-window, body.gfx-low .credits-text, body.gfx-low .icon-visual {
     text-shadow: none !important;
     box-shadow: none !important;
 }
-body.gfx-low .menu-btn:hover, body.gfx-low .taskbar-btn:hover, body.gfx-low .social-icon-btn:hover, body.gfx-low .desktop-icon:hover {
+body.gfx-low .menu-btn:hover, body.gfx-low .taskbar-btn:hover, body.gfx-low .desktop-icon:hover {
     box-shadow: none !important;
 }
 body.gfx-low .menu-logo {
@@ -798,18 +773,6 @@ body.gfx-high .menu-logo {
         padding: 8px 20px;
         font-size: 1rem;
     }
-    .side-social-bar {
-        left: 15px;
-        gap: 12px;
-    }
-    .social-icon-btn {
-        width: 40px;
-        height: 40px;
-    }
-    .social-icon-btn svg {
-        width: 18px;
-        height: 18px;
-    }
     .side-panel {
         position: fixed;
         top: 0;
@@ -843,7 +806,7 @@ body.gfx-high .menu-logo {
         height: 100%;
         background: #000;
         color: #00ff66;
-        z-index: 9999;
+        z-index: 99999;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -852,5 +815,8 @@ body.gfx-high .menu-logo {
         font-family: 'Russo One', sans-serif;
         font-size: 1.2rem;
         letter-spacing: 1px;
+    }
+    html[lang="en"] body::before {
+        content: "PLEASE ROTATE YOUR DEVICE TO LANDSCAPE";
     }
 }
