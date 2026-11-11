@@ -6,6 +6,7 @@ window.initDinoGame = function() {
     let isPlaying = false;
     let score = 0;
     let highscore = localStorage.getItem('kpr_dino_highscore') || 0;
+    let failCount = 0;
     
     let gameSpeed = 300;
     let speedIncrement = 8;
@@ -46,6 +47,7 @@ window.initDinoGame = function() {
             obstacles.push({ x: startX, y: 104, w: 23, h: 35, type: 'cactus_large' });
         }
     }
+
     function resetGame() {
         score = 0;
         gameSpeed = 300;
@@ -74,19 +76,22 @@ window.initDinoGame = function() {
     }
     window.triggerDinoJump = jump;
 
-    window.addEventListener('keydown', (e) => { 
-        const win = document.getElementById('windowDino');
-        if (!win || win.classList.contains('hidden')) return;
-        if (e.code === 'Space' || e.code === 'ArrowUp') { 
-            jump(); 
-            e.preventDefault(); 
-        } 
-    });
+    if (!window.dinoKeyListenerAdded) {
+        window.dinoKeyListenerAdded = true;
+        window.addEventListener('keydown', (e) => { 
+            const win = document.getElementById('windowDino');
+            if (!win || win.classList.contains('hidden')) return;
+            if (e.code === 'Space' || e.code === 'ArrowUp') { 
+                if (window.triggerDinoJump) window.triggerDinoJump(); 
+                e.preventDefault(); 
+            } 
+        });
+    }
 
-    canvas.addEventListener('pointerdown', (e) => {
+    canvas.onpointerdown = (e) => {
         e.preventDefault();
         jump();
-    });
+    };
 
     function update(dt) {
         if (!isPlaying) return;
@@ -94,7 +99,7 @@ window.initDinoGame = function() {
         gameSpeed += speedIncrement * dt;
         score += 10 * dt;
         
-        if (score >= 301) {
+        if (score >= 1001) {
             isPlaying = false;
             const win = document.getElementById('windowDino');
             if (win) win.classList.add('hidden');
@@ -138,12 +143,19 @@ window.initDinoGame = function() {
 
             if (dino.x < o.x + o.w && dino.x + dino.w > o.x && dino.y < o.y + o.h && dino.y + dino.h > o.y) {
                 isPlaying = false;
+                failCount++;
                 if (score > highscore) {
                     highscore = Math.floor(score);
                     localStorage.setItem('kpr_dino_highscore', highscore);
                 }
+                if (failCount >= 10) {
+                    if (window.triggerDinoScoreBeaten) {
+                        window.triggerDinoScoreBeaten();
+                    }
+                }
                 if (overBox) {
-                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px; font-family:Russo One;">${getLang() === 'ru' ? 'СИСТЕМА СБОЯ! НАЖМИТЕ ДЛЯ СТАРТА' : 'SYSTEM CRASH! CLICK TO REBOOT'}</span>`;
+                    const attemptText = getLang() === 'ru' ? `ПОПЫТКА ${failCount}/10 — НАЖМИТЕ ДЛЯ СТАРТА` : `ATTEMPT ${failCount}/10 — CLICK TO REBOOT`;
+                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px; font-family:Russo One;">${attemptText}</span>`;
                 }
             }
         }
@@ -182,6 +194,7 @@ window.initDinoGame = function() {
             ctx.fillRect(x + 8, y + 24, 3, 1);
         }
     }
+
     function drawObstacle(o) {
         ctx.fillStyle = '#00ff66';
         if (o.type === 'cactus_small') {
@@ -228,7 +241,7 @@ window.initDinoGame = function() {
         
         ctx.fillStyle = '#00ff66';
         ctx.font = '10px Courier New';
-        ctx.fillText(`HI: ${Math.floor(highscore)}  SCORE: ${Math.floor(score)}`, 10, 20);
+        ctx.fillText(`HI: ${Math.floor(highscore)}  SCORE: ${Math.floor(score)}  FAILS: ${failCount}/10`, 10, 20);
     }
 
     function loop(timestamp) {
