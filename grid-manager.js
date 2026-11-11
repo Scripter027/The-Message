@@ -9,9 +9,15 @@
     let lastClickTime = 0;
     let lastClickTarget = null;
 
-    const cellWidth = 90;
-    const cellHeight = 90;
-    const margin = 20;
+    function getGridMetrics() {
+        const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
+        return {
+            cellWidth: isMobile ? 76 : 90,
+            cellHeight: isMobile ? 74 : 90,
+            margin: isMobile ? 12 : 20,
+            taskbarHeight: isMobile ? 38 : 45
+        };
+    }
 
     function isPositionTaken(checkLeft, checkTop, ignoreAppId) {
         const installed = window.AppConfig.state.installed;
@@ -27,9 +33,10 @@
     }
 
     function findFreeGridPosition(ignoreAppId) {
+        const { cellWidth, cellHeight, margin, taskbarHeight } = getGridMetrics();
         const parentRect = desktopMain.getBoundingClientRect();
         const cols = Math.max(1, Math.floor((parentRect.width - margin) / cellWidth));
-        const rows = Math.max(1, Math.floor((parentRect.height - margin - 45) / cellHeight));
+        const rows = Math.max(1, Math.floor((parentRect.height - margin - taskbarHeight) / cellHeight));
 
         for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
@@ -61,6 +68,8 @@
         if (!desktopMain) return;
         document.querySelectorAll(".desktop-icon").forEach(el => el.remove());
         const lang = document.documentElement.lang || "ru";
+        const { margin, taskbarHeight } = getGridMetrics();
+        const parentRect = desktopMain.getBoundingClientRect();
 
         window.AppConfig.state.installed.forEach(appId => {
             if (window.AppConfig.state.trashContents.includes(appId)) return;
@@ -78,6 +87,16 @@
                 savedPos = findFreeGridPosition(appId);
                 window.AppConfig.state.positions[appId] = savedPos;
                 window.AppConfig.save();
+            }
+
+            if (parentRect.width > 0 && parentRect.height > 0) {
+                const maxLeft = Math.max(margin, parentRect.width - 78);
+                const maxTop = Math.max(margin, parentRect.height - 78 - taskbarHeight);
+                if (savedPos.left > maxLeft || savedPos.top > maxTop) {
+                    savedPos = findFreeGridPosition(appId);
+                    window.AppConfig.state.positions[appId] = savedPos;
+                    window.AppConfig.save();
+                }
             }
 
             iconEl.style.left = savedPos.left + "px";
@@ -166,6 +185,7 @@
         const appData = window.AppConfig.allApps[appId];
         
         if (hasMoved) {
+            const { cellWidth, cellHeight, margin, taskbarHeight } = getGridMetrics();
             let left = parseInt(draggedElement.style.left);
             let top = parseInt(draggedElement.style.top);
             
@@ -174,12 +194,12 @@
 
             const parentRect = desktopMain.getBoundingClientRect();
             left = Math.max(margin, Math.min(left, parentRect.width - draggedElement.offsetWidth));
-            top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
+            top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - taskbarHeight));
 
             const trashPos = window.AppConfig.state.positions["trash"];
             const prevPos = window.AppConfig.state.positions[appId] || { left: margin, top: margin };
 
-            if (trashPos && Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
+            if (trashPos && Math.abs(left - trashPos.left) < 12 && Math.abs(top - trashPos.top) < 12) {
                 if (appData && appData.type !== 'system') {
                     if (!window.AppConfig.state.lastPositions) {
                         window.AppConfig.state.lastPositions = {};
@@ -213,6 +233,12 @@
 
     document.addEventListener("mouseup", handleDragEnd);
     document.addEventListener("touchend", handleDragEnd);
+
+    window.addEventListener("resize", () => {
+        if (desktopMain && desktopMain.clientWidth > 0 && window.renderDesktopIcons) {
+            window.renderDesktopIcons();
+        }
+    });
 
     window.openApplicationWindow = function(appId) {
         let win = null;
