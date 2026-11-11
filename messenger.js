@@ -295,7 +295,37 @@
         }
     }
 
-       function createHackerOverlay() {
+           function renderHackerChat(zone) {
+        zone.innerHTML = `
+            <div style="padding:10px; border-bottom:1px solid #ff3333; color:#ff3333; font-weight:bold;">❓ ???</div>
+            <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px;"></div>
+        `;
+        const container = document.getElementById("messHackerLogs");
+        const msg = document.createElement("div");
+        msg.style.maxWidth = "80%";
+        msg.style.padding = "8px 12px";
+        msg.style.fontSize = "0.85rem";
+        msg.style.border = "1px solid #ff3333";
+        msg.style.color = "#ff3333";
+        msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">???:</span>Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">*ссылка*</span>`;
+        container.appendChild(msg);
+        
+        const link = document.getElementById("hackerLink");
+        if (link) {
+            link.addEventListener("click", () => {
+                const env = document.getElementById("desktopEnv");
+                if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
+                setTimeout(() => {
+                    if (env) env.style.display = "none";
+                    const overlay = document.getElementById("hackerOverlay");
+                    if (overlay) overlay.style.display = "flex";
+                    runHackerDialog("start");
+                }, 1500);
+            });
+        }
+    }
+
+    function createHackerOverlay() {
         if (document.getElementById("hackerOverlay")) return;
         const overlay = document.createElement("div");
         overlay.id = "hackerOverlay";
@@ -309,23 +339,16 @@
                                 <line x1="0" y1="0" x2="0" y2="8" stroke="#ff3333" stroke-width="1.2" stroke-opacity="0.32" />
                             </pattern>
                         </defs>
-                        <!-- Плечи и корпус -->
                         <path d="M 32 260 L 36 165 Q 40 132 76 128 L 93 128 M 107 128 L 124 128 Q 160 132 164 165 L 168 260" stroke="#ff3333" stroke-width="3" stroke-linecap="round" />
-                        <!-- Вертикальные складки на рукавах/одежде -->
                         <path d="M 48 165 L 46 255 M 57 175 L 56 248" stroke="#ff3333" stroke-width="2" stroke-linecap="round" />
                         <path d="M 152 165 L 154 255 M 143 175 L 144 248" stroke="#ff3333" stroke-width="2" stroke-linecap="round" />
-                        <!-- Волнистая линия по центру груди -->
                         <path d="M 100 136 Q 96 152 102 168 T 99 200 T 101 235" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round" />
-                        <!-- Голова-маска со штриховкой -->
                         <path d="M 100 24 C 132 24 146 52 134 86 C 124 112 108 128 100 134 C 92 128 76 112 66 86 C 54 52 68 24 100 24 Z" fill="url(#sketchHatch)" stroke="#ff3333" stroke-width="3" stroke-linejoin="round" />
-                        <!-- Левый глаз (острая галочка V) -->
                         <path d="M 76 58 L 83 88 L 95 54" stroke="#ff3333" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
-                        <!-- Правый глаз (вертикальная полоса с косой чертой) -->
                         <g class="hacker-eye-right">
                             <path d="M 116 54 L 114 92" stroke="#ff3333" stroke-width="3.5" stroke-linecap="round" />
                             <path d="M 122 50 L 117 62" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round" />
                         </g>
-                        <!-- Маленький рот-галочка внизу -->
                         <path d="M 96 108 L 100 115 L 105 107" stroke="#ff3333" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
@@ -345,15 +368,15 @@
         optZone.innerHTML = "";
 
         if (node === "start") {
-            msgEl.innerHTML = `<span style="color:#ff3333; font-weight:bold; display:block; font-size:1.4rem; margin-bottom:15px; text-shadow:0 0 10px #ff3333;">дЬяВоЛ68</span>Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!`;
+            msgEl.textContent = "Хотел поиграть в игру? Ну давай поиграем! С этого момента ты будешь исполнять мои желания. А при невыполнении ты будешь наказан!";
             createHackerOption(optZone, "1. А с чего это я должен что то выполнять?", () => runHackerDialog("ans1"));
             createHackerOption(optZone, "2. Я позвоню в полицию!", () => runHackerDialog("ans2"));
             createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans1") {
-            msgEl.textContent = "Думаешь, сможешь просто закрыть это окно? Я уже скопировал все твои личные данные, пароли и адреса твоих близких. Будешь спорить — пострадают все.";
+            msgEl.textContent = "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.";
             createFinalOptions(optZone);
         } else if (node === "ans2") {
-            msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь — звони, только твой комп сгорит раньше, чем ты наберешь номер. Но ты рискни!";
+            msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!";
             createFinalOptions(optZone);
         } else if (node === "ans3") {
             msgEl.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
