@@ -28,7 +28,8 @@ const translations = {
         exit: "Выход",
         credits: "Титры",
         news: "Новости",
-        credits_soon: "Титров пока нет ;)"
+        credits_soon: "Титров пока нет ;)",
+        news_text: "Разработка игры «The Message» идет полным ходом!"
     },
     en: {
         prompt: "CLICK ON SCREEN TO START",
@@ -54,7 +55,8 @@ const translations = {
         exit: "Exit",
         credits: "Credits",
         news: "News",
-        credits_soon: "No credits yet ;)"
+        credits_soon: "No credits yet ;)",
+        news_text: "Development of «The Message» is in full swing!"
     }
 };
 
@@ -67,6 +69,7 @@ const videoElement = document.getElementById('introVideo');
 const mainMenu = document.getElementById('mainMenu');
 const startPrompt = document.getElementById('startPrompt');
 const creditsOverlay = document.getElementById('creditsOverlay');
+const creditsText = document.getElementById('creditsText');
 
 const menuContent = document.getElementById('menuContent');
 const mainButtonsList = document.getElementById('mainButtonsList');
@@ -128,6 +131,7 @@ function setupSkipListeners() {
         }
     });
 }
+
 function transitionToMenu() {
     currentVideoIndex = 999;
     videoElement.pause();
@@ -140,6 +144,9 @@ function transitionToMenu() {
         setTimeout(() => {
             mainMenu.classList.add('visible');
             unlockFirstChapterButton();
+            if (window.YandexModule) {
+                window.YandexModule.gameReady();
+            }
         }, 50);
     }, 1000);
 }
@@ -157,7 +164,6 @@ function unlockFirstChapterButton() {
         if (comingSoon) comingSoon.remove();
     }
 }
-
 function openPanel(clickedButton, targetPanel) {
     if (settingsContext === 'menu') {
         mainButtonsList.classList.add('has-active');
@@ -188,10 +194,21 @@ function switchLanguage(lang) {
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-lang]').forEach(el => {
         const key = el.getAttribute('data-lang');
-        if (translations[lang][key]) {
+        if (translations[lang] && translations[lang][key]) {
             el.textContent = translations[lang][key];
         }
     });
+    const langRuBtn = document.getElementById('langRu');
+    const langEnBtn = document.getElementById('langEn');
+    if (langRuBtn && langEnBtn) {
+        if (lang === 'ru') {
+            langRuBtn.classList.add('active');
+            langEnBtn.classList.remove('active');
+        } else {
+            langEnBtn.classList.add('active');
+            langRuBtn.classList.remove('active');
+        }
+    }
 }
 
 function updateGraphics(level) {
@@ -208,19 +225,44 @@ function launchChapterOneProcess() {
     mainMenu.classList.remove('visible');
     setTimeout(() => {
         mainMenu.classList.add('hidden');
-        if (window.triggerLoading) {
-            window.triggerLoading(() => {
-                const desktopEnv = document.getElementById('desktopEnv');
-                desktopEnv.classList.remove('hidden');
-                setTimeout(() => {
-                    desktopEnv.classList.add('visible');
-                    if (window.initChapterOne) {
-                        window.initChapterOne();
-                    }
-                }, 50);
-            });
+        const startChapter = () => {
+            if (window.triggerLoading) {
+                window.triggerLoading(() => {
+                    const desktopEnv = document.getElementById('desktopEnv');
+                    desktopEnv.style.display = 'flex';
+                    desktopEnv.style.filter = 'none';
+                    desktopEnv.classList.remove('hidden');
+                    setTimeout(() => {
+                        desktopEnv.classList.add('visible');
+                        if (window.YandexModule) {
+                            window.YandexModule.startGameplay();
+                        }
+                        if (window.initChapterOne) {
+                            window.initChapterOne();
+                        }
+                    }, 50);
+                });
+            }
+        };
+        if (window.YandexModule) {
+            window.YandexModule.showAd(startChapter);
+        } else {
+            startChapter();
         }
     }, 1000);
+}
+
+function showOverlayMessage(textKey) {
+    const lang = document.documentElement.lang || 'ru';
+    if (creditsText && translations[lang] && translations[lang][textKey]) {
+        creditsText.textContent = translations[lang][textKey];
+    }
+    creditsOverlay.classList.remove('hidden');
+    setTimeout(() => creditsOverlay.classList.add('visible'), 50);
+    setTimeout(() => {
+        creditsOverlay.classList.remove('visible');
+        setTimeout(() => creditsOverlay.classList.add('hidden'), 500);
+    }, 3000);
 }
 
 document.addEventListener('click', function(e) {
@@ -251,12 +293,7 @@ document.addEventListener('click', function(e) {
     }
     
     if (btn && btn.id === 'btnCredits') {
-        creditsOverlay.classList.remove('hidden');
-        setTimeout(() => creditsOverlay.classList.add('visible'), 50);
-        setTimeout(() => {
-            creditsOverlay.classList.remove('visible');
-            setTimeout(() => creditsOverlay.classList.add('hidden'), 500);
-        }, 3000);
+        showOverlayMessage('credits_soon');
         return;
     }
     
@@ -267,12 +304,29 @@ document.addEventListener('click', function(e) {
         mainMenu.classList.remove('visible');
         setTimeout(() => {
             mainMenu.classList.add('hidden');
-            if (window.triggerLoading) {
-                window.triggerLoading(() => {
-                    const desktopEnv = document.getElementById('desktopEnv');
-                    desktopEnv.classList.remove('hidden');
-                    setTimeout(() => desktopEnv.classList.add('visible'), 50);
-                });
+            const startFreePlay = () => {
+                if (window.triggerLoading) {
+                    window.triggerLoading(() => {
+                        const desktopEnv = document.getElementById('desktopEnv');
+                        desktopEnv.style.display = 'flex';
+                        desktopEnv.style.filter = 'none';
+                        desktopEnv.classList.remove('hidden');
+                        setTimeout(() => {
+                            desktopEnv.classList.add('visible');
+                            if (window.renderDesktopIcons) {
+                                window.renderDesktopIcons();
+                            }
+                            if (window.YandexModule) {
+                                window.YandexModule.startGameplay();
+                            }
+                        }, 50);
+                    });
+                }
+            };
+            if (window.YandexModule) {
+                window.YandexModule.showAd(startFreePlay);
+            } else {
+                startFreePlay();
             }
         }, 1000);
         return;
@@ -299,12 +353,16 @@ document.addEventListener('click', function(e) {
     }
     
     if (btn && btn.id === 'btnClearData') {
-        location.reload();
+        if (window.AppConfig) {
+            window.AppConfig.resetToDesktopDefault();
+        }
+        localStorage.removeItem('kpr_dino_highscore');
+        showOverlayMessage('clear_data');
         return;
     }
     
     if (btn && btn.id === 'btnNews') {
-        alert("Новости: Разработка игры «The Message» идет полным ходом!");
+        showOverlayMessage('news_text');
         return;
     }
 });
