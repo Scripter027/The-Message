@@ -1,6 +1,9 @@
 (function() {
     const desktopMain = document.querySelector(".desktop-main");
     let draggedElement = null;
+    let hasMoved = false;
+    let startTouchX = 0;
+    let startTouchY = 0;
     let offsetX = 0;
     let offsetY = 0;
     let lastClickTime = 0;
@@ -32,6 +35,7 @@
     }
 
     window.renderDesktopIcons = function() {
+        if (!desktopMain) return;
         document.querySelectorAll(".desktop-icon").forEach(el => el.remove());
         const lang = document.documentElement.lang || "ru";
 
@@ -74,9 +78,12 @@
 
     function handleDragStart(e, el) {
         draggedElement = el;
+        hasMoved = false;
         const rect = el.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startTouchX = clientX;
+        startTouchY = clientY;
         offsetX = clientX - rect.left;
         offsetY = clientY - rect.top;
         el.style.zIndex = 1000;
@@ -86,23 +93,39 @@
         el.addEventListener("mousedown", (e) => handleDragStart(e, el));
         el.addEventListener("touchstart", (e) => handleDragStart(e, el), { passive: true });
 
-        const handleSelect = () => {
-            const currentTime = new Date().getTime();
-            const appId = el.getAttribute("data-app-id");
-            if (lastClickTarget === el && (currentTime - lastClickTime) < 300) {
+        el.addEventListener("touchend", (e) => {
+            if (!hasMoved) {
+                e.preventDefault();
+                const appId = el.getAttribute("data-app-id");
                 window.openApplicationWindow(appId);
             }
-            lastClickTime = currentTime;
-            lastClickTarget = el;
-        };
+        });
 
-        el.addEventListener("click", handleSelect);
+        el.addEventListener("click", () => {
+            if (hasMoved) return;
+            const currentTime = new Date().getTime();
+            const appId = el.getAttribute("data-app-id");
+            if (lastClickTarget === el && (currentTime - lastClickTime) < 350) {
+                window.openApplicationWindow(appId);
+                lastClickTime = 0;
+            } else {
+                lastClickTime = currentTime;
+                lastClickTarget = el;
+            }
+        });
     }
+
     function handleDragMove(e) {
         if (!draggedElement) return;
         const parentRect = desktopMain.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        if (Math.abs(clientX - startTouchX) > 6 || Math.abs(clientY - startTouchY) > 6) {
+            hasMoved = true;
+        }
+
+        if (!hasMoved) return;
 
         let left = clientX - parentRect.left - offsetX;
         let top = clientY - parentRect.top - offsetY;
@@ -120,35 +143,37 @@
         const appId = draggedElement.getAttribute("data-app-id");
         const appData = window.AppConfig.allApps[appId];
         
-        let left = parseInt(draggedElement.style.left);
-        let top = parseInt(draggedElement.style.top);
-        
-        left = Math.round((left - margin) / cellWidth) * cellWidth + margin;
-        top = Math.round((top - margin) / cellHeight) * cellHeight + margin;
+        if (hasMoved) {
+            let left = parseInt(draggedElement.style.left);
+            let top = parseInt(draggedElement.style.top);
+            
+            left = Math.round((left - margin) / cellWidth) * cellWidth + margin;
+            top = Math.round((top - margin) / cellHeight) * cellHeight + margin;
 
-        const parentRect = desktopMain.getBoundingClientRect();
-        left = Math.max(margin, Math.min(left, parentRect.width - draggedElement.offsetWidth));
-        top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
+            const parentRect = desktopMain.getBoundingClientRect();
+            left = Math.max(margin, Math.min(left, parentRect.width - draggedElement.offsetWidth));
+            top = Math.max(margin, Math.min(top, parentRect.height - draggedElement.offsetHeight - 45));
 
-        const trashPos = window.AppConfig.state.positions["trash"];
-        if (trashPos && appData && appData.type !== 'system') {
-            if (Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
-                draggedElement.remove();
-                draggedElement = null;
-                if (window.moveAppToTrash) {
-                    window.moveAppToTrash(appId);
+            const trashPos = window.AppConfig.state.positions["trash"];
+            if (trashPos && appData && appData.type !== 'system') {
+                if (Math.abs(left - trashPos.left) < 10 && Math.abs(top - trashPos.top) < 10) {
+                    draggedElement.remove();
+                    draggedElement = null;
+                    if (window.moveAppToTrash) {
+                        window.moveAppToTrash(appId);
+                    }
+                    return;
                 }
-                return;
             }
+
+            draggedElement.style.left = left + "px";
+            draggedElement.style.top = top + "px";
+
+            window.AppConfig.state.positions[appId] = { left, top };
+            window.AppConfig.save();
         }
 
-        draggedElement.style.left = left + "px";
-        draggedElement.style.top = top + "px";
         draggedElement.style.zIndex = "";
-
-        window.AppConfig.state.positions[appId] = { left, top };
-        window.AppConfig.save();
-
         draggedElement = null;
     }
 
@@ -163,20 +188,10 @@
         if (appId === "trash" && window.initTrashApp) { window.initTrashApp(); win = document.getElementById('windowTrash'); }
         if (appId === "explorer" && window.initExplorerApp) { window.initExplorerApp(); win = document.getElementById('windowExplorer'); }
         if (appId === "store" && window.initStoreApp) { window.initStoreApp(); win = document.getElementById('windowStore'); }
+        if (appId === "tetris" && window.initTetrisApp) { window.initTetrisApp(); win = document.getElementById('windowTetris'); }
         
         if (win && window.bringToFront) {
             window.bringToFront(win);
         }
     };
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const desktopEnv = document.getElementById("desktopEnv");
-        const observer = new MutationObserver(() => {
-            if (!desktopEnv.classList.contains("hidden")) {
-                window.renderDesktopIcons();
-                observer.disconnect();
-            }
-        });
-        observer.observe(desktopEnv, { attributes: true, attributeFilter: ["class"] });
-    });
 })();
