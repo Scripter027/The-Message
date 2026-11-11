@@ -18,7 +18,7 @@ const translations = {
         clear_data: "Стереть все данные",
         back: "Назад",
         chapters_title: "Главы",
-        ch1: "Глава 1",
+        ch1: 'Глава 1: "Динозаврик и Ссылка"',
         ch2: "Глава 2",
         ch3: "Глава 3",
         ch4: "Глава 4",
@@ -45,7 +45,7 @@ const translations = {
         clear_data: "Wipe all data",
         back: "Back",
         chapters_title: "Chapters",
-        ch1: "Chapter 1",
+        ch1: 'Chapter 1: "Dino and Link"',
         ch2: "Chapter 2",
         ch3: "Chapter 3",
         ch4: "Chapter 4",
@@ -165,6 +165,8 @@ function unlockFirstChapterButton() {
     if (firstBtn) {
         firstBtn.classList.remove("locked");
         firstBtn.classList.add("chapter-btn-active");
+        firstBtn.style.justifyContent = "center";
+        firstBtn.style.textAlign = "center";
         const lockIcon = firstBtn.querySelector(".lock-icon");
         const comingSoon = firstBtn.querySelector(".coming-soon");
         if (lockIcon) lockIcon.remove();
