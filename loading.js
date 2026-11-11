@@ -15,6 +15,10 @@
     };
 
     window.triggerGameOverScreen = function(reasonText) {
+        if (window.YandexModule) {
+            window.YandexModule.stopGameplay();
+        }
+
         const checkOverlay = document.getElementById("failOverlay");
         if (checkOverlay) checkOverlay.remove();
 
@@ -74,7 +78,6 @@
                 </svg>
             </div>
         `;
-
         if (!document.getElementById("gameOverCustomStyles")) {
             const styleEl = document.createElement("style");
             styleEl.id = "gameOverCustomStyles";
@@ -150,6 +153,9 @@
                 env.style.display = "flex";
                 env.style.filter = "none";
             }
+            if (window.YandexModule) {
+                window.YandexModule.startGameplay();
+            }
             if (window.initChapterOne) {
                 window.initChapterOne();
             }
@@ -166,13 +172,20 @@
                 env.classList.remove("visible");
                 env.classList.add("hidden");
             }
-            window.triggerLoading(() => {
-                const mainMenu = document.getElementById("mainMenu");
-                if (mainMenu) {
-                    mainMenu.classList.remove("hidden");
-                    setTimeout(() => mainMenu.classList.add("visible"), 50);
-                }
-            });
+            const goMenu = () => {
+                window.triggerLoading(() => {
+                    const mainMenu = document.getElementById("mainMenu");
+                    if (mainMenu) {
+                        mainMenu.classList.remove("hidden");
+                        setTimeout(() => mainMenu.classList.add("visible"), 50);
+                    }
+                });
+            };
+            if (window.YandexModule) {
+                window.YandexModule.showAd(goMenu);
+            } else {
+                goMenu();
+            }
         });
     };
 })();
