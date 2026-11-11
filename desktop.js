@@ -8,8 +8,14 @@
     const settingsWindow = document.getElementById('desktopSettingsWindow');
     const btnCloseSettings = document.getElementById('btnCloseDesktopSettings');
     const btnClearData = document.getElementById('btnDesktopClearData');
-    const langRu = document.getElementById('desktopLangRu');
-    const langEn = document.getElementById('desktopLangEn');
+
+    const deskGfxPrev = document.getElementById('deskGfxPrev');
+    const deskGfxNext = document.getElementById('deskGfxNext');
+    const deskLangPrev = document.getElementById('deskLangPrev');
+    const deskLangNext = document.getElementById('deskLangNext');
+
+    const gfxLevels = ['low', 'medium', 'high'];
+    const langList = ['en', 'ru'];
 
     let clockInterval = null;
 
@@ -26,68 +32,50 @@
         clockInterval = setInterval(update, 1000);
     };
 
+    function getCurrentGfx() {
+        if (document.body.classList.contains('gfx-low')) return 'low';
+        if (document.body.classList.contains('gfx-medium')) return 'medium';
+        return 'high';
+    }
+
     btnDesktopSettings.addEventListener('click', () => {
         settingsWindow.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(settingsWindow);
-        syncActiveStates();
+        if (window.syncSettingsUI) window.syncSettingsUI();
     });
 
     btnCloseSettings.addEventListener('click', () => {
         settingsWindow.classList.add('hidden');
     });
 
-    function syncActiveStates() {
-        const currentGfx = document.body.classList.contains('gfx-low') ? 'low' : 
-                           document.body.classList.contains('gfx-medium') ? 'medium' : 'high';
-        
-        settingsWindow.querySelectorAll('[data-gfx]').forEach(btn => {
-            if (btn.getAttribute('data-gfx') === currentGfx) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
+    deskGfxPrev.addEventListener('click', () => {
+        const idx = gfxLevels.indexOf(getCurrentGfx());
+        if (idx > 0 && window.updateGraphics) {
+            window.updateGraphics(gfxLevels[idx - 1]);
+        }
+    });
 
+    deskGfxNext.addEventListener('click', () => {
+        const idx = gfxLevels.indexOf(getCurrentGfx());
+        if (idx < gfxLevels.length - 1 && window.updateGraphics) {
+            window.updateGraphics(gfxLevels[idx + 1]);
+        }
+    });
+
+    deskLangPrev.addEventListener('click', () => {
         const currentLang = document.documentElement.lang || 'ru';
-        if (currentLang === 'ru') {
-            langRu.classList.add('active');
-            langEn.classList.remove('active');
-        } else {
-            langEn.classList.add('active');
-            langRu.classList.remove('active');
-        }
-    }
-    settingsWindow.addEventListener('click', function(e) {
-        const target = e.target;
-        
-        if (target.hasAttribute('data-gfx')) {
-            const siblings = target.parentElement.querySelectorAll('.select-btn');
-            siblings.forEach(s => s.classList.remove('active'));
-            target.classList.add('active');
-            
-            const level = target.getAttribute('data-gfx');
-            document.body.classList.remove('gfx-low', 'gfx-medium', 'gfx-high');
-            document.body.classList.add('gfx-' + level);
-            
-            const menuGfxBtn = document.querySelector(`#panelSettings [data-lang="graphics_${level}"]`);
-            if (menuGfxBtn) {
-                const menuSiblings = menuGfxBtn.parentElement.querySelectorAll('.select-btn');
-                menuSiblings.forEach(s => s.classList.remove('active'));
-                menuGfxBtn.classList.add('active');
-            }
+        const idx = langList.indexOf(currentLang);
+        if (idx > 0 && window.switchLanguage) {
+            window.switchLanguage(langList[idx - 1]);
         }
     });
 
-    langRu.addEventListener('click', () => {
-        if (window.switchLanguage) window.switchLanguage('ru');
-        langRu.parentElement.querySelectorAll('.select-btn').forEach(s => s.classList.remove('active'));
-        langRu.classList.add('active');
-    });
-
-    langEn.addEventListener('click', () => {
-        if (window.switchLanguage) window.switchLanguage('en');
-        langEn.parentElement.querySelectorAll('.select-btn').forEach(s => s.classList.remove('active'));
-        langEn.classList.add('active');
+    deskLangNext.addEventListener('click', () => {
+        const currentLang = document.documentElement.lang || 'ru';
+        const idx = langList.indexOf(currentLang);
+        if (idx < langList.length - 1 && window.switchLanguage) {
+            window.switchLanguage(langList[idx + 1]);
+        }
     });
 
     btnClearData.addEventListener('click', () => {
