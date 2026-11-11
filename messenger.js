@@ -152,7 +152,7 @@
             hackerItem.style.borderBottom = "1px solid rgba(0,255,102,0.1)";
             hackerItem.style.color = "#ff3333";
             if (selectedUser === "hacker") hackerItem.style.background = "rgba(255,51,51,0.15)";
-            hackerItem.innerHTML = `<div style="font-weight:bold;">❓ ???</div><div style="font-size:0.75rem; opacity:0.6;">Хочешь побольше...</div>`;
+            hackerItem.innerHTML = `<div style="font-weight:bold;">❓ ???</div><div style="font-size:0.75rem; opacity:0.6;">Хочешь помогу...</div>`;
             
             hackerItem.addEventListener("click", () => {
                 selectedUser = "hacker";
@@ -195,7 +195,7 @@
             createMessOption(optContainer, "3. Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", () => { currentStage = "bro_record"; renderMess(); });
         } else if (currentStage === "bro_record") {
             appendMessLog(msgContainer, "Вы", "Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", true);
-            appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 300! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false);
+            appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 1000! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false);
             
             const hint = document.createElement("div");
             hint.style.color = "#ffaa00";
@@ -263,7 +263,7 @@
         storyState.dinoScoreBeaten = true;
         selectedUser = "hacker";
         renderMess();
-        showMessNotification("???", "Хочешь побольше новых игр? Кликай сюда: *ссылка*");
+        showMessNotification("???", "Хочешь помогу побить рекорд? Свяжись со мной");
     };
     function renderHackerChat(zone) {
         zone.innerHTML = `
@@ -277,42 +277,14 @@
         msg.style.fontSize = "0.85rem";
         msg.style.border = "1px solid #ff3333";
         msg.style.color = "#ff3333";
-        msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">???:</span>Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">*ссылка*</span>`;
+        msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">???:</span>Хочешь помогу побить рекорд? <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">Свяжись со мной</span>`;
         container.appendChild(msg);
         
         const link = document.getElementById("hackerLink");
         if (link) {
             link.addEventListener("click", () => {
-                const env = document.getElementById("desktopEnv");
-                if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
-                setTimeout(() => {
-                    if (env) env.style.display = "none";
-                    const overlay = document.getElementById("hackerOverlay");
-                    if (overlay) overlay.style.display = "flex";
-                    runHackerDialog("start");
-                }, 1500);
-            });
-        }
-    }
-
-               function renderHackerChat(zone) {
-        zone.innerHTML = `
-            <div style="padding:10px; border-bottom:1px solid #ff3333; color:#ff3333; font-weight:bold;">❓ ???</div>
-            <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px;"></div>
-        `;
-        const container = document.getElementById("messHackerLogs");
-        const msg = document.createElement("div");
-        msg.style.maxWidth = "80%";
-        msg.style.padding = "8px 12px";
-        msg.style.fontSize = "0.85rem";
-        msg.style.border = "1px solid #ff3333";
-        msg.style.color = "#ff3333";
-        msg.innerHTML = `<span style="font-weight:bold; display:block; margin-bottom:2px;">???:</span>Хочешь побольше новых игр? Кликай сюда: <span id="hackerLink" style="text-decoration:underline; cursor:pointer; color:#ffaa00; font-weight:bold;">*ссылка*</span>`;
-        container.appendChild(msg);
-        
-        const link = document.getElementById("hackerLink");
-        if (link) {
-            link.addEventListener("click", () => {
+                const dinoWin = document.getElementById("windowDino");
+                if (dinoWin) dinoWin.classList.add("hidden");
                 const env = document.getElementById("desktopEnv");
                 if (env) env.style.filter = "hue-rotate(270deg) blur(3px) brightness(0.4)";
                 setTimeout(() => {
@@ -374,10 +346,10 @@
             createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans1") {
             msgEl.textContent = "Ну давай я подсуну тебе под подушку окровавленные конечности твоих друзей или родителей? Быть может тогда ты поймешь что со мной шутки плохи.";
-            createFinalOptions(optZone);
+            createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans2") {
             msgEl.textContent = "Ого! Заднюю хочешь дать? Не дружок, ты уже не отвертишься! Ты в моей власти! Хочешь - звони, только твой комп уже сгорит, а потом они еще долго будут искать твоих родных по разным уголкам города. Но ты рискни!";
-            createFinalOptions(optZone);
+            createHackerOption(optZone, "3. Что за задания?", () => runHackerDialog("ans3"));
         } else if (node === "ans3") {
             msgEl.textContent = "Уже хороший вопрос! Понимаешь, мне ужасно нравится играть с судьбами людей! Я же как никак дЬяВоЛ! Так вот, ты будешь играть в игры которые я скажу, писать родителям, друзьям, да даже обычным людям, то что я скажу, а также жить только как я скажу! Готов?";
             createFinalOptions(optZone);
@@ -398,26 +370,8 @@
                 const overlay = document.getElementById("hackerOverlay");
                 if (overlay) overlay.style.display = "none";
                 
-                if (window.YandexModule) {
-                    window.YandexModule.stopGameplay();
-                }
-
-                const finishChapter = () => {
-                    if (window.triggerLoading) {
-                        window.triggerLoading(() => {
-                            const mainMenu = document.getElementById("mainMenu");
-                            if (mainMenu) {
-                                mainMenu.classList.remove("hidden");
-                                setTimeout(() => mainMenu.classList.add("visible"), 50);
-                            }
-                        });
-                    }
-                };
-
-                if (window.YandexModule) {
-                    window.YandexModule.showAd(finishChapter);
-                } else {
-                    finishChapter();
+                if (window.triggerChapterCompleteScreen) {
+                    window.triggerChapterCompleteScreen(1, "Вы в ловушке дЬяВоЛа68...");
                 }
             });
         }
