@@ -154,8 +154,7 @@ window.initDinoGame = function() {
                     }
                 }
                 if (overBox) {
-                    const attemptText = getLang() === 'ru' ? `ПОПЫТКА ${failCount}/10 — НАЖМИТЕ ДЛЯ СТАРТА` : `ATTEMPT ${failCount}/10 — CLICK TO REBOOT`;
-                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px; font-family:Russo One;">${attemptText}</span>`;
+                    overBox.innerHTML = `<span style="color:#ff3333; font-size:12px; font-family:Russo One;">${getLang() === 'ru' ? 'СИСТЕМА СБОЯ! НАЖМИТЕ ДЛЯ СТАРТА' : 'SYSTEM CRASH! CLICK TO REBOOT'}</span>`;
                 }
             }
         }
@@ -241,7 +240,7 @@ window.initDinoGame = function() {
         
         ctx.fillStyle = '#00ff66';
         ctx.font = '10px Courier New';
-        ctx.fillText(`HI: ${Math.floor(highscore)}  SCORE: ${Math.floor(score)}  FAILS: ${failCount}/10`, 10, 20);
+        ctx.fillText(`HI: ${Math.floor(highscore)}  SCORE: ${Math.floor(score)}`, 10, 20);
     }
 
     function loop(timestamp) {
