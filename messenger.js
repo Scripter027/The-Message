@@ -295,28 +295,41 @@
         }
     }
 
-    function createHackerOverlay() {
+       function createHackerOverlay() {
         if (document.getElementById("hackerOverlay")) return;
         const overlay = document.createElement("div");
         overlay.id = "hackerOverlay";
         overlay.innerHTML = `
             <div class="hacker-bg-effects"><div class="hacker-noise"></div></div>
-            <div class="hacker-silhouette">
-                <div class="hacker-hood-body">
-                    <div class="hacker-hood-monster">
-                        <div class="hacker-monster-eyes">
-                            <div class="hacker-monster-left"></div>
-                            <div class="hacker-monster-right"></div>
-                        </div>
-                        <div class="hacker-monster-mouth"></div>
-                    </div>
+            <div class="hacker-portrait-wrapper">
+                <div class="hacker-frame">
+                    <svg class="hacker-svg" viewBox="0 0 200 260" fill="none" xmlns="http://w3.org">
+                        <defs>
+                            <pattern id="sketchHatch" width="8" height="8" patternTransform="rotate(35 0 0)" patternUnits="userSpaceOnUse">
+                                <line x1="0" y1="0" x2="0" y2="8" stroke="#ff3333" stroke-width="1.2" stroke-opacity="0.32" />
+                            </pattern>
+                        </defs>
+                        <!-- Плечи и корпус -->
+                        <path d="M 32 260 L 36 165 Q 40 132 76 128 L 93 128 M 107 128 L 124 128 Q 160 132 164 165 L 168 260" stroke="#ff3333" stroke-width="3" stroke-linecap="round" />
+                        <!-- Вертикальные складки на рукавах/одежде -->
+                        <path d="M 48 165 L 46 255 M 57 175 L 56 248" stroke="#ff3333" stroke-width="2" stroke-linecap="round" />
+                        <path d="M 152 165 L 154 255 M 143 175 L 144 248" stroke="#ff3333" stroke-width="2" stroke-linecap="round" />
+                        <!-- Волнистая линия по центру груди -->
+                        <path d="M 100 136 Q 96 152 102 168 T 99 200 T 101 235" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round" />
+                        <!-- Голова-маска со штриховкой -->
+                        <path d="M 100 24 C 132 24 146 52 134 86 C 124 112 108 128 100 134 C 92 128 76 112 66 86 C 54 52 68 24 100 24 Z" fill="url(#sketchHatch)" stroke="#ff3333" stroke-width="3" stroke-linejoin="round" />
+                        <!-- Левый глаз (острая галочка V) -->
+                        <path d="M 76 58 L 83 88 L 95 54" stroke="#ff3333" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <!-- Правый глаз (вертикальная полоса с косой чертой) -->
+                        <g class="hacker-eye-right">
+                            <path d="M 116 54 L 114 92" stroke="#ff3333" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 122 50 L 117 62" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round" />
+                        </g>
+                        <!-- Маленький рот-галочка внизу -->
+                        <path d="M 96 108 L 100 115 L 105 107" stroke="#ff3333" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
-                <div class="hacker-mask-diamond"></div>
-                <div class="hacker-mask-smile"></div>
-                <div class="hacker-eyes-container">
-                    <div class="hacker-left-eye"></div>
-                    <div class="hacker-right-eye"></div>
-                </div>
+                <div class="hacker-caption">* дЬяВоЛ68 *</div>
             </div>
             <div class="hacker-text-container"><div class="hacker-msg"></div></div>
             <div class="hacker-options-zone"></div>
