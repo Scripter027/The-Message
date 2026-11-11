@@ -9,14 +9,6 @@
     const btnCloseSettings = document.getElementById('btnCloseDesktopSettings');
     const btnClearData = document.getElementById('btnDesktopClearData');
 
-    const deskGfxPrev = document.getElementById('deskGfxPrev');
-    const deskGfxNext = document.getElementById('deskGfxNext');
-    const deskLangPrev = document.getElementById('deskLangPrev');
-    const deskLangNext = document.getElementById('deskLangNext');
-
-    const gfxLevels = ['low', 'medium', 'high'];
-    const langList = ['en', 'ru'];
-
     let clockInterval = null;
 
     window.startClock = function() {
@@ -32,12 +24,6 @@
         clockInterval = setInterval(update, 1000);
     };
 
-    function getCurrentGfx() {
-        if (document.body.classList.contains('gfx-low')) return 'low';
-        if (document.body.classList.contains('gfx-medium')) return 'medium';
-        return 'high';
-    }
-
     btnDesktopSettings.addEventListener('click', () => {
         settingsWindow.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(settingsWindow);
@@ -46,36 +32,6 @@
 
     btnCloseSettings.addEventListener('click', () => {
         settingsWindow.classList.add('hidden');
-    });
-
-    deskGfxPrev.addEventListener('click', () => {
-        const idx = gfxLevels.indexOf(getCurrentGfx());
-        if (idx > 0 && window.updateGraphics) {
-            window.updateGraphics(gfxLevels[idx - 1]);
-        }
-    });
-
-    deskGfxNext.addEventListener('click', () => {
-        const idx = gfxLevels.indexOf(getCurrentGfx());
-        if (idx < gfxLevels.length - 1 && window.updateGraphics) {
-            window.updateGraphics(gfxLevels[idx + 1]);
-        }
-    });
-
-    deskLangPrev.addEventListener('click', () => {
-        const currentLang = document.documentElement.lang || 'ru';
-        const idx = langList.indexOf(currentLang);
-        if (idx > 0 && window.switchLanguage) {
-            window.switchLanguage(langList[idx - 1]);
-        }
-    });
-
-    deskLangNext.addEventListener('click', () => {
-        const currentLang = document.documentElement.lang || 'ru';
-        const idx = langList.indexOf(currentLang);
-        if (idx < langList.length - 1 && window.switchLanguage) {
-            window.switchLanguage(langList[idx + 1]);
-        }
     });
 
     btnClearData.addEventListener('click', () => {
