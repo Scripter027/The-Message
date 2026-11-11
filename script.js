@@ -60,6 +60,9 @@ const translations = {
     }
 };
 
+const gfxOrder = ['low', 'medium', 'high'];
+const langOrder = ['en', 'ru'];
+
 let currentVideoIndex = 0;
 let isGameStarted = false;
 let settingsContext = 'menu';
@@ -85,6 +88,7 @@ function initGameLaunch() {
         playNextVideo();
         setupSkipListeners();
         updateGraphics('high');
+        syncSettingsUI();
         if (window.startClock) {
             try { window.startClock(); } catch(e){}
         }
@@ -144,6 +148,7 @@ function transitionToMenu() {
         setTimeout(() => {
             mainMenu.classList.add('visible');
             unlockFirstChapterButton();
+            syncSettingsUI();
             if (window.YandexModule) {
                 window.YandexModule.gameReady();
             }
@@ -164,215 +169,3 @@ function unlockFirstChapterButton() {
         if (comingSoon) comingSoon.remove();
     }
 }
-function openPanel(clickedButton, targetPanel) {
-    if (settingsContext === 'menu') {
-        mainButtonsList.classList.add('has-active');
-        if (clickedButton) clickedButton.classList.add('clicked');
-        menuContent.classList.add('shifted');
-    }
-    targetPanel.classList.remove('hidden');
-    setTimeout(() => targetPanel.classList.add('visible'), 50);
-}
-
-function closeAllPanels() {
-    mainButtonsList.classList.remove('has-active');
-    document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('clicked'));
-    menuContent.classList.remove('shifted');
-    
-    const openPanels = document.querySelectorAll('.side-panel.visible');
-    openPanels.forEach(panel => {
-        panel.classList.remove('visible');
-        setTimeout(() => {
-            if (!panel.classList.contains('visible')) {
-                panel.classList.add('hidden');
-            }
-        }, 800);
-    });
-}
-
-function switchLanguage(lang) {
-    document.documentElement.lang = lang;
-    document.querySelectorAll('[data-lang]').forEach(el => {
-        const key = el.getAttribute('data-lang');
-        if (translations[lang] && translations[lang][key]) {
-            el.textContent = translations[lang][key];
-        }
-    });
-    const langRuBtn = document.getElementById('langRu');
-    const langEnBtn = document.getElementById('langEn');
-    if (langRuBtn && langEnBtn) {
-        if (lang === 'ru') {
-            langRuBtn.classList.add('active');
-            langEnBtn.classList.remove('active');
-        } else {
-            langEnBtn.classList.add('active');
-            langRuBtn.classList.remove('active');
-        }
-    }
-}
-
-function updateGraphics(level) {
-    document.body.classList.remove('gfx-low', 'gfx-medium', 'gfx-high');
-    if (level === 'low') document.body.classList.add('gfx-low');
-    if (level === 'medium') document.body.classList.add('gfx-medium');
-    if (level === 'high') document.body.classList.add('gfx-high');
-}
-
-function launchChapterOneProcess() {
-    if (window.AppConfig) {
-        window.AppConfig.setupChapterOneMode();
-    }
-    mainMenu.classList.remove('visible');
-    setTimeout(() => {
-        mainMenu.classList.add('hidden');
-        const startChapter = () => {
-            if (window.triggerLoading) {
-                window.triggerLoading(() => {
-                    const desktopEnv = document.getElementById('desktopEnv');
-                    desktopEnv.style.display = 'flex';
-                    desktopEnv.style.filter = 'none';
-                    desktopEnv.classList.remove('hidden');
-                    setTimeout(() => {
-                        desktopEnv.classList.add('visible');
-                        if (window.YandexModule) {
-                            window.YandexModule.startGameplay();
-                        }
-                        if (window.initChapterOne) {
-                            window.initChapterOne();
-                        }
-                    }, 50);
-                });
-            }
-        };
-        if (window.YandexModule) {
-            window.YandexModule.showAd(startChapter);
-        } else {
-            startChapter();
-        }
-    }, 1000);
-}
-
-function showOverlayMessage(textKey) {
-    const lang = document.documentElement.lang || 'ru';
-    if (creditsText && translations[lang] && translations[lang][textKey]) {
-        creditsText.textContent = translations[lang][textKey];
-    }
-    creditsOverlay.classList.remove('hidden');
-    setTimeout(() => creditsOverlay.classList.add('visible'), 50);
-    setTimeout(() => {
-        creditsOverlay.classList.remove('visible');
-        setTimeout(() => creditsOverlay.classList.add('hidden'), 500);
-    }, 3000);
-}
-
-document.addEventListener('click', function(e) {
-    const target = e.target;
-    const btn = target.closest("button");
-    
-    if (target === startPrompt || startPrompt.contains(target)) {
-        initGameLaunch();
-        return;
-    }
-    
-    if (btn && btn.id === 'btnSettings') {
-        settingsContext = 'menu';
-        openPanel(btn, panelSettings);
-        return;
-    }
-    
-    if (btn && btn.id === 'btnStart') {
-        settingsContext = 'menu';
-        openPanel(btn, panelStart);
-        return;
-    }
-    
-    if (btn && btn.classList.contains('chapter-btn-active')) {
-        closeAllPanels();
-        launchChapterOneProcess();
-        return;
-    }
-    
-    if (btn && btn.id === 'btnCredits') {
-        showOverlayMessage('credits_soon');
-        return;
-    }
-    
-    if (btn && btn.id === 'btnFree') {
-        if (window.AppConfig) {
-            window.AppConfig.resetToDesktopDefault();
-        }
-        mainMenu.classList.remove('visible');
-        setTimeout(() => {
-            mainMenu.classList.add('hidden');
-            const startFreePlay = () => {
-                if (window.triggerLoading) {
-                    window.triggerLoading(() => {
-                        const desktopEnv = document.getElementById('desktopEnv');
-                        desktopEnv.style.display = 'flex';
-                        desktopEnv.style.filter = 'none';
-                        desktopEnv.classList.remove('hidden');
-                        setTimeout(() => {
-                            desktopEnv.classList.add('visible');
-                            if (window.renderDesktopIcons) {
-                                window.renderDesktopIcons();
-                            }
-                            if (window.YandexModule) {
-                                window.YandexModule.startGameplay();
-                            }
-                        }, 50);
-                    });
-                }
-            };
-            if (window.YandexModule) {
-                window.YandexModule.showAd(startFreePlay);
-            } else {
-                startFreePlay();
-            }
-        }, 1000);
-        return;
-    }
-    
-    if (btn && btn.classList.contains('back-btn')) {
-        closeAllPanels();
-        return;
-    }
-    
-    if (btn && btn.classList.contains('select-btn') && !btn.hasAttribute('data-gfx') && btn.id !== 'desktopLangRu' && btn.id !== 'desktopLangEn') {
-        const siblings = btn.parentElement.querySelectorAll('.select-btn');
-        siblings.forEach(s => s.classList.remove('active'));
-        btn.classList.add('active');
-        
-        if (btn.id === 'langRu') { switchLanguage('ru'); return; }
-        if (btn.id === 'langEn') { switchLanguage('en'); return; }
-        
-        const text = btn.getAttribute('data-lang') || btn.textContent.toLowerCase();
-        if (text.includes('low') || text.includes('низк')) updateGraphics('low');
-        if (text.includes('med') || text.includes('сред')) updateGraphics('medium');
-        if (text.includes('high') || text.includes('выс')) updateGraphics('high');
-        return;
-    }
-    
-    if (btn && btn.id === 'btnClearData') {
-        if (window.AppConfig) {
-            window.AppConfig.resetToDesktopDefault();
-        }
-        localStorage.removeItem('kpr_dino_highscore');
-        showOverlayMessage('clear_data');
-        return;
-    }
-    
-    if (btn && btn.id === 'btnNews') {
-        showOverlayMessage('news_text');
-        return;
-    }
-});
-
-videoElement.addEventListener('ended', playNextVideo);
-
-window.addEventListener('keydown', (e) => {
-    if (!isGameStarted && (e.code === 'Space' || e.code === 'Enter')) {
-        initGameLaunch();
-    }
-}, { once: true });
-
-window.switchLanguage = switchLanguage;
