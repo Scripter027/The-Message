@@ -17,12 +17,11 @@
         if (window.AppConfig.state.trashContents.length === 0) return;
 
         window.AppConfig.state.trashContents.forEach(appId => {
+            const appData = window.AppConfig.allApps[appId];
+            if (appData && appData.type === 'system') return;
             const indexInInstalled = window.AppConfig.state.installed.indexOf(appId);
             if (indexInInstalled !== -1) {
                 window.AppConfig.state.installed.splice(indexInInstalled, 1);
-            }
-            if (window.AppConfig.state.positions[appId]) {
-                delete window.AppConfig.state.positions[appId];
             }
         });
 
@@ -38,7 +37,17 @@
         trashContainer.innerHTML = '';
         const lang = document.documentElement.lang || 'ru';
 
-        if (window.AppConfig.state.trashContents.length === 0) {
+        const validTrash = window.AppConfig.state.trashContents.filter(appId => {
+            const appData = window.AppConfig.allApps[appId];
+            return appData && appData.type !== 'system';
+        });
+
+        if (validTrash.length !== window.AppConfig.state.trashContents.length) {
+            window.AppConfig.state.trashContents = validTrash;
+            window.AppConfig.save();
+        }
+
+        if (validTrash.length === 0) {
             const emptyEl = document.createElement('div');
             emptyEl.style.color = '#00ff66';
             emptyEl.style.opacity = '0.5';
@@ -48,7 +57,7 @@
             return;
         }
 
-        window.AppConfig.state.trashContents.forEach(appId => {
+        validTrash.forEach(appId => {
             const appData = window.AppConfig.allApps[appId];
             if (!appData) return;
 
@@ -101,6 +110,9 @@
     }
 
     window.moveAppToTrash = function(appId) {
+        const appData = window.AppConfig.allApps[appId];
+        if (!appData || appData.type === 'system') return;
+
         if (!window.AppConfig.state.trashContents.includes(appId)) {
             window.AppConfig.state.trashContents.push(appId);
             window.AppConfig.save();
