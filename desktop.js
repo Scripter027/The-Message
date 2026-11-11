@@ -11,18 +11,24 @@
     const langRu = document.getElementById('desktopLangRu');
     const langEn = document.getElementById('desktopLangEn');
 
+    let clockInterval = null;
+
     window.startClock = function() {
-        setInterval(() => {
+        if (clockInterval) clearInterval(clockInterval);
+        const update = () => {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            taskbarClock.textContent = `${hours}:${minutes}:${seconds}`;
-        }, 1000);
+            if (taskbarClock) taskbarClock.textContent = `${hours}:${minutes}:${seconds}`;
+        };
+        update();
+        clockInterval = setInterval(update, 1000);
     };
 
     btnDesktopSettings.addEventListener('click', () => {
         settingsWindow.classList.remove('hidden');
+        if (window.bringToFront) window.bringToFront(settingsWindow);
         syncActiveStates();
     });
 
@@ -51,7 +57,6 @@
             langRu.classList.remove('active');
         }
     }
-
     settingsWindow.addEventListener('click', function(e) {
         const target = e.target;
         
@@ -97,16 +102,26 @@
 
     btnDesktopExit.addEventListener('click', () => {
         settingsWindow.classList.add('hidden');
+        if (window.YandexModule) {
+            window.YandexModule.stopGameplay();
+        }
         desktopEnv.classList.remove('visible');
         setTimeout(() => {
             desktopEnv.classList.add('hidden');
-            if (window.triggerLoading) {
-                window.triggerLoading(() => {
-                    mainMenu.classList.remove('hidden');
-                    setTimeout(() => {
-                        mainMenu.classList.add('visible');
-                    }, 50);
-                });
+            const exitToMenu = () => {
+                if (window.triggerLoading) {
+                    window.triggerLoading(() => {
+                        mainMenu.classList.remove('hidden');
+                        setTimeout(() => {
+                            mainMenu.classList.add('visible');
+                        }, 50);
+                    });
+                }
+            };
+            if (window.YandexModule) {
+                window.YandexModule.showAd(exitToMenu);
+            } else {
+                exitToMenu();
             }
         }, 1000);
     });
