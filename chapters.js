@@ -1,15 +1,10 @@
 (function() {
     let activeCh = 1, timerId = null, secLeft = 0, chatId = null, chats = {}, graveClicks = 0, tetrisEvil = false;
 
-    const titles = {
-        ru: ['Глава 1: "Динозаврик и Ссылка"', 'Глава 2: "Ссора не в пору"', 'Глава 3: "Поиск в Крови"', 'Глава 4: "На волоске от..."', 'Глава 5: "Дьявол во плоти"'],
-        en: ['Chapter 1: "Dino and Link"', 'Chapter 2: "Unfortunate Quarrel"', 'Chapter 3: "Search in Blood"', 'Chapter 4: "On a Hair\'s Breadth..."', 'Chapter 5: "Devil Incarnate"']
-    };
-
-    window.addEventListener('load', () => {
+    function syncTitles() {
         const grid = document.querySelector('#panelStart .chapters-grid');
-        if (!grid) return;
-        const lang = document.documentElement.lang || 'ru';
+        if (!grid || !window.StoryDB) return;
+        const lang = document.documentElement.lang === 'en' ? 'en' : 'ru';
         grid.querySelectorAll('button').forEach((b, i) => {
             b.classList.remove('locked');
             b.classList.add('ch-btn-ready');
@@ -18,8 +13,14 @@
             b.querySelector('.lock-icon')?.remove();
             b.querySelector('.coming-soon')?.remove();
             const sp = b.querySelector('span');
-            if (sp && titles[lang]) sp.textContent = titles[lang][i];
+            if (sp && window.StoryDB.titles[lang]) sp.textContent = window.StoryDB.titles[lang][i];
         });
+    }
+
+    window.addEventListener('load', () => {
+        syncTitles();
+        document.getElementById('btnStart')?.addEventListener('click', () => setTimeout(syncTitles, 20));
+        document.getElementById('btnLang')?.addEventListener('click', () => setTimeout(syncTitles, 30));
     });
 
     document.addEventListener('click', (e) => {
@@ -38,6 +39,7 @@
             window.triggerLoading(() => launchCh(ch));
         }, 500);
     }, true);
+
     function setTimer(min, onEnd) {
         clearTimer();
         secLeft = min * 60;
@@ -60,9 +62,10 @@
         document.getElementById('activeMessNotify')?.remove();
         const d = document.createElement('div');
         d.id = 'activeMessNotify';
-        d.style.cssText = 'position:fixed;bottom:54px;right:18px;max-width:320px;background:#000;border:2px solid #00ff66;color:#00ff66;padding:10px 14px;font-family:Russo One,sans-serif;z-index:12000;cursor:pointer;';
+        d.style.cssText = 'position:fixed;bottom:54px;right:18px;max-width:320px;background:#000;border:2px solid currentColor;padding:10px 14px;font-family:Russo One,sans-serif;z-index:12000;cursor:pointer;';
+        d.style.color = document.body.classList.contains('theme-mom') ? '#ff66b2' : '#00ff66';
         d.innerHTML = `<b>${from}</b><div style="font-size:0.78rem;margin-top:3px;">${text}</div>`;
-        d.onclick = () => { d.remove(); openStoryMess(); };
+        d.onclick = () => { d.remove(); openNativeMess(); };
         document.body.appendChild(d);
         setTimeout(() => d.remove(), 5000);
     }
@@ -89,61 +92,69 @@
     }
     function addM(id, who, text, out, fn) {
         if (!chats[id]) return;
-        chats[id].m.push({ who, text, out: !!out, fn });
+        const now = new Date();
+        const tm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        chats[id].m.push({ who, text, out: !!out, fn, tm });
         if (chatId !== id) chats[id].u = (chats[id].u || 0) + 1;
-        renderMess();
+        renderNativeMess();
     }
 
     function setOpt(id, list) {
-        if (chats[id]) { chats[id].o = list || []; renderMess(); }
+        if (chats[id]) { chats[id].o = list || []; renderNativeMess(); }
     }
 
-    function openStoryMess() {
-        let w = document.getElementById('winStory');
-        if (!w) {
-            w = document.createElement('div');
-            w.id = 'winStory';
-            w.className = 'desktop-window';
-            w.style.cssText = 'width:min(560px,95vw);height:min(420px,calc(100dvh - 52px));';
-            w.innerHTML = `<div class="window-header"><span class="window-title">Mess</span><button class="window-close-btn" id="clsStory">X</button></div><div class="window-content" style="flex-direction:row;padding:0;height:calc(100% - 32px);gap:0;"><div id="stList" style="width:34%;border-right:1px solid #00ff66;overflow-y:auto;"></div><div id="stArea" style="width:66%;flex:1;display:flex;flex-direction:column;justify-content:space-between;"></div></div>`;
-            document.querySelector('.desktop-main')?.appendChild(w);
-            document.getElementById('clsStory').onclick = () => w.classList.add('hidden');
-            if (window.makeWindowDraggable) window.makeWindowDraggable(w);
-        }
+    function openNativeMess() {
+        const w = document.getElementById('windowMessenger');
+        if (!w) return;
         w.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(w);
-        renderMess();
+        renderNativeMess();
     }
 
-    function renderMess() {
-        const l = document.getElementById('stList'), a = document.getElementById('stArea');
+    function renderNativeMess() {
+        const l = document.getElementById('chatListPanel'), a = document.getElementById('chatMessagesArea');
         if (!l || !a) return;
         l.innerHTML = '';
         Object.keys(chats).forEach(k => {
             const c = chats[k];
             if (c.hide) return;
             const it = document.createElement('div');
-            it.style.cssText = `padding:8px;border-bottom:1px solid rgba(0,255,102,0.2);cursor:pointer;color:${c.red ? '#ff3333' : 'inherit'};background:${chatId === k ? 'rgba(0,255,102,0.15)' : 'transparent'};`;
-            it.innerHTML = `<b>${c.t}</b> ${c.u ? `[${c.u}]` : ''}`;
-            it.onclick = () => { chatId = k; c.u = 0; renderMess(); };
+            it.className = 'chat-item' + (chatId === k ? ' active' : '');
+            if (c.red) it.style.color = '#ff3333';
+            const last = c.m[c.m.length - 1];
+            it.innerHTML = `<div class="chat-avatar">${c.av || '💬'}</div><div class="chat-info"><div class="chat-name">${c.t}</div><div class="chat-preview">${last ? last.text : ''}</div></div>${c.u ? `<div class="chat-unread">${c.u}</div>` : ''}`;
+            it.onclick = () => {
+                chatId = k;
+                c.u = 0;
+                if (c.onRead) { const cb = c.onRead; c.onRead = null; cb(); }
+                renderNativeMess();
+            };
             l.appendChild(it);
         });
-        if (!chatId || !chats[chatId]) { a.innerHTML = '<div style="margin:auto;opacity:0.6;">Выберите чат</div>'; return; }
+
+        if (!chatId || !chats[chatId]) {
+            a.innerHTML = '<div class="chat-placeholder">Выберите диалог слева</div>';
+            return;
+        }
+
         const cur = chats[chatId];
-        a.innerHTML = `<div id="stLogs" style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;"></div><div id="stOpts" style="padding:7px;border-top:1px solid #00ff66;display:flex;flex-direction:column;gap:5px;max-height:48%;overflow-y:auto;"></div>`;
-        const lb = document.getElementById('stLogs'), ob = document.getElementById('stOpts');
+        a.innerHTML = `<div class="chat-header" style="color:${cur.red ? '#ff3333' : 'inherit'};">${cur.t}</div><div class="chat-messages-log" id="nativeLogs"></div><div class="chat-options-panel" id="nativeOpts"></div>`;
+        const lb = document.getElementById('nativeLogs'), ob = document.getElementById('nativeOpts');
+
         cur.m.forEach(msg => {
             const d = document.createElement('div');
-            d.style.cssText = `max-width:85%;padding:6px 9px;font-size:0.78rem;border:1px solid currentColor;align-self:${msg.out ? 'flex-end' : 'flex-start'};`;
-            d.innerHTML = `<div style="font-size:0.68rem;opacity:0.75;">${msg.who}</div><div>${msg.text} ${msg.fn ? '<span class="article-link" id="stLnk">*ссылка*</span>' : ''}</div>`;
+            d.className = 'messenger-msg-bubble ' + (msg.out ? 'msg-outgoing' : 'msg-incoming');
+            if (cur.red) d.style.borderColor = '#ff3333';
+            d.innerHTML = `<div class="msg-sender">${msg.who}</div><div>${msg.text} ${msg.fn ? '<span class="article-link" id="natLnk">*ссылка*</span>' : ''}</div><div class="msg-time">${msg.tm}</div>`;
             lb.appendChild(d);
-            if (msg.fn) d.querySelector('#stLnk').onclick = msg.fn;
+            if (msg.fn) d.querySelector('#natLnk').onclick = msg.fn;
         });
         lb.scrollTop = lb.scrollHeight;
+
         cur.o.forEach(opt => {
             const b = document.createElement('button');
-            b.className = 'browser-btn';
-            b.style.textAlign = 'left';
+            b.className = 'messenger-opt-btn';
+            if (cur.red) { b.style.borderColor = '#ff3333'; b.style.color = '#ff3333'; }
             b.textContent = opt.l;
             b.onclick = opt.f;
             ob.appendChild(b);
@@ -152,7 +163,7 @@
 
     const origOpen = window.openApplicationWindow;
     window.openApplicationWindow = function(id) {
-        if (activeCh >= 2 && id === 'messenger') { openStoryMess(); return; }
+        if (activeCh >= 2 && id === 'messenger') { openNativeMess(); return; }
         if (id === 'browser' && window.initBrowserApp) { window.initBrowserApp(); return; }
         if (id === 'slides' && window.initSlidesApp) { window.initSlidesApp(); return; }
         if (id === 'reports' && window.initReportsApp) { window.initReportsApp(); return; }
@@ -169,6 +180,7 @@
         activeCh = ch; chatId = null; chats = {}; tetrisEvil = false;
         clearTimer();
         document.body.classList.remove('theme-mom');
+        document.querySelectorAll('.desktop-window').forEach(w => w.classList.add('hidden'));
         const env = document.getElementById('desktopEnv');
         env.style.display = 'flex'; env.classList.remove('hidden');
         setTimeout(() => env.classList.add('visible'), 40);
@@ -185,137 +197,337 @@
         if (window.renderDesktopIcons) window.renderDesktopIcons();
     }
     function ch2() {
+        const S = window.StoryDB.ch2;
         window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser'];
-        chats = { mom: { t: '👩 Мама', m: [], o: [] }, sam: { t: '👦 Бро (Сэм)', m: [], o: [] }, d: { t: '❓ ???', red: true, hide: true, m: [], o: [] } };
-        addM('mom', 'Мама', 'Айв что с тобой? У тебя двойка по математике! Мы же шли на золотую медаль!');
+        chats = {
+            mom: { t: 'Мама', av: '👩', m: [], o: [] },
+            sam: { t: 'Бро', av: '👦', m: [], o: [] },
+            d: { t: '???', av: '❓', red: true, hide: true, m: [], o: [] }
+        };
+        addM('mom', 'Мама', S.mom1);
         setOpt('mom', [
-            { l: '1. Мам, мне угрожали!', f: () => over('Мать не поверила сыну, а через несколько дней она пропала…') },
-            { l: '2. Отвали от меня!', f: () => over('Мать забрала компьютер. Ваших близких так и не нашли…') },
+            { l: '1. Мам, мне угрожали! Мой компьютер взломали и какой-то человек мне угрожал!', f: () => over(S.momFail1) },
+            { l: '2. Боже да отвали от меня! Ты меня вообще не понимаешь!', f: () => over(S.momFail2) },
             { l: '3. Прости…', f: () => {
-                addM('mom', 'Вы', 'Прости…', true);
-                addM('mom', 'Мама', 'Я закрою глаза на этот раз, но если повторится — заберу все гаджеты!');
+                addM('mom', 'Айв', 'Прости…', true);
+                addM('mom', 'Мама', S.mom2);
                 setOpt('mom', [
-                    { l: '1. Мне угрожали!', f: () => over('С её номера тебе написали «Ты следующий»…') },
-                    { l: '2. Мам, я люблю тебя.', f: () => {
-                        addM('mom', 'Вы', 'Мам, я люблю тебя.', true);
-                        addM('mom', 'Мама', 'И я тебя люблю! Садись за уроки!');
+                    { l: '1. Мам, я хотел тебе кое что сказать… Мне угрожали! Мой компьютер взломали!', f: () => over(S.momFail3) },
+                    { l: '2. Мам, я хотел тебе кое что сказать… Я люблю тебя.', f: () => {
+                        addM('mom', 'Айв', 'Мам, я хотел тебе кое что сказать… Я люблю тебя.', true);
+                        addM('mom', 'Мама', S.mom3);
                         setOpt('mom', []);
-                        chats.d.hide = false;
-                        addM('d', '???', 'В следующий раз одним из них можешь быть ты:', false, () => {
-                            if (window.initBrowserApp) window.initBrowserApp('school_1290');
-                            window.onSchoolLinkClicked = () => {
-                                document.getElementById('windowBrowser')?.classList.add('hidden');
-                                addM('d', '???', 'тВоЕ пЕрВоЕ зАдАнИе! ПоСсОрЬсЯ с ЛуЧшИм ДрУгОм За 15 МиНуТ!');
-                                setTimer(15, () => over('Время вышло!'));
-                                setOpt('sam', [{ l: 'Мы больше не друзья!', f: () => {
-                                    addM('sam', 'Вы', 'Мы больше не друзья!', true);
-                                    addM('sam', 'Сэм', 'Почему? Что случилось?');
-                                    setOpt('sam', [
-                                        { l: '1. Если не поссорюсь, вас убьют!', f: () => over('Вы раскрыли тайну дЬяВоЛу.') },
-                                        { l: '2. Мама не хочет, чтобы я дружил с тобой, Сэм.', f: () => {
-                                            addM('sam', 'Вы', 'Мама не хочет, чтобы я дружил с тобой, Сэм.', true);
-                                            addM('sam', 'Сэм', 'Не пиши мне больше, Мистер Учеба.');
-                                            setOpt('sam', []); clearTimer();
-                                            addM('d', '???', 'Надо же! Успел и сохранил тайну!');
-                                            setTimeout(() => win(2, 'Вы спасли близких ценой друга...'), 2500);
-                                        }},
-                                        { l: '3. Потому что', f: () => over('Вы не пришли в школу. Просто дома голову забыли.') }
-                                    ]);
-                                }}]);
-                            };
-                        });
-                        toast('???', 'Новое сообщение со ссылкой...');
+                        setTimeout(() => {
+                            chats.d.hide = false;
+                            addM('d', '???', S.devil1, false, () => {
+                                if (window.initBrowserApp) window.initBrowserApp('school_1290');
+                                window.onSchoolLinkClicked = () => {
+                                    document.getElementById('windowBrowser')?.classList.add('hidden');
+                                    document.getElementById('windowMessenger')?.classList.add('hidden');
+                                    setTimeout(() => {
+                                        addM('d', '???', S.devil2);
+                                        chatId = 'sam';
+                                        openNativeMess();
+                                        setTimer(15, () => over('Время вышло! Вы не успели поссориться с другом...'));
+                                        setOpt('sam', [{ l: 'Мы больше не друзья!', f: () => {
+                                            addM('sam', 'Айв', 'Мы больше не друзья!', true);
+                                            addM('sam', 'Бро', S.sam1);
+                                            setOpt('sam', [
+                                                { l: '1. Если я не поссорюсь с тобой, то тебя и моих родителей убьют!', f: () => over(S.samFail1) },
+                                                { l: '2. Мама не хочет, чтобы я дружил с тобой, Сэм.', f: () => {
+                                                    addM('sam', 'Айв', 'Мама не хочет, чтобы я дружил с тобой, Сэм.', true);
+                                                    addM('sam', 'Бро', S.samOk);
+                                                    setOpt('sam', []);
+                                                    clearTimer();
+                                                    setTimeout(() => {
+                                                        addM('d', '???', S.devilEnd);
+                                                        chatId = 'd';
+                                                        renderNativeMess();
+                                                        setTimeout(() => win(2, 'Вы спасли близких ценой лучшего друга...'), 4000);
+                                                    }, 1200);
+                                                }},
+                                                { l: '3. Потому что', f: () => over(S.samFail3) }
+                                            ]);
+                                        }}]);
+                                    }, 800);
+                                };
+                            });
+                            toast('???', 'В следующий раз будь еще осторожнее...');
+                        }, 1200);
                     }}
                 ]);
             }}
         ]);
-        toast('Мама', 'Айв что с тобой? У тебя двойка!');
+        toast('Мама', 'Айв что с тобой? У тебя двойка...');
     }
 
     function ch3() {
-        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser', 'slides', 'store'];
-        chats = { cass: { t: '👧 Кассандра', m: [], o: [] }, mom: { t: '👩 Мама', m: [], o: [] }, d: { t: '❓ ???', red: true, m: [], o: [] } };
-        addM('cass', 'Кассандра', 'Привет, Айв! Поможешь с проектом в слайдах?');
-        setOpt('cass', [{ l: 'Открыть Проект.ppt', f: () => window.initSlidesApp && window.initSlidesApp() }]);
+        const S = window.StoryDB.ch3;
+        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser', 'store'];
+        chats = {
+            cass: { t: 'Кассандра', av: '👧', hide: true, m: [], o: [] },
+            mom: { t: 'Мама', av: '👩', m: [], o: [] },
+            d: { t: '???', av: '❓', red: true, m: [], o: [] }
+        };
+        toast('Мысли Айва', 'Откройте Браузер и поищите статьи о пропавших детях за 5 лет.');
+
+        window.onBrowserSearched = (q) => {
+            if (chats.cass.hide && (q.includes('пропав') || q.includes('5 лет') || q.includes('дет'))) {
+                setTimeout(() => {
+                    chats.cass.hide = false;
+                    addM('cass', 'Кассандра', S.cass1);
+                    setOpt('cass', [
+                        { l: '1. Знаешь я сегодня очень занят и не смогу помочь', f: () => {
+                            addM('cass', 'Айв', 'Знаешь я сегодня очень занят и не смогу помочь', true);
+                            addM('cass', 'Кассандра', S.cassPersuade);
+                            setOpt('cass', [{ l: 'Ладно, открываю проект...', f: () => openProject() }]);
+                        }},
+                        { l: '2. Ладно, сейчас гляну.', f: () => { addM('cass', 'Айв', 'Ладно, сейчас гляну.', true); openProject(); } }
+                    ]);
+                    toast('Кассандра', 'Привет, Айв. Поможешь с проектом?');
+                }, 1200);
+            }
+        };
+
+        function openProject() {
+            if (!window.AppConfig.state.installed.includes('slides')) {
+                window.AppConfig.state.installed.push('slides');
+                window.AppConfig.save();
+                if (window.renderDesktopIcons) window.renderDesktopIcons();
+            }
+            document.getElementById('windowMessenger')?.classList.add('hidden');
+            if (window.initSlidesApp) window.initSlidesApp();
+        }
+
         window.onGraveClicked = (n) => { graveClicks = n; };
+
         window.onFourthSlideTriggered = () => {
-            setOpt('cass', [{ l: 'Что за чертовщина на 4 слайде!?', f: () => { addM('cass', 'Вы', 'Что за чертовщина на 4 слайде!?', true); addM('cass', 'Кассандра', 'В проекте только 3 слайда.'); setOpt('cass', []); } }]);
-            setOpt('d', [{ l: 'У тебя есть новое задание?', f: () => {
-                addM('d', 'Вы', 'У тебя есть новое задание?', true);
-                addM('d', '???', 'Купи тетрис за 30 минут.');
-                setTimer(30, () => over('30 минут истекли.'));
-                setOpt('d', [{ l: 'Купить Тетрис (пароль: Айв)', f: () => {
-                    const p = prompt('Пароль от карты (Подсказка: Имя любимого сына):');
+            setOpt('cass', [{ l: 'Что за чертовщина на 4 слайде!?', f: () => {
+                addM('cass', 'Айв', 'Что за чертовщина на 4 слайде!?', true);
+                addM('cass', 'Кассандра', S.cassSlide4);
+                setOpt('cass', []);
+            }}]);
+            setOpt('d', [{ l: 'У тебя есть новое ужасное задание?', f: () => {
+                addM('d', 'Айв', 'У тебя есть новое ужасное задание?', true);
+                addM('d', '???', S.devil1);
+                addM('d', 'Айв', 'Купить? Он же платный!', true);
+                addM('d', '???', S.devil2);
+                setTimer(30, () => over('30 минут истекли. Вы не купили Тетрис...'));
+                setOpt('mom', [{ l: 'Эй мам. Помнишь я хотел одну игру? Можешь пожалуйста купить мне тетрис?', f: () => {
+                    addM('mom', 'Айв', 'Эй мам. Помнишь я хотел одну игру? Можешь пожалуйста купить мне тетрис?', true);
+                    addM('mom', 'Мама', S.momNoGame);
+                    setOpt('mom', []);
+                }}]);
+                setOpt('d', [{ l: 'Зайти в Магазин и купить Тетрис (пароль: Айв)', f: () => {
+                    const p = prompt('Пароль от привязанной карты (Подсказка: Имя любимого сына):');
                     if (p && p.trim().toLowerCase() === 'айв') {
                         clearTimer();
-                        addM('d', '???', 'Скажи маме, что она тебя не понимает! У тебя 5 минут!');
-                        setTimer(5, () => over('5 минут истекли!'));
+                        setOpt('d', []);
+                        if (!window.AppConfig.state.installed.includes('tetris')) {
+                            window.AppConfig.state.installed.push('tetris');
+                            window.AppConfig.save();
+                            if (window.renderDesktopIcons) window.renderDesktopIcons();
+                        }
+                        addM('d', '???', S.devil3);
+                        addM('d', 'Айв', 'Ты же обещал что её это касаться не будет!', true);
+                        addM('d', '???', S.devil4);
+                        chatId = 'mom';
+                        renderNativeMess();
+                        setTimer(5, () => over('5 минут истекли! Вы не успели написать маме.'));
                         setOpt('mom', [
-                            { l: '1. Ты меня не понимаешь вот и все!', f: () => { addM('mom', 'Вы', 'Ты меня не понимаешь вот и все!', true); addM('mom', 'Мама', 'Завтра дома поговорим!'); setOpt('mom', []); clearTimer(); setTimeout(() => win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 2000); } },
-                            { l: '2. Я люблю тебя.', f: () => over('Вы в последний раз напечатали, что любите маму.') },
-                            { l: '3. Я купил тетрис.', f: () => over('Сначала ремень, потом пальцы.') }
+                            { l: '1. Ну как обычно. Ты меня не понимаешь вот и все!', f: () => {
+                                addM('mom', 'Айв', 'Ну как обычно. Ты меня не понимаешь вот и все!', true);
+                                addM('mom', 'Мама', S.momOk);
+                                setOpt('mom', []);
+                                clearTimer();
+                                setTimeout(() => {
+                                    addM('d', '???', S.devilEnd1);
+                                    addM('d', 'Айв', 'Твоя цель рассорить меня со всеми?', true);
+                                    addM('d', '???', S.devilEnd2);
+                                    chatId = 'd';
+                                    renderNativeMess();
+                                    setTimeout(() => win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 4200);
+                                }, 1200);
+                            }},
+                            { l: '2. Я люблю тебя.', f: () => over(S.momFailLove) },
+                            { l: '3. Я купил тетрис.', f: () => over(S.momFailTetris) }
                         ]);
                     }
                 }}]);
             }}]);
         };
-        toast('Кассандра', 'Привет, Айв! Поможешь с проектом?');
     }
-
     function ch4() {
+        const S = window.StoryDB.ch4;
         document.body.classList.add('theme-mom');
-        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'reports'];
-        chats = { kir: { t: '❤️ Кирилл', m: [], o: [] }, lara: { t: '👩‍🏫 Лариса Эдуардовна', hide: true, m: [], o: [] } };
-        addM('kir', 'Кирилл', 'Лора, как дела на работе? Айв купил Тетрис за 50 рублей.');
-        setOpt('kir', [{ l: 'Поговори с ним дома. Пойду доделаю отчеты.', f: () => { addM('kir', 'Лора', 'Поговори с ним дома.', true); setOpt('kir', []); toast('Работа', 'Откройте Отчеты и сдайте 5 отчетов!'); } }]);
-        window.onMomReportsCompleted = () => {
-            chats.lara.hide = false;
-            addM('lara', 'Лариса Эдуардовна', 'Ваш сын сорвал урок и снял штаны! О золотой медали речи нет, он на учете.');
-            setOpt('lara', [{ l: 'Я проведу с ним беседу!', f: () => {
-                document.body.classList.remove('theme-mom');
-                chats = { dad: { t: '👨 Папа', m: [], o: [] }, d: { t: '❓ ???', red: true, m: [], o: [] } };
-                addM('dad', 'Папа', 'Завтра в школу не идешь. Будет серьезный разговор.');
-                addM('d', '???', 'Прицел будет снят только после твоей смерти. Я иду за тобой)');
-                setTimeout(() => win(4, 'Айв остался один на краю гибели и безумия...'), 3500);
-            }}]);
-            toast('Лариса Эдуардовна', 'Здравствуйте, Элеонора Степановна...');
+        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger'];
+        if (window.renderDesktopIcons) window.renderDesktopIcons();
+
+        chats = {
+            kir: { t: 'Кирилл', av: '❤️', m: [], o: [] },
+            le: { t: 'Лариса Эдуардовна', av: '👩‍🏫', hide: true, m: [], o: [] }
         };
+
+        addM('kir', 'Кирилл', S.kir1);
+        setOpt('kir', [{ l: 'Ответить: Ох, Кир, да на работе все хорошо, 10 отчетов из 15 закончены...', f: () => {
+            addM('kir', 'Лора', S.lora1, true);
+            addM('kir', 'Кирилл', S.kir2);
+            setOpt('kir', [{ l: 'Ответить: В этом и проблема! Пишет, да еще как!...', f: () => {
+                addM('kir', 'Лора', S.lora2, true);
+                addM('kir', 'Кирилл', S.kir3);
+                setOpt('kir', [{ l: 'Ответить: Ну вот видишь! Он еще и не слушается нас!...', f: () => {
+                    addM('kir', 'Лора', S.lora3, true);
+                    addM('kir', 'Кирилл', S.kir4);
+                    setOpt('kir', [{ l: 'Ответить: Да не знаю я! Хорошо, поговори с ним, как дома будешь...', f: () => {
+                        addM('kir', 'Лора', S.lora4, true);
+                        setOpt('kir', []);
+                        window.AppConfig.state.installed.push('reports');
+                        if (window.renderDesktopIcons) window.renderDesktopIcons();
+                        toast('Работа', 'Откройте приложение «Отчеты» и доделайте 5 оставшихся отчетов!');
+                    }}]);
+                }}]);
+            }}]);
+        }}]);
+
+        window.onMomReportsCompleted = () => {
+            document.getElementById('windowReports')?.classList.add('hidden');
+            chats.le.hide = false;
+            addM('le', 'Лариса Эдуардовна', S.le1);
+            toast('Лариса Эдуардовна', 'Здравствуйте, Элеонора Степановна...');
+            setOpt('le', [{ l: 'здравствуйте, что произошло?', f: () => {
+                addM('le', 'Лора', S.lora5, true);
+                addM('le', 'Лариса Эдуардовна', S.le2);
+                setOpt('le', [{ l: 'Я даже не знаю что сказать! Он никогда себя так не вел.', f: () => {
+                    addM('le', 'Лора', S.lora6, true);
+                    addM('le', 'Лариса Эдуардовна', S.le3);
+                    setOpt('le', [{ l: 'Мне очень стыдно за него, Лариса Эдуардовна!', f: () => {
+                        addM('le', 'Лора', S.lora7, true);
+                        addM('le', 'Лариса Эдуардовна', S.le4);
+                        setOpt('le', [{ l: 'Не может быть! Он не получит золотую медаль?!', f: () => {
+                            addM('le', 'Лора', S.lora8, true);
+                            addM('le', 'Лариса Эдуардовна', S.le5);
+                            setOpt('le', []);
+                            setTimeout(() => switchToIve(), 3200);
+                        }}]);
+                    }}]);
+                }}]);
+            }}]);
+        };
+
+        function switchToIve() {
+            document.getElementById('windowMessenger')?.classList.add('hidden');
+            window.triggerLoading(() => {
+                document.body.classList.remove('theme-mom');
+                window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris'];
+                if (window.renderDesktopIcons) window.renderDesktopIcons();
+                chatId = null;
+                let readCount = 0;
+
+                const checkAllRead = () => {
+                    readCount++;
+                    if (readCount >= 4) {
+                        setTimeout(() => win(4, 'Айв остался один. На краю от отчисления, позора и гибели...'), 3500);
+                    }
+                };
+
+                chats = {
+                    dad: { t: 'Папа', av: '👨', m: [], o: [], onRead: checkAllRead },
+                    d: { t: '???', av: '❓', red: true, hide: true, m: [], o: [], onRead: checkAllRead },
+                    mom: { t: 'Мама', av: '👩', hide: true, m: [], o: [], onRead: checkAllRead },
+                    sam: { t: 'Бро', av: '👦', hide: true, m: [], o: [], onRead: checkAllRead }
+                };
+
+                addM('dad', 'Папа', S.dadEnd);
+                toast('Папа', 'Сын, мы сегодня с мамой задерживаемся...');
+
+                setTimeout(() => {
+                    chats.d.hide = false;
+                    addM('d', '???', S.devilEnd);
+                    toast('???', 'Прицел будет снят только после твоей смерти...');
+                }, 3500);
+
+                setTimeout(() => {
+                    chats.mom.hide = false;
+                    addM('mom', 'Мама', S.momEnd);
+                    toast('Мама', 'Я очень разочарована в тебе...');
+                }, 7000);
+
+                setTimeout(() => {
+                    chats.sam.hide = false;
+                    addM('sam', 'Бро', S.broEnd);
+                    toast('Бро', 'Я так разочарован в тебе. (Прочитайте все 4 диалога)');
+                }, 10500);
+            });
+        }
+
         toast('Кирилл', 'Лора, как дела на работе?');
     }
 
     function ch5() {
+        const S = window.StoryDB.ch5;
         window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris'];
-        chats = { all: { t: '👥 Близкие', m: [], o: [] }, d: { t: '❓ ???', red: true, m: [], o: [] }, via: { t: '👁️ вйА', hide: true, m: [], o: [] } };
-        addM('all', 'Мысли Айва', 'Надо попросить прощения у всех перед концом...');
-        setOpt('all', [{ l: 'Отправить прощальные письма Маме, Папе, Бро и Учителю', f: () => {
-            addM('all', 'Вы', 'Простите меня за все и... Прощай!', true);
-            setOpt('all', []);
+        if (window.renderDesktopIcons) window.renderDesktopIcons();
+
+        chats = {
+            le: { t: 'Лариса Эдуардовна', av: '👩‍🏫', m: [], o: [] },
+            dad: { t: 'Папа', av: '👨', m: [], o: [] },
+            mom: { t: 'Мама', av: '👩', m: [], o: [] },
+            sam: { t: 'Бро', av: '👦', m: [], o: [] },
+            d: { t: '???', av: '❓', red: true, m: [], o: [] },
+            via: { t: 'вйА', av: '👁️', hide: true, m: [], o: [] }
+        };
+
+        let sent = 0;
+        const onSent = () => {
+            sent++;
+            if (sent < 4) return;
             tetrisEvil = true;
-            toast('Мысли', 'Поторопите ??? в чате или запустите Тетрис...');
-            setOpt('d', [{ l: 'Поторопить: Я уже не боюсь тебя!', f: () => {
-                addM('d', '???', 'я ТвОй ХоЗяИн... Нога хозяина не заметит щенка под собой!');
-                setTimeout(() => bsod('Все вокруг было ненастоящим. Дьявол был всегда.'), 2200);
+            toast('Мысли Айва', 'Все дела завершены. Поторопите ??? в чате или откройте Тетрис...');
+            setOpt('d', [{ l: 'Поторопить: Ну и долго ты собираешься идти? Я уже не боюсь тебя!', f: () => {
+                addM('d', 'Айв', S.provokeIve, true);
+                setOpt('d', []);
+                setTimeout(() => addM('d', '???', S.provoke1), 900);
+                setTimeout(() => addM('dad', 'Папа', S.provoke2), 1800);
+                setTimeout(() => addM('le', 'ЛЭ', S.provoke3), 2700);
+                setTimeout(() => addM('mom', 'Мама', S.provoke4), 3600);
+                setTimeout(() => addM('sam', 'Бро', S.provoke5), 4500);
+                setTimeout(() => addM('d', '???', S.provoke6), 5400);
+                setTimeout(() => bsod(S.bsodFake), 7500);
             }}]);
-        }}]);
+        };
+
+        setOpt('le', [{ l: 'Написать извинения Ларисе Эдуардовне', f: () => { addM('le', 'Айв', S.toTeacher, true); setOpt('le', []); onSent(); } }]);
+        setOpt('dad', [{ l: 'Написать прощание Папе', f: () => { addM('dad', 'Айв', S.toDad, true); setOpt('dad', []); onSent(); } }]);
+        setOpt('mom', [{ l: 'Написать прощание Маме', f: () => { addM('mom', 'Айв', S.toMom, true); setOpt('mom', []); onSent(); } }]);
+        setOpt('sam', [{ l: 'Написать прощание Бро', f: () => { addM('sam', 'Айв', S.toBro, true); setOpt('sam', []); onSent(); } }]);
+
         window.onEvilTetris = () => {
+            if (!chats.via.hide) return;
+            setOpt('d', []);
             chats.via.hide = false;
-            addM('via', 'вйА', 'Отправь этот файл дьяволу сейчас! И не открывай его!');
+            addM('via', 'вйА', S.viaMsg);
+            toast('вйА', S.viaMsg);
             setOpt('via', [
-                { l: 'Открыть файл вйА', f: () => bsod('Слишком много ошибок. Архивы пропавших детей и создание ИИ...') },
-                { l: 'Отправить файл ??? не открывая', f: () => {
-                    addM('d', '???', 'Старые документы... Нет! Не может быть! КТО ОН...');
+                { l: 'Открыть файл и посмотреть содержимое', f: () => bsod(S.bsodFile) },
+                { l: 'Не открывать и сразу отправить файл ???', f: () => {
+                    setOpt('via', []);
+                    chatId = 'd';
+                    addM('d', 'Айв', S.sendFileIve, true);
+                    setTimeout(() => addM('d', '???', S.devilFile1), 1500);
+                    setTimeout(() => addM('d', '???', S.devilFile2), 3400);
+                    setTimeout(() => addM('d', '???', S.devilFile3), 5200);
                     setTimeout(() => {
                         if (graveClicks >= 68) {
-                            alert('Айв: Я создал тебя! Я и есть Настоящий Дьявол во Плоти!');
+                            alert('Настоящий Дьявол во Плоти');
                             win(5, 'Безумная концовка: Настоящий Дьявол во Плоти.');
                         } else {
-                            win(5, 'Жизнь перезагрузилась. Родители узнали правду, Бро простил Айва.');
+                            win(5, S.goodEnding);
                         }
-                    }, 2200);
+                    }, 7200);
                 }}
             ]);
-            toast('вйА', 'Отправь этот файл дьяволу сейчас!');
         };
-        toast('Мысли Айва', 'Откройте Mess...');
+
+        toast('Мысли Айва', 'Откройте Mess и напишите всем, кого обидели...');
     }
 })();
