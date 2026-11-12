@@ -52,6 +52,17 @@
         });
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        unlockAllChapterButtons();
+        registerExtraApps();
+        const btnStart = document.getElementById('btnStart');
+        if (btnStart) {
+            btnStart.addEventListener('click', () => {
+                setTimeout(unlockAllChapterButtons, 20);
+            });
+        }
+    });
+
     const menuObserver = new MutationObserver(() => {
         unlockAllChapterButtons();
     });
