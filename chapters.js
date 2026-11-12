@@ -136,6 +136,21 @@
             };
             l.appendChild(it);
         });
+            setInterval(() => {
+        if (activeCh < 2) return;
+                        a.dataset.storyRendered = '1';
+        const win = document.getElementById('windowMessenger');
+        if (win && !win.classList.contains('hidden')) {
+            const area = document.getElementById('chatMessagesArea');
+            if (area && !area.dataset.storyRendered) {
+                area.dataset.storyRendered = '1';
+                renderNativeMess();
+            }
+        } else if (win && win.classList.contains('hidden')) {
+            const area = document.getElementById('chatMessagesArea');
+            if (area) delete area.dataset.storyRendered;
+        }
+    }, 150);
 
         if (!chatId || !chats[chatId]) {
             a.innerHTML = '<div class="chat-placeholder">Выберите диалог слева</div>';
