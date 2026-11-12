@@ -1,0 +1,298 @@
+body.theme-mom .desktop-environment {
+    background-color: #14040c !important;
+}
+
+body.theme-mom .scanlines {
+    background: linear-gradient(rgba(10, 10, 10, 0) 40%, rgba(0, 0, 0, 0.55) 40%), linear-gradient(90deg, rgba(255, 80, 170, 0.12), rgba(255, 150, 210, 0.05), rgba(200, 50, 140, 0.12)) !important;
+    background-size: 100% 5px, 6px 100% !important;
+}
+
+body.theme-mom .flicker {
+    background: rgba(255, 102, 178, 0.05) !important;
+}
+
+body.theme-mom .taskbar {
+    background: rgba(35, 8, 22, 0.94) !important;
+    border-top-color: #ff66b2 !important;
+}
+
+body.theme-mom .taskbar-btn,
+body.theme-mom .desktop-window,
+body.theme-mom .app-list-container,
+body.theme-mom .action-btn {
+    border-color: #ff66b2 !important;
+    color: #ff66b2 !important;
+    box-shadow: 0 0 12px rgba(255, 102, 178, 0.25) !important;
+}
+
+body.theme-mom .taskbar-btn:hover,
+body.theme-mom .window-header {
+    background: #ff66b2 !important;
+    color: #14040c !important;
+}
+
+body.theme-mom .taskbar-clock,
+body.theme-mom .icon-name {
+    color: #ff66b2 !important;
+    text-shadow: 0 0 6px #ff66b2 !important;
+}
+
+body.theme-mom .icon-visual {
+    filter: drop-shadow(0 0 6px rgba(255, 102, 178, 0.65)) !important;
+}
+
+body.theme-mom .desktop-icon:hover {
+    background-color: rgba(255, 102, 178, 0.15) !important;
+    border-color: rgba(255, 102, 178, 0.5) !important;
+}
+
+.taskbar-clock.timer-panic {
+    color: #ff3333 !important;
+    text-shadow: 0 0 10px #ff3333 !important;
+    animation: panic-blink 0.6s infinite alternate;
+}
+
+@keyframes panic-blink {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.browser-bar {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 255, 102, 0.3);
+}
+
+.browser-input {
+    flex: 1;
+    background: #000;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    padding: 7px 10px;
+    font-family: 'Russo One', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.browser-btn {
+    background: transparent;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    padding: 7px 14px;
+    font-family: 'Russo One', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.browser-btn:hover {
+    background: #00ff66;
+    color: #000;
+}
+
+.browser-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.browser-tag {
+    background: rgba(0, 255, 102, 0.08);
+    border: 1px dashed rgba(0, 255, 102, 0.45);
+    color: #00ff66;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: 'Russo One', sans-serif;
+}
+
+.browser-tag:hover {
+    background: rgba(0, 255, 102, 0.22);
+}
+
+.article-card {
+    border: 1px solid rgba(0, 255, 102, 0.35);
+    background: rgba(0, 15, 0, 0.65);
+    padding: 12px;
+    color: #00ff66;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.article-title {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(0, 255, 102, 0.25);
+    padding-bottom: 4px;
+}
+
+.article-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: #ffaa00;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.slide-box {
+    flex: 1;
+    border: 2px solid #00ff66;
+    background: rgba(0, 12, 0, 0.85);
+    padding: 16px;
+    color: #00ff66;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 210px;
+}
+
+.slide-graveyard {
+    background: radial-gradient(circle, #180000 0%, #000 90%);
+    border-color: #ff3333 !important;
+    color: #ff3333 !important;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.grave-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.grave-stone {
+    border: 2px solid #ff3333;
+    border-radius: 18px 18px 0 0;
+    padding: 10px 4px;
+    background: rgba(40, 0, 0, 0.5);
+    font-size: 0.85rem;
+    text-shadow: 0 0 6px #ff3333;
+}
+
+.card-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 15000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.card-box {
+    width: 100%;
+    max-width: 360px;
+    background: #030a03;
+    border: 2px solid #00ff66;
+    padding: 20px;
+    color: #00ff66;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 0 25px rgba(0, 255, 102, 0.35);
+}
+
+.tetris-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.tetris-controls {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.tetris-btn {
+    background: transparent;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    padding: 6px 14px;
+    font-family: 'Russo One', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.tetris-btn:active {
+    background: #00ff66;
+    color: #000;
+}
+
+.bsod-screen {
+    position: fixed;
+    inset: 0;
+    background: #0011aa;
+    color: #ffffff;
+    z-index: 35000;
+    padding: 8vw;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+}
+
+.bsod-sad {
+    font-size: clamp(3rem, 8vw, 5.5rem);
+}
+
+.bsod-text {
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    line-height: 1.5;
+    max-width: 720px;
+}
+
+.bsod-btn {
+    align-self: flex-start;
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 10px 22px;
+    font-family: 'Russo One', sans-serif;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.bsod-btn:hover {
+    background: #fff;
+    color: #0011aa;
+}
+
+.reboot-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: #00ff66;
+    z-index: 35000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    gap: 20px;
+}
+
+.reboot-story {
+    max-width: 640px;
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    line-height: 1.65;
+    text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+}
+
+.glitch-shake {
+    animation: window-jitter 0.12s infinite alternate;
+}
+
+@keyframes window-jitter {
+    0% { transform: translate(-50%, -50%) translate(-3px, 2px); }
+    100% { transform: translate(-50%, -50%) translate(3px, -2px); }
+}
