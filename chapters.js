@@ -1,5 +1,5 @@
 (function() {
-    let activeCh = 1, timerId = null, secLeft = 0, chatId = null, chats = {}, graveClicks = 0, tetrisEvil = false;
+    let activeCh = 1, timerId = null, secLeft = 0, chatId = null, chats = {}, graveClicks = 0, tetrisEvil = false, browserUnlockedByDevil = false;
 
     function syncTitles() {
         const grid = document.querySelector('#panelStart .chapters-grid');
@@ -161,23 +161,56 @@
         });
     }
 
-    const origOpen = window.openApplicationWindow;
-    window.openApplicationWindow = function(id) {
-        if (activeCh >= 2 && id === 'messenger') { openNativeMess(); return; }
-        if (id === 'browser' && window.initBrowserApp) { window.initBrowserApp(); return; }
-        if (id === 'slides' && window.initSlidesApp) { window.initSlidesApp(); return; }
-        if (id === 'reports' && window.initReportsApp) { window.initReportsApp(); return; }
-        if (id === 'secret_file' && window.initSecretFileApp) { window.initSecretFileApp(); return; }
-        if (id === 'tetris' && tetrisEvil) {
+    document.addEventListener('click', (e) => {
+        if (activeCh < 2) return;
+        const icon = e.target.closest('.desktop-icon, .start-app-item');
+        if (!icon) return;
+        const appId = icon.dataset.app || icon.dataset.id;
+        if (appId === 'messenger') {
+            e.stopImmediatePropagation();
+            openNativeMess();
+        } else if (appId === 'browser') {
+            e.stopImmediatePropagation();
+            if (!browserUnlockedByDevil && activeCh === 2) {
+                showOfflineBrowser();
+            } else if (window.initBrowserApp) {
+                window.initBrowserApp();
+            }
+        } else if (appId === 'slides' && window.initSlidesApp) {
+            e.stopImmediatePropagation();
+            window.initSlidesApp();
+        } else if (appId === 'reports' && window.initReportsApp) {
+            e.stopImmediatePropagation();
+            window.initReportsApp();
+        } else if (appId === 'secret_file' && window.initSecretFileApp) {
+            e.stopImmediatePropagation();
+            window.initSecretFileApp();
+        } else if (appId === 'tetris' && tetrisEvil) {
+            e.stopImmediatePropagation();
             alert('Я уже тут.');
             if (window.onEvilTetris) window.onEvilTetris();
-            return;
         }
-        if (origOpen) origOpen(id);
-    };
+    }, true);
+
+    function showOfflineBrowser() {
+        let win = document.getElementById('windowOfflineBrowser');
+        if (!win) {
+            win = document.createElement('div');
+            win.id = 'windowOfflineBrowser';
+            win.className = 'desktop-window';
+            win.style.width = 'min(460px, 92vw)';
+            win.innerHTML = `<div class="window-header"><span class="window-title">Браузер — Нет сети</span><button class="window-close-btn" id="clsOffBr">X</button></div><div class="window-content" style="text-align:center;padding:24px;gap:12px;"><div style="font-size:2.4rem;">🦖</div><div style="font-size:1rem;">Нет подключения к Интернету</div><div style="font-size:0.8rem;opacity:0.75;">Проверьте сетевой кабель или дождитесь входящей ссылки...</div></div>`;
+            document.querySelector('.desktop-main')?.appendChild(win);
+            document.getElementById('clsOffBr').onclick = () => win.classList.add('hidden');
+            if (window.makeWindowDraggable) window.makeWindowDraggable(win);
+        }
+        win.classList.remove('hidden');
+        if (window.bringToFront) window.bringToFront(win);
+    }
 
     function launchCh(ch) {
         activeCh = ch; chatId = null; chats = {}; tetrisEvil = false;
+        browserUnlockedByDevil = (ch !== 2);
         clearTimer();
         document.body.classList.remove('theme-mom');
         document.querySelectorAll('.desktop-window').forEach(w => w.classList.add('hidden'));
@@ -220,6 +253,8 @@
                         setTimeout(() => {
                             chats.d.hide = false;
                             addM('d', '???', S.devil1, false, () => {
+                                browserUnlockedByDevil = true;
+                                document.getElementById('windowOfflineBrowser')?.classList.add('hidden');
                                 if (window.initBrowserApp) window.initBrowserApp('school_1290');
                                 window.onSchoolLinkClicked = () => {
                                     document.getElementById('windowBrowser')?.classList.add('hidden');
@@ -260,7 +295,6 @@
         ]);
         toast('Мама', 'Айв что с тобой? У тебя двойка...');
     }
-
     function ch3() {
         const S = window.StoryDB.ch3;
         window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser', 'store'];
