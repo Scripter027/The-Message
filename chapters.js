@@ -34,17 +34,14 @@
         const grid = document.querySelector('#panelStart .chapters-grid');
         if (!grid) return;
         const lang = document.documentElement.lang || 'ru';
-        const buttons = grid.querySelectorAll('button');
-        buttons.forEach((btn, idx) => {
+        grid.querySelectorAll('button').forEach((btn, idx) => {
             btn.classList.remove('locked');
             btn.classList.add('chapter-story-btn');
             btn.dataset.chapter = String(idx + 1);
             btn.style.justifyContent = 'center';
             btn.style.textAlign = 'center';
-            const lock = btn.querySelector('.lock-icon');
-            const soon = btn.querySelector('.coming-soon');
-            if (lock) lock.remove();
-            if (soon) soon.remove();
+            btn.querySelector('.lock-icon')?.remove();
+            btn.querySelector('.coming-soon')?.remove();
             const span = btn.querySelector('span');
             if (span && chapterTitles[lang] && chapterTitles[lang][idx]) {
                 span.textContent = chapterTitles[lang][idx];
@@ -52,29 +49,6 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        unlockAllChapterButtons();
-        registerExtraApps();
-        const btnStart = document.getElementById('btnStart');
-        if (btnStart) {
-            btnStart.addEventListener('click', () => {
-                setTimeout(unlockAllChapterButtons, 20);
-            });
-        }
-    });
-
-    const menuObserver = new MutationObserver(() => {
-        unlockAllChapterButtons();
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const panelStart = document.getElementById('panelStart');
-        if (panelStart) {
-            menuObserver.observe(panelStart, { attributes: true, subtree: true, childList: true });
-        }
-        unlockAllChapterButtons();
-        registerExtraApps();
-    });
     function registerExtraApps() {
         if (!window.AppConfig) return;
         window.AppConfig.allApps.browser = { id: 'browser', nameRu: 'Браузер', nameEn: 'Browser', icon: '🌐', type: 'system' };
@@ -83,6 +57,14 @@
         window.AppConfig.allApps.secret_file = { id: 'secret_file', nameRu: 'Файл_вйА.dat', nameEn: 'File_vIA.dat', icon: '☣️', type: 'system' };
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        unlockAllChapterButtons();
+        registerExtraApps();
+        const btnStart = document.getElementById('btnStart');
+        if (btnStart) {
+            btnStart.addEventListener('click', () => setTimeout(unlockAllChapterButtons, 20));
+        }
+    });
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.chapter-story-btn');
         if (!btn) return;
@@ -99,16 +81,9 @@
             mainMenu.classList.remove('visible');
             setTimeout(() => {
                 mainMenu.classList.add('hidden');
-                const go = () => {
-                    window.triggerLoading(() => {
-                        startStoryChapter(ch);
-                    });
-                };
-                if (window.YandexModule) {
-                    window.YandexModule.showAd(go);
-                } else {
-                    go();
-                }
+                const go = () => window.triggerLoading(() => startStoryChapter(ch));
+                if (window.YandexModule) window.YandexModule.showAd(go);
+                else go();
             }, 600);
         }
     }, true);
@@ -119,8 +94,7 @@
         onTimerExpire = expireCallback;
         const clock = document.getElementById('taskbarClock');
         if (clock) clock.classList.add('timer-panic');
-
-        const tick = () => {
+        countdownInterval = setInterval(() => {
             const m = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
             const s = String(remainingSeconds % 60).padStart(2, '0');
             if (clock) clock.textContent = `${m}:${s}`;
@@ -129,11 +103,8 @@
                 if (onTimerExpire) onTimerExpire();
                 return;
             }
-            remainingSeconds -= 3;
-            if (remainingSeconds < 0) remainingSeconds = 0;
-        };
-        tick();
-        countdownInterval = setInterval(tick, 1000);
+            remainingSeconds = Math.max(0, remainingSeconds - 3);
+        }, 1000);
     }
 
     function stopPanicTimer() {
@@ -141,34 +112,19 @@
             clearInterval(countdownInterval);
             countdownInterval = null;
         }
-        const clock = document.getElementById('taskbarClock');
-        if (clock) clock.classList.remove('timer-panic');
+        document.getElementById('taskbarClock')?.classList.remove('timer-panic');
         if (window.startClock) window.startClock();
     }
 
     function notifyPopup(from, text) {
-        const old = document.getElementById('activeMessNotify');
-        if (old) old.remove();
+        document.getElementById('activeMessNotify')?.remove();
         const box = document.createElement('div');
         box.id = 'activeMessNotify';
-        box.style.position = 'fixed';
-        box.style.bottom = '54px';
-        box.style.right = '18px';
-        box.style.maxWidth = '330px';
-        box.style.background = '#000';
-        box.style.border = '2px solid currentColor';
-        box.style.color = document.body.classList.contains('theme-mom') ? '#ff66b2' : '#00ff66';
-        box.style.padding = '10px 14px';
-        box.style.fontFamily = "'Russo One', sans-serif";
-        box.style.zIndex = '12000';
-        box.style.cursor = 'pointer';
-        box.innerHTML = `<div style="font-weight:bold; font-size:0.88rem;">${from}</div><div style="font-size:0.78rem; margin-top:3px;">${text}</div>`;
-        box.addEventListener('click', () => {
-            box.remove();
-            openStoryMessenger();
-        });
+        box.style.cssText = `position:fixed;bottom:54px;right:18px;max-width:330px;background:#000;border:2px solid currentColor;color:${document.body.classList.contains('theme-mom') ? '#ff66b2' : '#00ff66'};padding:10px 14px;font-family:'Russo One',sans-serif;z-index:12000;cursor:pointer;`;
+        box.innerHTML = `<div style="font-weight:bold;font-size:0.88rem;">${from}</div><div style="font-size:0.78rem;margin-top:3px;">${text}</div>`;
+        box.addEventListener('click', () => { box.remove(); openStoryMessenger(); });
         document.body.appendChild(box);
-        setTimeout(() => { if (box.parentNode) box.remove(); }, 5500);
+        setTimeout(() => box.remove(), 5500);
     }
 
     function failChapter(reason) {
@@ -193,41 +149,25 @@
     function finishChapter(num, text) {
         stopPanicTimer();
         document.body.classList.remove('theme-mom');
-        if (window.triggerChapterCompleteScreen) {
-            window.triggerChapterCompleteScreen(num, text);
-        }
+        if (window.triggerChapterCompleteScreen) window.triggerChapterCompleteScreen(num, text);
     }
     function triggerBlueScreen(subText) {
         stopPanicTimer();
         document.body.classList.remove('theme-mom');
         const bsod = document.createElement('div');
         bsod.className = 'bsod-screen';
-        bsod.innerHTML = `
-            <div class="bsod-sad">:(</div>
-            <div class="bsod-text">На вашем ПК возникла критическая ошибка, и его необходимо перезагрузить. Синий экран. Как для компьютера, так и для жизни.<br><br>${subText}</div>
-            <button class="bsod-btn" id="btnBsodMenu">В главное меню</button>
-        `;
+        bsod.innerHTML = `<div class="bsod-sad">:(</div><div class="bsod-text">На вашем ПК возникла критическая ошибка, и его необходимо перезагрузить. Синий экран. Как для компьютера, так и для жизни.<br><br>${subText}</div><button class="bsod-btn" id="btnBsodMenu">В главное меню</button>`;
         document.body.appendChild(bsod);
-        document.getElementById('btnBsodMenu').addEventListener('click', () => {
-            bsod.remove();
-            location.reload();
-        });
+        document.getElementById('btnBsodMenu').addEventListener('click', () => { bsod.remove(); location.reload(); });
     }
 
     function triggerGoodRebootEnding() {
         stopPanicTimer();
         const scr = document.createElement('div');
         scr.className = 'reboot-screen';
-        scr.innerHTML = `
-            <div style="font-size:1.6rem; letter-spacing:3px;">ПЕРЕЗАГРУЗКА СИСТЕМЫ...</div>
-            <div class="reboot-story">Комп выключается. Перезагрузка. Жизнь перезагрузилась и пошла своим чередом. Родители узнали правду от Айва, который больше не боится говорить правду. Бро простил Айва и они стали лучшими друзьями. Айва сняли с учета и он снова идет на медаль, но теперь родители перестали на него сильно давить. С тех пор больше никто не пропадал… Так ведь?</div>
-            <button class="win-action-btn" style="max-width:260px;" id="btnGoodMenu">Главное меню</button>
-        `;
+        scr.innerHTML = `<div style="font-size:1.6rem;letter-spacing:3px;">ПЕРЕЗАГРУЗКА СИСТЕМЫ...</div><div class="reboot-story">Комп выключается. Перезагрузка. Жизнь перезагрузилась и пошла своим чередом. Родители узнали правду от Айва, который больше не боится говорить правду. Бро простил Айва и они стали лучшими друзьями. Айва сняли с учета и он снова идет на медаль, но теперь родители перестали на него сильно давить. С тех пор больше никто не пропадал… Так ведь?</div><button class="win-action-btn" style="max-width:260px;" id="btnGoodMenu">Главное меню</button>`;
         document.body.appendChild(scr);
-        document.getElementById('btnGoodMenu').addEventListener('click', () => {
-            scr.remove();
-            location.reload();
-        });
+        document.getElementById('btnGoodMenu').addEventListener('click', () => { scr.remove(); location.reload(); });
     }
 
     function triggerMadEndingScene() {
@@ -238,12 +178,7 @@
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.id = 'hackerOverlay';
-            overlay.innerHTML = `
-                <div class="hacker-bg-effects"><div class="hacker-noise"></div></div>
-                <div class="hacker-caption">* дЬяВоЛ68 *</div>
-                <div class="hacker-text-container"><div class="hacker-msg"></div></div>
-                <div class="hacker-options-zone"></div>
-            `;
+            overlay.innerHTML = `<div class="hacker-bg-effects"><div class="hacker-noise"></div></div><div class="hacker-caption">* дЬяВоЛ68 *</div><div class="hacker-text-container"><div class="hacker-msg"></div></div><div class="hacker-options-zone"></div>`;
             document.body.appendChild(overlay);
         }
         overlay.style.display = 'flex';
@@ -262,28 +197,21 @@
         let step = 0;
         const msgEl = overlay.querySelector('.hacker-msg');
         const optZone = overlay.querySelector('.hacker-options-zone');
-
-        function renderMadStep() {
+        const renderMadStep = () => {
             const cur = lines[step];
-            msgEl.innerHTML = `<div style="color:${cur.who === 'Айв' ? '#00ff66' : '#ff3333'}; margin-bottom:8px;">[${cur.who}]</div><div>${cur.text}</div>`;
+            msgEl.innerHTML = `<div style="color:${cur.who === 'Айв' ? '#00ff66' : '#ff3333'};margin-bottom:8px;">[${cur.who}]</div><div>${cur.text}</div>`;
             optZone.innerHTML = '';
             const btn = document.createElement('button');
             btn.className = 'hacker-btn';
             btn.textContent = step < lines.length - 1 ? 'Далее' : 'Принять истину (Безумная концовка)';
             btn.addEventListener('click', () => {
-                if (step < lines.length - 1) {
-                    step++;
-                    renderMadStep();
-                } else {
-                    overlay.style.display = 'none';
-                    finishChapter(5, 'Безумная концовка открыта: Настоящий Дьявол во Плоти.');
-                }
+                if (step < lines.length - 1) { step++; renderMadStep(); }
+                else { overlay.style.display = 'none'; finishChapter(5, 'Безумная концовка открыта: Настоящий Дьявол во Плоти.'); }
             });
             optZone.appendChild(btn);
-        }
+        };
         renderMadStep();
     }
-
     function openStoryMessenger() {
         let win = document.getElementById('windowStoryMess');
         if (!win) {
@@ -312,6 +240,7 @@
         if (window.bringToFront) window.bringToFront(win);
         renderStoryMessenger();
     }
+
     function addMsg(chatId, sender, text, isOut, linkAction) {
         if (!chats[chatId]) return;
         chats[chatId].messages.push({ sender, text, isOut: !!isOut, time: getTimeStr(), linkAction });
@@ -335,136 +264,66 @@
             const c = chats[cid];
             if (c.hidden) return;
             const item = document.createElement('div');
-            item.style.padding = '9px 8px';
-            item.style.borderBottom = '1px solid rgba(128,128,128,0.2)';
-            item.style.cursor = 'pointer';
-            item.style.display = 'flex';
-            item.style.justifyContent = 'space-between';
-            item.style.alignItems = 'center';
+            item.style.cssText = 'padding:9px 8px;border-bottom:1px solid rgba(128,128,128,0.2);cursor:pointer;display:flex;justify-content:space-between;align-items:center;';
             item.style.color = c.danger ? '#ff3333' : 'inherit';
             if (selectedChat === cid) {
                 item.style.background = c.danger ? 'rgba(255,51,51,0.18)' : 'rgba(0,255,102,0.15)';
                 c.unread = 0;
             }
             const last = c.messages[c.messages.length - 1];
-            item.innerHTML = `
-                <div style="overflow:hidden; flex:1;">
-                    <div style="font-size:0.8rem; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
-                    <div style="font-size:0.68rem; opacity:0.65; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${last ? last.text : ''}</div>
-                </div>
-                ${c.unread > 0 ? `<span style="background:${c.danger ? '#ff3333' : '#00ff66'}; color:#000; font-size:0.68rem; padding:1px 5px; font-weight:bold;">${c.unread}</span>` : ''}
-            `;
-            item.addEventListener('click', () => {
-                selectedChat = cid;
-                c.unread = 0;
-                renderStoryMessenger();
-            });
+            item.innerHTML = `<div style="overflow:hidden;flex:1;"><div style="font-size:0.8rem;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.title}</div><div style="font-size:0.68rem;opacity:0.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${last ? last.text : ''}</div></div>${c.unread > 0 ? `<span style="background:${c.danger ? '#ff3333' : '#00ff66'};color:#000;font-size:0.68rem;padding:1px 5px;font-weight:bold;">${c.unread}</span>` : ''}`;
+            item.addEventListener('click', () => { selectedChat = cid; c.unread = 0; renderStoryMessenger(); });
             listEl.appendChild(item);
         });
 
         if (!selectedChat || !chats[selectedChat]) {
-            areaEl.innerHTML = `<div style="margin:auto; opacity:0.55; font-size:0.8rem; text-align:center; padding:16px;">Выберите диалог слева</div>`;
+            areaEl.innerHTML = `<div style="margin:auto;opacity:0.55;font-size:0.8rem;text-align:center;padding:16px;">Выберите диалог слева</div>`;
             return;
         }
 
         const cur = chats[selectedChat];
-        areaEl.innerHTML = `
-            <div style="padding:7px 10px; border-bottom:1px solid rgba(128,128,128,0.25); font-size:0.84rem; font-weight:bold; color:${cur.danger ? '#ff3333' : 'inherit'};">${cur.title}</div>
-            <div id="storyLogsBox" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;"></div>
-            <div id="storyOptsBox" style="padding:7px; border-top:1px solid rgba(128,128,128,0.25); display:flex; flex-direction:column; gap:5px; max-height:48%; overflow-y:auto;"></div>
-        `;
+        areaEl.innerHTML = `<div style="padding:7px 10px;border-bottom:1px solid rgba(128,128,128,0.25);font-size:0.84rem;font-weight:bold;color:${cur.danger ? '#ff3333' : 'inherit'};">${cur.title}</div><div id="storyLogsBox" style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;"></div><div id="storyOptsBox" style="padding:7px;border-top:1px solid rgba(128,128,128,0.25);display:flex;flex-direction:column;gap:5px;max-height:48%;overflow-y:auto;"></div>`;
 
         const logsBox = document.getElementById('storyLogsBox');
         const optsBox = document.getElementById('storyOptsBox');
 
         cur.messages.forEach(m => {
             const div = document.createElement('div');
-            div.style.maxWidth = '86%';
-            div.style.padding = '6px 9px';
-            div.style.fontSize = '0.78rem';
-            div.style.lineHeight = '1.38';
-            div.style.border = `1px solid ${cur.danger ? '#ff3333' : 'currentColor'}`;
-            div.style.alignSelf = m.isOut ? 'flex-end' : 'flex-start';
-            div.style.background = m.isOut ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.4)';
-            div.innerHTML = `
-                <div style="font-size:0.68rem; opacity:0.75; margin-bottom:2px;">${m.sender}</div>
-                <div>${m.text} ${m.linkAction ? `<span class="article-link" id="msgInlineLink">*ссылка*</span>` : ''}</div>
-                <div style="text-align:right; font-size:0.6rem; opacity:0.6; margin-top:2px;">${m.time}</div>
-            `;
+            div.style.cssText = `max-width:86%;padding:6px 9px;font-size:0.78rem;line-height:1.38;border:1px solid ${cur.danger ? '#ff3333' : 'currentColor'};align-self:${m.isOut ? 'flex-end' : 'flex-start'};background:${m.isOut ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.4)'};`;
+            div.innerHTML = `<div style="font-size:0.68rem;opacity:0.75;margin-bottom:2px;">${m.sender}</div><div>${m.text} ${m.linkAction ? `<span class="article-link" id="msgInlineLink">*ссылка*</span>` : ''}</div><div style="text-align:right;font-size:0.6rem;opacity:0.6;margin-top:2px;">${m.time}</div>`;
             logsBox.appendChild(div);
-            if (m.linkAction) {
-                const lnk = div.querySelector('#msgInlineLink');
-                if (lnk) lnk.addEventListener('click', m.linkAction);
-            }
+            if (m.linkAction) div.querySelector('#msgInlineLink')?.addEventListener('click', m.linkAction);
         });
         logsBox.scrollTop = logsBox.scrollHeight;
 
         cur.options.forEach(opt => {
             const b = document.createElement('button');
-            b.style.background = 'transparent';
-            b.style.border = `1px solid ${cur.danger ? '#ff3333' : 'currentColor'}`;
-            b.style.color = cur.danger ? '#ff3333' : 'inherit';
-            b.style.padding = '6px 8px';
-            b.style.textAlign = 'left';
-            b.style.fontFamily = "'Russo One', sans-serif";
-            b.style.fontSize = '0.74rem';
-            b.style.cursor = 'pointer';
+            b.style.cssText = `background:transparent;border:1px solid ${cur.danger ? '#ff3333' : 'currentColor'};color:${cur.danger ? '#ff3333' : 'inherit'};padding:6px 8px;text-align:left;font-family:'Russo One',sans-serif;font-size:0.74rem;cursor:pointer;`;
             b.textContent = opt.label;
             b.addEventListener('click', opt.action);
             optsBox.appendChild(b);
         });
     }
-
     function openCardModal(onSuccess) {
         const modal = document.createElement('div');
         modal.className = 'card-modal';
-        modal.innerHTML = `
-            <div class="card-box">
-                <div style="font-size:1rem; text-align:center;">ПОДТВЕРЖДЕНИЕ ОПЛАТЫ (50 ₽)</div>
-                <div style="font-size:0.8rem; opacity:0.85;">Введите пароль от привязанной карты.</div>
-                <div style="font-size:0.78rem; color:#ffaa00;">Подсказка: Имя любимого сына</div>
-                <input type="text" class="browser-input" id="cardPassInput" placeholder="Пароль...">
-                <div id="cardErr" style="color:#ff3333; font-size:0.75rem; min-height:16px;"></div>
-                <div style="display:flex; gap:8px;">
-                    <button class="browser-btn" style="flex:1;" id="btnPayConfirm">Оплатить</button>
-                    <button class="action-btn" style="flex:1; padding:7px;" id="btnPayCancel">Отмена</button>
-                </div>
-            </div>
-        `;
+        modal.innerHTML = `<div class="card-box"><div style="font-size:1rem;text-align:center;">ПОДТВЕРЖДЕНИЕ ОПЛАТЫ (50 ₽)</div><div style="font-size:0.8rem;opacity:0.85;">Введите пароль от привязанной карты.</div><div style="font-size:0.78rem;color:#ffaa00;">Подсказка: Имя любимого сына</div><input type="text" class="browser-input" id="cardPassInput" placeholder="Пароль..."><div id="cardErr" style="color:#ff3333;font-size:0.75rem;min-height:16px;"></div><div style="display:flex;gap:8px;"><button class="browser-btn" style="flex:1;" id="btnPayConfirm">Оплатить</button><button class="action-btn" style="flex:1;padding:7px;" id="btnPayCancel">Отмена</button></div></div>`;
         document.body.appendChild(modal);
         document.getElementById('btnPayCancel').addEventListener('click', () => modal.remove());
         document.getElementById('btnPayConfirm').addEventListener('click', () => {
             const val = document.getElementById('cardPassInput').value.trim().toLowerCase();
-            if (val === 'айв') {
-                modal.remove();
-                onSuccess();
-            } else {
-                document.getElementById('cardErr').textContent = 'Неверный пароль карты!';
-            }
+            if (val === 'айв') { modal.remove(); onSuccess(); }
+            else document.getElementById('cardErr').textContent = 'Неверный пароль карты!';
         });
     }
+
     window.openApplicationWindow = (origOpen => {
         return function(appId) {
-            if (activeChapter >= 2 && appId === 'messenger') {
-                openStoryMessenger();
-                return;
-            }
-            if (appId === 'browser') {
-                window.initBrowserApp();
-                return;
-            }
-            if (appId === 'slides') {
-                window.initSlidesApp();
-                return;
-            }
-            if (appId === 'reports') {
-                window.initReportsApp();
-                return;
-            }
-            if (appId === 'secret_file') {
-                window.initSecretFileApp();
-                return;
-            }
+            if (activeChapter >= 2 && appId === 'messenger') { openStoryMessenger(); return; }
+            if (appId === 'browser') { window.initBrowserApp(); return; }
+            if (appId === 'slides') { window.initSlidesApp(); return; }
+            if (appId === 'reports') { window.initReportsApp(); return; }
+            if (appId === 'secret_file') { window.initSecretFileApp(); return; }
             if (appId === 'store' && activeChapter === 3) {
                 if (origOpen) origOpen('store');
                 setTimeout(() => {
@@ -547,10 +406,7 @@
                     addMsg('mom', 'Вы', 'Прости…', true);
                     addMsg('mom', 'Мама', 'Айв, да что мне твое прости! Я хочу чтобы у тебя были хорошие, нет нет, идеальные перспективы в будущем! Чтобы у тебя не было проблем как у нас с твоим папой! Я закрою глаза на этот раз, но если это еще раз повторится, то я заберу все твои гаджеты!', false);
                     setOptions('mom', [
-                        {
-                            label: '1. Мам, мне угрожали! Мой компьютер взломали...',
-                            action: () => failChapter('Мать никак не отреагировала, а потом с её номера тебе написали «Ты следующий»…')
-                        },
+                        { label: '1. Мам, мне угрожали! Мой компьютер взломали...', action: () => failChapter('Мать никак не отреагировала, а потом с её номера тебе написали «Ты следующий»…') },
                         {
                             label: '2. Мам, я хотел тебе кое что сказать… Я люблю тебя.',
                             action: () => {
@@ -559,9 +415,7 @@
                                 setOptions('mom', []);
                                 setTimeout(() => {
                                     chats.devil.hidden = false;
-                                    addMsg('devil', '???', 'В следующий раз будь еще осторожнее, а то одним из них может быть ты:', false, () => {
-                                        window.initBrowserApp('school_1290');
-                                    });
+                                    addMsg('devil', '???', 'В следующий раз будь еще осторожнее, а то одним из них может быть ты:', false, () => window.initBrowserApp('school_1290'));
                                     notifyPopup('???', 'Новое сообщение с ссылкой...');
                                 }, 1400);
                             }
@@ -582,43 +436,34 @@
                 selectedChat = 'sam';
                 openStoryMessenger();
                 startPanicTimer(15, () => failChapter('Время вышло! Вы не успели поссориться с другом...'));
-                setOptions('sam', [
-                    {
-                        label: 'Написать: Мы больше не друзья!',
-                        action: () => {
-                            addMsg('sam', 'Вы', 'Мы больше не друзья!', true);
-                            addMsg('sam', 'Сэм', 'Почему? Что случилось?', false);
-                            setOptions('sam', [
-                                {
-                                    label: '1. Если я не поссорюсь с тобой, то тебя и моих родителей убьют!',
-                                    action: () => failChapter('Что за приколы? Если не хотел дружить так и сказал бы! Вы раскрыли тайну между вами и дЬяВоЛоМ.')
-                                },
-                                {
-                                    label: '2. Мама не хочет, чтобы я дружил с тобой, Сэм.',
-                                    action: () => {
-                                        addMsg('sam', 'Вы', 'Мама не хочет, чтобы я дружил с тобой, Сэм.', true);
-                                        addMsg('sam', 'Сэм', 'А ты вечно будешь потакать её безумным идеям? Бро ты серьезно сейчас? Да кто будет тогда с тобой дружить, Мистер Учеба? Не пиши мне больше.', false);
-                                        setOptions('sam', []);
-                                        stopPanicTimer();
-                                        setTimeout(() => {
-                                            addMsg('devil', '???', 'Надо же! Успел! Так еще и сохранил тайну! Ну неплохо, неплохо. Но ты не расслабляйся, Айв. Впереди еще много испытаний! Ты ведь не хочешь расстроить свою маму еще и прогуливанием школы? Не переживай, такие задания тебе не светят… Пока что.', false);
-                                            selectedChat = 'devil';
-                                            renderStoryMessenger();
-                                            setTimeout(() => finishChapter(2, 'Вы спасли близких ценой лучшего друга...'), 3200);
-                                        }, 1200);
-                                    }
-                                },
-                                {
-                                    label: '3. Потому что',
-                                    action: () => failChapter('Вы не пришли в школу. Просто дома голову забыли.')
+                setOptions('sam', [{
+                    label: 'Написать: Мы больше не друзья!',
+                    action: () => {
+                        addMsg('sam', 'Вы', 'Мы больше не друзья!', true);
+                        addMsg('sam', 'Сэм', 'Почему? Что случилось?', false);
+                        setOptions('sam', [
+                            { label: '1. Если я не поссорюсь с тобой, то тебя и моих родителей убьют!', action: () => failChapter('Что за приколы? Если не хотел дружить так и сказал бы! Вы раскрыли тайну между вами и дЬяВоЛоМ.') },
+                            {
+                                label: '2. Мама не хочет, чтобы я дружил с тобой, Сэм.',
+                                action: () => {
+                                    addMsg('sam', 'Вы', 'Мама не хочет, чтобы я дружил с тобой, Сэм.', true);
+                                    addMsg('sam', 'Сэм', 'А ты вечно будешь потакать её безумным идеям? Бро ты серьезно сейчас? Да кто будет тогда с тобой дружить, Мистер Учеба? Не пиши мне больше.', false);
+                                    setOptions('sam', []);
+                                    stopPanicTimer();
+                                    setTimeout(() => {
+                                        addMsg('devil', '???', 'Надо же! Успел! Так еще и сохранил тайну! Ну неплохо, неплохо. Но ты не расслабляйся, Айв. Впереди еще много испытаний! Ты ведь не хочешь расстроить свою маму еще и прогуливанием школы? Не переживай, такие задания тебе не светят… Пока что.', false);
+                                        selectedChat = 'devil';
+                                        renderStoryMessenger();
+                                        setTimeout(() => finishChapter(2, 'Вы спасли близких ценой лучшего друга...'), 3200);
+                                    }, 1200);
                                 }
-                            ]);
-                        }
+                            },
+                            { label: '3. Потому что', action: () => failChapter('Вы не пришли в школу. Просто дома голову забыли.') }
+                        ]);
                     }
-                ]);
+                }]);
             }, 1300);
         };
-
         notifyPopup('Мама', 'Айв что с тобой? У тебя двойка...');
     }
     function setupChapter3() {
@@ -651,13 +496,7 @@
                                 setOptions('cass', [{ label: 'Ладно, открываю проект...', action: () => openCassSlides() }]);
                             }
                         },
-                        {
-                            label: '2. Ладно, сейчас гляну.',
-                            action: () => {
-                                addMsg('cass', 'Вы', 'Ладно, сейчас гляну.', true);
-                                openCassSlides();
-                            }
-                        }
+                        { label: '2. Ладно, сейчас гляну.', action: () => { addMsg('cass', 'Вы', 'Ладно, сейчас гляну.', true); openCassSlides(); } }
                     ]);
                     notifyPopup('Кассандра', 'Привет, Айв. Поможешь с проектом?');
                 }, 1500);
@@ -674,46 +513,38 @@
             window.initSlidesApp();
         }
 
-        window.onGraveClicked = function(count) {
-            persistentGraveClicks = count;
-        };
+        window.onGraveClicked = function(count) { persistentGraveClicks = count; };
 
         window.onFourthSlideTriggered = function() {
-            setOptions('cass', [
-                {
-                    label: 'Спросить: Что за чертовщина на 4 слайде!?',
-                    action: () => {
-                        addMsg('cass', 'Вы', 'Что за чертовщина на 4 слайде!?', true);
-                        addMsg('cass', 'Кассандра', 'Что? О чем ты? В проекте только 3 слайда.', false);
-                        setOptions('cass', []);
-                    }
+            setOptions('cass', [{
+                label: 'Спросить: Что за чертовщина на 4 слайде!?',
+                action: () => {
+                    addMsg('cass', 'Вы', 'Что за чертовщина на 4 слайде!?', true);
+                    addMsg('cass', 'Кассандра', 'Что? О чем ты? В проекте только 3 слайда.', false);
+                    setOptions('cass', []);
                 }
-            ]);
+            }]);
 
-            setOptions('devil', [
-                {
-                    label: 'Написать: У тебя есть новое ужасное задание?',
-                    action: () => {
-                        addMsg('devil', 'Вы', 'У тебя есть новое ужасное задание?', true);
-                        addMsg('devil', '???', 'И в планах не было. Но раз уж ты так сильно хочешь этого, то вот задание: купи тетрис.', false);
-                        addMsg('devil', 'Вы', 'Купить? Он же платный!', true);
-                        addMsg('devil', '???', 'У тебя 30 минут. Не справишься - твоим пальчикам в принципе не придется ничего покупать.', false);
-                        setOptions('devil', []);
-                        startPanicTimer(30, () => failChapter('30 минут истекли. Вы не купили Тетрис...'));
+            setOptions('devil', [{
+                label: 'Написать: У тебя есть новое ужасное задание?',
+                action: () => {
+                    addMsg('devil', 'Вы', 'У тебя есть новое ужасное задание?', true);
+                    addMsg('devil', '???', 'И в планах не было. Но раз уж ты так сильно хочешь этого, то вот задание: купи тетрис.', false);
+                    addMsg('devil', 'Вы', 'Купить? Он же платный!', true);
+                    addMsg('devil', '???', 'У тебя 30 минут. Не справишься - твоим пальчикам в принципе не придется ничего покупать.', false);
+                    setOptions('devil', []);
+                    startPanicTimer(30, () => failChapter('30 минут истекли. Вы не купили Тетрис...'));
 
-                        setOptions('mom', [
-                            {
-                                label: 'Эй мам. Помнишь я хотел одну игру? Можешь купить мне тетрис?',
-                                action: () => {
-                                    addMsg('mom', 'Вы', 'Эй мам. Помнишь я хотел одну игру? Можешь пожалуйста купить мне тетрис?', true);
-                                    addMsg('mom', 'Мама', 'Ах вот как? То есть ты не учишься, а я тебе игрушки должна дарить? Пока ты не исправишь все ошибки - никаких игр!', false);
-                                    setOptions('mom', []);
-                                }
-                            }
-                        ]);
-                    }
+                    setOptions('mom', [{
+                        label: 'Эй мам. Помнишь я хотел одну игру? Можешь купить мне тетрис?',
+                        action: () => {
+                            addMsg('mom', 'Вы', 'Эй мам. Помнишь я хотел одну игру? Можешь пожалуйста купить мне тетрис?', true);
+                            addMsg('mom', 'Мама', 'Ах вот как? То есть ты не учишься, а я тебе игрушки должна дарить? Пока ты не исправишь все ошибки - никаких игр!', false);
+                            setOptions('mom', []);
+                        }
+                    }]);
                 }
-            ]);
+            }]);
         };
 
         window.onTetrisPurchasedInCh3 = function() {
@@ -743,14 +574,8 @@
                         }, 1200);
                     }
                 },
-                {
-                    label: '2. Я люблю тебя.',
-                    action: () => failChapter('Вы в последний раз напечатали, что любите маму.')
-                },
-                {
-                    label: '3. Я купил тетрис.',
-                    action: () => failChapter('Сначала ремень, потом пальцы.')
-                }
+                { label: '2. Я люблю тебя.', action: () => failChapter('Вы в последний раз напечатали, что любите маму.') },
+                { label: '3. Я купил тетрис.', action: () => failChapter('Сначала ремень, потом пальцы.') }
             ]);
         };
     }
@@ -766,69 +591,57 @@
         };
 
         addMsg('kirill', 'Кирилл', 'Лора, как дела на работе?', false);
-        setOptions('kirill', [
-            {
-                label: 'Ответить: Ох, Кир, 10 отчетов из 15 закончены...',
-                action: () => {
-                    addMsg('kirill', 'Лора', 'Ох, Кир, да на работе все хорошо, 10 отчетов из 15 закончены. Сегодня вечером я смогу наконец то прийти домой и выспаться.', true);
-                    addMsg('kirill', 'Кирилл', 'А как там Айв? Пишет что нибудь?', false);
-                    setOptions('kirill', [
-                        {
-                            label: 'Пожаловаться на оценки и ссору',
+        setOptions('kirill', [{
+            label: 'Ответить: Ох, Кир, 10 отчетов из 15 закончены...',
+            action: () => {
+                addMsg('kirill', 'Лора', 'Ох, Кир, да на работе все хорошо, 10 отчетов из 15 закончены. Сегодня вечером я смогу наконец то прийти домой и выспаться.', true);
+                addMsg('kirill', 'Кирилл', 'А как там Айв? Пишет что нибудь?', false);
+                setOptions('kirill', [{
+                    label: 'Пожаловаться на оценки и ссору',
+                    action: () => {
+                        addMsg('kirill', 'Лора', 'В этом и проблема! Пишет, да еще как! Сначала плохие оценки, потом просит КУПИТЬ игру, а затем наконец говорит что я его не понимаю!', true);
+                        addMsg('kirill', 'Кирилл', 'Слушай, не хочу подливать масло в огонь, но кажется он все же купил эту игру. У меня вчера списалось 50 рублей на какой-то Тетрис.', false);
+                        setOptions('kirill', [{
+                            label: 'Может ты придешь и дашь ему ремня?',
                             action: () => {
-                                addMsg('kirill', 'Лора', 'В этом и проблема! Пишет, да еще как! Сначала плохие оценки, потом просит КУПИТЬ игру, а затем наконец говорит что я его не понимаю!', true);
-                                addMsg('kirill', 'Кирилл', 'Слушай, не хочу подливать масло в огонь, но кажется он все же купил эту игру. У меня вчера списалось 50 рублей на какой-то Тетрис.', false);
-                                setOptions('kirill', [
-                                    {
-                                        label: 'Может ты придешь и дашь ему ремня?',
-                                        action: () => {
-                                            addMsg('kirill', 'Лора', 'Ну вот видишь! Он еще и не слушается нас! Может ты придешь и дашь ему ремня? Так сказать, вправишь мозги?', true);
-                                            addMsg('kirill', 'Кирилл', 'Да успокойся! Ну подумаешь 50 рублей, ну не сделал он уроки, но это не конец света. Нет, это очень плохо! И так поступать нельзя, но может с ним просто надо поговорить?', false);
-                                            setOptions('kirill', [
-                                                {
-                                                    label: 'Хорошо, поговори с ним, как дома будешь.',
-                                                    action: () => {
-                                                        addMsg('kirill', 'Лора', 'Да не знаю я! Я просто уже устала от его выходок! Что с ним происходит в последнее время? Хорошо, поговори с ним, как дома будешь. Надеюсь это повлияет на него.', true);
-                                                        setOptions('kirill', []);
-                                                        notifyPopup('Работа', 'Закончите оставшиеся 5 отчетов в приложении «Отчеты»!');
-                                                    }
-                                                }
-                                            ]);
-                                        }
+                                addMsg('kirill', 'Лора', 'Ну вот видишь! Он еще и не слушается нас! Может ты придешь и дашь ему ремня? Так сказать, вправишь мозги?', true);
+                                addMsg('kirill', 'Кирилл', 'Да успокойся! Ну подумаешь 50 рублей, ну не сделал он уроки, но это не конец света. Нет, это очень плохо! И так поступать нельзя, но может с ним просто надо поговорить?', false);
+                                setOptions('kirill', [{
+                                    label: 'Хорошо, поговори с ним, как дома будешь.',
+                                    action: () => {
+                                        addMsg('kirill', 'Лора', 'Да не знаю я! Я просто уже устала от его выходок! Что с ним происходит в последнее время? Хорошо, поговори с ним, как дома будешь. Надеюсь это повлияет на него.', true);
+                                        setOptions('kirill', []);
+                                        notifyPopup('Работа', 'Закончите оставшиеся 5 отчетов в приложении «Отчеты»!');
                                     }
-                                ]);
+                                }]);
                             }
-                        }
-                    ]);
-                }
+                        }]);
+                    }
+                }]);
             }
-        ]);
+        }]);
 
         window.onMomReportsCompleted = function() {
             document.getElementById('windowReports')?.classList.add('hidden');
             chats.teacher.hidden = false;
             addMsg('teacher', 'Лариса Эдуардовна', 'Здравствуйте, Элеонора Степановна. Доношу до вашего сведения, что сегодня ваш сын сорвал урок. Так еще и самым неподобающим способом!', false);
             notifyPopup('Лариса Эдуардовна', 'Здравствуйте, Элеонора Степановна...');
-            setOptions('teacher', [
-                {
-                    label: 'Здравствуйте, что произошло?',
-                    action: () => {
-                        addMsg('teacher', 'Лора', 'Здравствуйте, что произошло?', true);
-                        addMsg('teacher', 'Лариса Эдуардовна', 'Ваш сын во время урока встал, подошел к моему столу, поднялся на него и снял штаны! Так еще и начал всех покрывать нецензурной лексикой! А на перемене он начал на весь коридор кричать, что знает где по дешевле купить сигареты!', false);
-                        setOptions('teacher', [
-                            {
-                                label: 'Мне очень стыдно за него! Такого больше не повторится!',
-                                action: () => {
-                                    addMsg('teacher', 'Лора', 'Мне очень стыдно за него, Лариса Эдуардовна! Такого больше не повторится! Я обязательно проведу беседу с ним!', true);
-                                    addMsg('teacher', 'Лариса Эдуардовна', 'Да если бы он обошелся только беседой. О золотой медали и речи быть не может! Его поставили на учет. Еще одна провинность — забирайте документы. Всего доброго!', false);
-                                    setOptions('teacher', []);
-                                    setTimeout(() => switchToIveInCh4(), 2500);
-                                }
-                            }
-                        ]);
-                    }
+            setOptions('teacher', [{
+                label: 'Здравствуйте, что произошло?',
+                action: () => {
+                    addMsg('teacher', 'Лора', 'Здравствуйте, что произошло?', true);
+                    addMsg('teacher', 'Лариса Эдуардовна', 'Ваш сын во время урока встал, подошел к моему столу, поднялся на него и снял штаны! Так еще и начал всех покрывать нецензурной лексикой! А на перемене он начал на весь коридор кричать, что знает где по дешевле купить сигареты!', false);
+                    setOptions('teacher', [{
+                        label: 'Мне очень стыдно за него! Такого больше не повторится!',
+                        action: () => {
+                            addMsg('teacher', 'Лора', 'Мне очень стыдно за него, Лариса Эдуардовна! Такого больше не повторится! Я обязательно проведу беседу с ним!', true);
+                            addMsg('teacher', 'Лариса Эдуардовна', 'Да если бы он обошелся только беседой. О золотой медали и речи быть не может! Его поставили на учет. Еще одна провинность — забирайте документы. Всего доброго!', false);
+                            setOptions('teacher', []);
+                            setTimeout(() => switchToIveInCh4(), 2500);
+                        }
+                    }]);
                 }
-            ]);
+            }]);
         };
 
         notifyPopup('Кирилл', 'Лора, как дела на работе?');
@@ -898,22 +711,20 @@
             notifyPopup('Мысли Айва', 'Все прощальные письма отправлены. Решите: поторопить ??? в чате или просто запустить Тетрис...');
             window.setTetrisPossessed(true);
 
-            setOptions('devil', [
-                {
-                    label: 'Поторопить: Ну и долго ты собираешься идти? Я уже не боюсь тебя!',
-                    action: () => {
-                        addMsg('devil', 'Вы', 'Ну и долго ты собираешься идти? Я уже не боюсь тебя! Ты называешь себя дьяволом, но на деле ты просто маньяк, который самоутверждается за счет убийств. Ты - неудачник, раз твоя цель в жизни - убивать!', true);
-                        setOptions('devil', []);
-                        setTimeout(() => addMsg('devil', '???', 'Решил показать оскал, песик? Не боишься меня? Уже готов к смерти? Знаешь, я не просто дьявол…', false), 800);
-                        setTimeout(() => addMsg('dad', 'Папа', 'я ТвОй ХоЗяИн…', false), 1600);
-                        setTimeout(() => addMsg('teacher', 'ЛЭ', 'хОзЯиН, чТо ДеРжИт ТеБя На ЦеПи и МеДлЕнНо ТрАвИт ТеБя…', false), 2400);
-                        setTimeout(() => addMsg('mom', 'Мама', 'А еСлИ тЫ мНе НаСкУчИшЬ…', false), 3200);
-                        setTimeout(() => addMsg('sam', 'Бро', 'иЛи ПоПыТаЕшЬсЯ оТвЕрНуТьСя От МеНя…', false), 4000);
-                        setTimeout(() => addMsg('devil', '???', 'То нога хозяина не заметит щенка под собой!', false), 4800);
-                        setTimeout(() => triggerBlueScreen('Все вокруг было ненастоящим. Дьявол был всегда.'), 6800);
-                    }
+            setOptions('devil', [{
+                label: 'Поторопить: Ну и долго ты собираешься идти? Я уже не боюсь тебя!',
+                action: () => {
+                    addMsg('devil', 'Вы', 'Ну и долго ты собираешься идти? Я уже не боюсь тебя! Ты называешь себя дьяволом, но на деле ты просто маньяк, который самоутверждается за счет убийств. Ты - неудачник, раз твоя цель в жизни - убивать!', true);
+                    setOptions('devil', []);
+                    setTimeout(() => addMsg('devil', '???', 'Решил показать оскал, песик? Не боишься меня? Уже готов к смерти? Знаешь, я не просто дьявол…', false), 800);
+                    setTimeout(() => addMsg('dad', 'Папа', 'я ТвОй ХоЗяИн…', false), 1600);
+                    setTimeout(() => addMsg('teacher', 'ЛЭ', 'хОзЯиН, чТо ДеРжИт ТеБя На ЦеПи и МеДлЕнНо ТрАвИт ТеБя…', false), 2400);
+                    setTimeout(() => addMsg('mom', 'Мама', 'А еСлИ тЫ мНе НаСкУчИшЬ…', false), 3200);
+                    setTimeout(() => addMsg('sam', 'Бро', 'иЛи ПоПыТаЕшЬсЯ оТвЕрНуТьСя От МеНя…', false), 4000);
+                    setTimeout(() => addMsg('devil', '???', 'То нога хозяина не заметит щенка под собой!', false), 4800);
+                    setTimeout(() => triggerBlueScreen('Все вокруг было ненастоящим. Дьявол был всегда.'), 6800);
                 }
-            ]);
+            }]);
         }
 
         setOptions('teacher', [{
@@ -976,11 +787,8 @@
                         setTimeout(() => addMsg('devil', '???', 'Нет! Не может быть! Но кто же тогда он! Кто он! КТО ОН…', false), 4800);
                         setTimeout(() => {
                             const totalClicks = Math.max(persistentGraveClicks, window.getGraveClickCount ? window.getGraveClickCount() : 0);
-                            if (totalClicks >= 68) {
-                                triggerMadEndingScene();
-                            } else {
-                                triggerGoodRebootEnding();
-                            }
+                            if (totalClicks >= 68) triggerMadEndingScene();
+                            else triggerGoodRebootEnding();
                         }, 6800);
                     }
                 }]);
