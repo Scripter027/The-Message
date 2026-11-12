@@ -1,5 +1,10 @@
 (function() {
     let activeCh = 1, timerId = null, secLeft = 0, chatId = null, chats = {}, graveClicks = 0, tetrisEvil = false, browserUnlockedByDevil = false;
+    window.isStoryChapterActive = () => activeCh >= 2;
+    window.isStoryBrowserLocked = () => activeCh === 2 && !browserUnlockedByDevil;
+    window.isTetrisEvilMode = () => tetrisEvil;
+    window.forceOpenStoryMessenger = () => openNativeMess();
+    window.forceOpenOfflineBrowser = () => showOfflineBrowser();
 
     function syncTitles() {
         const grid = document.querySelector('#panelStart .chapters-grid');
