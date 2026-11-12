@@ -9,21 +9,61 @@
             homework: { id: 'homework', nameRu: 'Уроки', nameEn: 'Homework', icon: '📐', type: 'system' },
             cmd_term: { id: 'cmd_term', nameRu: 'Консоль', nameEn: 'Console', icon: '💻', type: 'system' }
         };
+        let added = false;
         Object.keys(extras).forEach(k => {
             window.AppConfig.allApps[k] = extras[k];
             if (!window.AppConfig.state.installed.includes(k)) {
                 window.AppConfig.state.installed.push(k);
+                added = true;
             }
         });
-        if (window.renderDesktopIcons) window.renderDesktopIcons();
+        if (added && window.renderDesktopIcons) window.renderDesktopIcons();
+    }
+
+    function hookAppLauncher() {
+        if (window.openApplicationWindow && !window.openApplicationWindow._isStoryHooked) {
+            const baseOpen = window.openApplicationWindow;
+            const hooked = function(appId) {
+                if (handleCustomApp(appId)) return;
+                return baseOpen.apply(this, arguments);
+            };
+            hooked._isStoryHooked = true;
+            window.openApplicationWindow = hooked;
+        }
+    }
+
+    function handleCustomApp(id) {
+        if (id === 'messenger' && window.isStoryChapterActive && window.isStoryChapterActive()) {
+            if (window.forceOpenStoryMessenger) window.forceOpenStoryMessenger();
+            return true;
+        }
+        if (id === 'browser' && window.isStoryBrowserLocked && window.isStoryBrowserLocked()) {
+            if (window.forceOpenOfflineBrowser) window.forceOpenOfflineBrowser();
+            return true;
+        }
+        if (id === 'browser' && window.initBrowserApp) { window.initBrowserApp(); return true; }
+        if (id === 'slides' && window.initSlidesApp) { window.initSlidesApp(); return true; }
+        if (id === 'reports' && window.initReportsApp) { window.initReportsApp(); return true; }
+        if (id === 'secret_file' && window.initSecretFileApp) { window.initSecretFileApp(); return true; }
+        if (id === 'tetris' && window.isTetrisEvilMode && window.isTetrisEvilMode()) {
+            alert('Я уже тут.');
+            if (window.onEvilTetris) window.onEvilTetris();
+            return true;
+        }
+        if (id === 'antivirus') { openDefender(); return true; }
+        if (id === 'diary') { openDiary(); return true; }
+        if (id === 'homework') { openHomework(); return true; }
+        if (id === 'cmd_term') { openConsole(); return true; }
+        if (id && id.startsWith('ghost_trace_')) { openTraceLog(id); return true; }
+        return false;
     }
 
     setInterval(() => {
+        hookAppLauncher();
         const env = document.getElementById('desktopEnv');
         if (!env || env.classList.contains('hidden')) return;
-        if (window.AppConfig && !window.AppConfig.allApps.diary) {
-            injectExtraDesktopApps();
-        }
+        injectExtraDesktopApps();
+
         const clock = document.getElementById('taskbarClock');
         const isPanic = clock && clock.classList.contains('timer-panic');
         if (clock && !isPanic && Math.random() < 0.12) {
@@ -43,18 +83,23 @@
             window.AppConfig.state.installed.push(gid);
             if (window.renderDesktopIcons) window.renderDesktopIcons();
         }
-    }, 5000);
+    }, 1000);
 
-    document.addEventListener('click', (e) => {
-        const icon = e.target.closest('.desktop-icon, .start-app-item');
-        if (!icon) return;
-        const id = icon.dataset.app || icon.dataset.id;
-        if (id === 'antivirus') { e.stopImmediatePropagation(); openDefender(); }
-        else if (id === 'diary') { e.stopImmediatePropagation(); openDiary(); }
-        else if (id === 'homework') { e.stopImmediatePropagation(); openHomework(); }
-        else if (id === 'cmd_term') { e.stopImmediatePropagation(); openConsole(); }
-        else if (id && id.startsWith('ghost_trace_')) { e.stopImmediatePropagation(); openTraceLog(id); }
-    }, true);
+    ['click', 'dblclick'].forEach(evtName => {
+        document.addEventListener(evtName, (e) => {
+            const icon = e.target.closest('.desktop-icon, .start-app-item, [data-app], [data-id]');
+            if (!icon) return;
+            const id = icon.dataset.app || icon.dataset.id;
+            if (!id) return;
+            if (id === 'messenger' && (!window.isStoryChapterActive || !window.isStoryChapterActive())) return;
+            if (id === 'browser' && (!window.isStoryChapterActive || !window.isStoryChapterActive())) return;
+            if (id === 'tetris' && (!window.isTetrisEvilMode || !window.isTetrisEvilMode())) return;
+            if (['messenger', 'browser', 'slides', 'reports', 'secret_file', 'tetris', 'antivirus', 'diary', 'homework', 'cmd_term'].includes(id) || id.startsWith('ghost_trace_')) {
+                e.stopImmediatePropagation();
+                handleCustomApp(id);
+            }
+        }, true);
+    });
 
     const nativeAlert = window.alert;
     window.alert = function(msg) {
