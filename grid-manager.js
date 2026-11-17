@@ -8,6 +8,7 @@
     let offsetY = 0;
     let lastClickTime = 0;
     let lastClickTarget = null;
+    let lastTouchTime = 0;
 
     function getGridMetrics() {
         const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
@@ -80,6 +81,7 @@
             const iconEl = document.createElement("div");
             iconEl.classList.add("desktop-icon");
             iconEl.setAttribute("data-app-id", appId);
+            iconEl.setAttribute("data-app", appId);
             iconEl.style.position = "absolute";
             
             let savedPos = window.AppConfig.state.positions[appId];
@@ -135,6 +137,7 @@
         el.addEventListener("touchstart", (e) => handleDragStart(e, el), { passive: true });
 
         el.addEventListener("touchend", (e) => {
+            lastTouchTime = Date.now();
             if (!hasMoved) {
                 e.preventDefault();
                 const appId = el.getAttribute("data-app-id");
@@ -143,6 +146,7 @@
         });
 
         el.addEventListener("click", () => {
+            if (Date.now() - lastTouchTime < 500) return;
             if (hasMoved) return;
             const currentTime = new Date().getTime();
             const appId = el.getAttribute("data-app-id");
@@ -186,8 +190,8 @@
         
         if (hasMoved) {
             const { cellWidth, cellHeight, margin, taskbarHeight } = getGridMetrics();
-            let left = parseInt(draggedElement.style.left);
-            let top = parseInt(draggedElement.style.top);
+            let left = parseInt(draggedElement.style.left, 10);
+            let top = parseInt(draggedElement.style.top, 10);
             
             left = Math.round((left - margin) / cellWidth) * cellWidth + margin;
             top = Math.round((top - margin) / cellHeight) * cellHeight + margin;
@@ -207,6 +211,7 @@
                     window.AppConfig.state.lastPositions[appId] = { left: prevPos.left, top: prevPos.top };
                     draggedElement.remove();
                     draggedElement = null;
+                    hasMoved = false;
                     if (window.moveAppToTrash) {
                         window.moveAppToTrash(appId);
                     }
@@ -226,10 +231,11 @@
 
         draggedElement.style.zIndex = "";
         draggedElement = null;
+        setTimeout(() => { hasMoved = false; }, 50);
     }
 
     document.addEventListener("mousemove", handleDragMove);
-    document.addEventListener("touchmove", handleDragMove, { passive: false });
+    document.addEventListener("touchmove", handleDragMove, { passive: true });
 
     document.addEventListener("mouseup", handleDragEnd);
     document.addEventListener("touchend", handleDragEnd);
@@ -240,15 +246,35 @@
         }
     });
 
-    window.openApplicationWindow = function(appId) {
+    window.baseOpenApplicationWindow = function(appId) {
         let win = null;
         if (appId === "trash" && window.initTrashApp) { window.initTrashApp(); win = document.getElementById('windowTrash'); }
         if (appId === "explorer" && window.initExplorerApp) { window.initExplorerApp(); win = document.getElementById('windowExplorer'); }
         if (appId === "store" && window.initStoreApp) { window.initStoreApp(); win = document.getElementById('windowStore'); }
-        if (appId === "tetris" && window.initTetrisApp) { window.initTetrisApp(); win = document.getElementById('windowTetris'); }
-        
+        if (appId === "tetris") {
+            if (window.isTetrisEvilMode && window.isTetrisEvilMode()) {
+                if (window.setTetrisPossessed) window.setTetrisPossessed(true);
+                if (window.initTetrisApp) window.initTetrisApp();
+                if (window.onEvilTetris) window.onEvilTetris();
+                return;
+            }
+            if (window.initTetrisApp) { window.initTetrisApp(); win = document.getElementById('windowTetris'); }
+        }
+        if (appId === "browser") {
+            if (window.isStoryBrowserLocked && window.isStoryBrowserLocked()) {
+                if (window.forceOpenOfflineBrowser) window.forceOpenOfflineBrowser();
+                return;
+            }
+            if (window.initBrowserApp) { window.initBrowserApp(); win = document.getElementById('windowBrowser'); }
+        }
+        if (appId === "slides" && window.initSlidesApp) { window.initSlidesApp(); win = document.getElementById('windowSlides'); }
+        if (appId === "reports" && window.initReportsApp) { window.initReportsApp(); win = document.getElementById('windowReports'); }
+        if (appId === "secret_file" && window.initSecretFileApp) { window.initSecretFileApp(); win = document.getElementById('windowSecretFile'); }
+        if (window.handleInteractiveApp && window.handleInteractiveApp(appId)) return;
+
         if (win && window.bringToFront) {
             window.bringToFront(win);
         }
     };
+    window.openApplicationWindow = window.baseOpenApplicationWindow;
 })();
