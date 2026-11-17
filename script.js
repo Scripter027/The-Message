@@ -64,6 +64,7 @@ let currentGfxIndex = 2;
 let currentLangIndex = 1;
 let currentVideoIndex = 0;
 let isGameStarted = false;
+let isIntroFinished = false;
 let settingsContext = 'menu';
 
 const videoContainer = document.getElementById('videoContainer');
@@ -92,14 +93,16 @@ function initGameLaunch() {
         }
     }, 500);
 }
-
 function playNextVideo() {
+    if (isIntroFinished) return;
     if (currentVideoIndex < videos.length) {
         videoElement.pause();
         videoElement.src = videos[currentVideoIndex];
         videoElement.muted = false;
+        currentVideoIndex++;
         
         const onCanPlay = () => {
+            videoElement.removeEventListener('canplaythrough', onCanPlay);
             videoElement.play().catch(() => {
                 videoElement.muted = true;
                 videoElement.play().catch(() => {
@@ -108,25 +111,32 @@ function playNextVideo() {
             });
         };
         
-        videoElement.oncanplaythrough = onCanPlay;
-        currentVideoIndex++;
+        videoElement.addEventListener('canplaythrough', onCanPlay, { once: true });
+        videoElement.onerror = () => {
+            playNextVideo();
+        };
     } else {
         transitionToMenu();
     }
 }
 
 function skipCurrentVideo() {
-    if (!isGameStarted || videoContainer.style.display === 'none') return;
+    if (!isGameStarted || isIntroFinished) return;
     playNextVideo();
 }
 
 function setupSkipListeners() {
-    window.addEventListener('keydown', (e) => {
+    const onSkipKey = (e) => {
+        if (isIntroFinished) {
+            window.removeEventListener('keydown', onSkipKey);
+            return;
+        }
         if (e.code === 'Space') {
             e.preventDefault();
             skipCurrentVideo();
         }
-    });
+    };
+    window.addEventListener('keydown', onSkipKey);
     videoContainer.addEventListener('click', (e) => {
         if (e.target !== startPrompt && !startPrompt.contains(e.target)) {
             skipCurrentVideo();
@@ -135,9 +145,12 @@ function setupSkipListeners() {
 }
 
 function transitionToMenu() {
+    if (isIntroFinished) return;
+    isIntroFinished = true;
     currentVideoIndex = 999;
     videoElement.pause();
-    videoElement.src = '';
+    videoElement.removeAttribute('src');
+    videoElement.load();
     videoContainer.style.transition = 'opacity 1.0s ease';
     videoContainer.style.opacity = '0';
     setTimeout(() => {
@@ -146,6 +159,7 @@ function transitionToMenu() {
         setTimeout(() => {
             mainMenu.classList.add('visible');
             unlockFirstChapterButton();
+            if (window.syncChapterTitles) window.syncChapterTitles();
             syncSettingsUI();
             if (window.YandexModule) {
                 window.YandexModule.gameReady();
@@ -169,6 +183,7 @@ function unlockFirstChapterButton() {
         if (comingSoon) comingSoon.remove();
     }
 }
+
 function openPanel(clickedButton, targetPanel) {
     if (settingsContext === 'menu') {
         mainButtonsList.classList.add('has-active');
@@ -195,7 +210,6 @@ function closeAllPanels() {
         }, 450);
     });
 }
-
 function syncSettingsUI() {
     const lang = langOrder[currentLangIndex] || 'ru';
     const gfx = gfxLevels[currentGfxIndex] || 'high';
@@ -243,6 +257,11 @@ function switchLanguage(lang) {
             el.textContent = translations[lang][key];
         }
     });
+    if (window.syncChapterTitles) window.syncChapterTitles();
+    if (window.renderDesktopIcons) window.renderDesktopIcons();
+    if (window.renderExplorerContents) window.renderExplorerContents();
+    if (window.renderTrashContents) window.renderTrashContents();
+    if (window.renderStoreContents) window.renderStoreContents();
     syncSettingsUI();
 }
 
@@ -354,8 +373,10 @@ document.addEventListener('click', function(e) {
     }
     
     if (btn && btn.id === 'btnFree') {
+        if (window.resetStoryChaptersState) window.resetStoryChaptersState();
+        if (window.stopChapterOneState) window.stopChapterOneState();
         if (window.AppConfig) {
-            window.AppConfig.resetToDesktopDefault();
+            window.AppConfig.load();
         }
         mainMenu.classList.remove('visible');
         setTimeout(() => {
@@ -396,6 +417,9 @@ document.addEventListener('click', function(e) {
     if (btn && btn.id === 'btnClearData') {
         if (window.AppConfig) {
             window.AppConfig.resetToDesktopDefault();
+        }
+        if (window.StoryEngine && window.StoryEngine.resetGraveClicks) {
+            window.StoryEngine.resetGraveClicks();
         }
         localStorage.removeItem('kpr_dino_highscore');
         showOverlayMessage('clear_data');
