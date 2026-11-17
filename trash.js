@@ -6,7 +6,7 @@
 
     window.initTrashApp = function() {
         windowTrash.classList.remove('hidden');
-        renderTrashContents();
+        window.renderTrashContents();
     };
 
     btnCloseTrash.addEventListener('click', () => {
@@ -32,12 +32,12 @@
         window.AppConfig.state.trashContents = [];
         window.AppConfig.save();
         
-        renderTrashContents();
+        window.renderTrashContents();
         if (window.renderDesktopIcons) window.renderDesktopIcons();
         if (window.renderExplorerContents) window.renderExplorerContents();
     });
 
-    function renderTrashContents() {
+    window.renderTrashContents = function() {
         trashContainer.innerHTML = '';
         const lang = document.documentElement.lang || 'ru';
 
@@ -95,7 +95,7 @@
                     } else {
                         window.AppConfig.save();
                     }
-                    renderTrashContents();
+                    window.renderTrashContents();
                     if (window.renderDesktopIcons) window.renderDesktopIcons();
                     if (window.renderExplorerContents) window.renderExplorerContents();
                 }
@@ -105,7 +105,7 @@
             itemEl.appendChild(restoreBtn);
             trashContainer.appendChild(itemEl);
         });
-    }
+    };
 
     window.moveAppToTrash = function(appId) {
         const appData = window.AppConfig.allApps[appId];
@@ -122,7 +122,7 @@
             window.AppConfig.save();
             if (window.renderDesktopIcons) window.renderDesktopIcons();
             if (window.renderExplorerContents) window.renderExplorerContents();
-            if (!windowTrash.classList.contains('hidden')) renderTrashContents();
+            if (!windowTrash.classList.contains('hidden')) window.renderTrashContents();
         }
     };
 })();
