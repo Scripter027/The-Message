@@ -216,7 +216,7 @@
         if (window.bringToFront) window.bringToFront(win);
         renderSlide();
     };
-    function renderSlide() {
+        function renderSlide() {
         const vp = document.getElementById('slideViewport');
         if (!vp) return;
 
@@ -258,10 +258,17 @@
             if (prev) prev.addEventListener('click', () => { if (slideIndex > 0) { slideIndex--; renderSlide(); } });
             if (next) next.addEventListener('click', () => {
                 if (slideIndex === 2 && !fourthSlideErased) {
-                    slideIndex = 3;
-                    fourthSlideErased = true;
-                    if (window.onFourthSlideTriggered) window.onFourthSlideTriggered();
-                    renderSlide();
+                    const revealFourthSlide = () => {
+                        slideIndex = 3;
+                        fourthSlideErased = true;
+                        if (window.onFourthSlideTriggered) window.onFourthSlideTriggered();
+                        renderSlide();
+                    };
+                    if (window.triggerBrowserErrorCrash) {
+                        window.triggerBrowserErrorCrash(revealFourthSlide);
+                    } else {
+                        revealFourthSlide();
+                    }
                 } else if (slideIndex < 2) {
                     slideIndex++;
                     renderSlide();
