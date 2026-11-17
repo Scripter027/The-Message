@@ -36,8 +36,8 @@
             activeWindow = win;
             window.bringToFront(win);
 
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const clientX = e.touches ? e.touches.clientX : e.clientX;
+            const clientY = e.touches ? e.touches.clientY : e.clientY;
 
             startX = clientX;
             startY = clientY;
@@ -71,26 +71,28 @@
     const onDragMove = (e) => {
         if (!isDragging || !activeWindow) return;
 
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const clientX = e.touches ? e.touches.clientX : e.clientX;
+        const clientY = e.touches ? e.touches.clientY : e.clientY;
 
         const deltaX = clientX - startX;
         const deltaY = clientY - startY;
 
         const parentRect = document.getElementById('desktopEnv').getBoundingClientRect();
+        const taskbar = document.querySelector('.taskbar');
+        const taskbarHeight = taskbar ? taskbar.offsetHeight : 45;
         
         let newLeft = initialLeft + deltaX;
         let newTop = initialTop + deltaY;
 
         newLeft = Math.max(0, Math.min(newLeft, parentRect.width - activeWindow.offsetWidth));
-        newTop = Math.max(0, Math.min(newTop, parentRect.height - activeWindow.offsetHeight - 45));
+        newTop = Math.max(0, Math.min(newTop, parentRect.height - activeWindow.offsetHeight - taskbarHeight));
 
         activeWindow.style.left = newLeft + 'px';
         activeWindow.style.top = newTop + 'px';
     };
 
     document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('touchmove', onDragMove, { passive: false });
+    document.addEventListener('touchmove', onDragMove, { passive: true });
 
     const onDragEnd = () => {
         if (isDragging) {
