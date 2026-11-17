@@ -25,6 +25,13 @@
         isPossessedMode = !!val;
     };
 
+    function bindTetrisControls() {
+        document.getElementById('tLeft')?.addEventListener('click', () => movePiece(-1, 0));
+        document.getElementById('tRight')?.addEventListener('click', () => movePiece(1, 0));
+        document.getElementById('tDown')?.addEventListener('click', () => movePiece(0, 1));
+        document.getElementById('tRotate')?.addEventListener('click', rotatePiece);
+    }
+
     window.initTetrisApp = function() {
         let win = document.getElementById('windowTetris');
         if (!win) {
@@ -40,16 +47,7 @@
                     <button class="window-close-btn" id="btnCloseTetris">X</button>
                 </div>
                 <div class="window-content">
-                    <div class="tetris-wrap" id="tetrisWrap">
-                        <div id="tetrisStats" style="color:#00ff66; font-size:0.85rem;">Очки: 0 | Линии: 0</div>
-                        <canvas id="tetrisCanvas" width="180" height="324" style="border:2px solid #00ff66; background:#000;"></canvas>
-                        <div class="tetris-controls">
-                            <button class="tetris-btn" id="tLeft">◀</button>
-                            <button class="tetris-btn" id="tRotate">↻</button>
-                            <button class="tetris-btn" id="tDown">▼</button>
-                            <button class="tetris-btn" id="tRight">▶</button>
-                        </div>
-                    </div>
+                    <div class="tetris-wrap" id="tetrisWrap"></div>
                 </div>
             `;
             mainZone.appendChild(win);
@@ -57,19 +55,15 @@
                 win.classList.add('hidden');
                 if (tetrisInterval) clearInterval(tetrisInterval);
             });
-            document.getElementById('tLeft').addEventListener('click', () => movePiece(-1, 0));
-            document.getElementById('tRight').addEventListener('click', () => movePiece(1, 0));
-            document.getElementById('tDown').addEventListener('click', () => movePiece(0, 1));
-            document.getElementById('tRotate').addEventListener('click', rotatePiece);
             if (window.makeWindowDraggable) window.makeWindowDraggable(win);
         }
 
         win.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(win);
 
+        const wrap = document.getElementById('tetrisWrap');
         if (isPossessedMode) {
             if (tetrisInterval) clearInterval(tetrisInterval);
-            const wrap = document.getElementById('tetrisWrap');
             wrap.innerHTML = `
                 <div style="width:100%; height:300px; background:#000; border:2px solid #ff3333; display:flex; align-items:center; justify-content:center; text-align:center; padding:16px;">
                     <div style="color:#ff3333; font-size:1.4rem; letter-spacing:2px; text-shadow:0 0 12px #ff3333;">Я уже тут.</div>
@@ -79,6 +73,20 @@
                 window.onTetrisPossessedOpened();
             }
             return;
+        }
+
+        if (!document.getElementById('tetrisCanvas')) {
+            wrap.innerHTML = `
+                <div id="tetrisStats" style="color:#00ff66; font-size:0.85rem;">Очки: 0 | Линии: 0</div>
+                <canvas id="tetrisCanvas" width="180" height="324" style="border:2px solid #00ff66; background:#000;"></canvas>
+                <div class="tetris-controls">
+                    <button class="tetris-btn" id="tLeft">◀</button>
+                    <button class="tetris-btn" id="tRotate">↻</button>
+                    <button class="tetris-btn" id="tDown">▼</button>
+                    <button class="tetris-btn" id="tRight">▶</button>
+                </div>
+            `;
+            bindTetrisControls();
         }
 
         startNewTetris();
