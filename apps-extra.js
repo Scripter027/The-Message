@@ -9,21 +9,21 @@
         },
         {
             id: 'missing_2022',
-            keys: ['пропавш', 'дет', '5 лет', 'архив', 'дело', 'поиск'],
-            title: 'Архив МВД (2022): Серия исчезновений подростков в районе',
+            keys: ['пропавш', 'дет', '5 лет', 'архив', 'дело', 'поиск', 'исчез'],
+            title: 'Архив МВД: Серия исчезновений подростков в районе',
             text: 'За последние 5 лет в городе зафиксировано более 90 случаев бесследного исчезновения школьников 13–16 лет. По словам следователей, перед пропажей все подростки резко ссорились с друзьями, ухудшали успеваемость и совершали неадекватные поступки в школе.'
         },
         {
-            id: 'ai_leak',
-            keys: ['ии', 'интеллект', 'олимпиад', 'алгоритм', 'взлом'],
-            title: 'Форум кибербезопасности: Автономный ИИ-шантажист',
-            text: 'Эксперты обсуждают слухи о самообучающейся программе, созданной неизвестным гением-олимпиадником. Алгоритм имитирует живых людей в мессенджерах и доводит жертв до полной социальной изоляции.'
+            id: 'devil_rumors',
+            keys: ['дьявол', 'devil', '68', 'шантаж', 'взлом', 'угроз'],
+            title: 'Городские слухи: Анонимный шантажист в сети',
+            text: 'На местных форумах родители обсуждают сообщения от неизвестного аккаунта. Злоумышленник запугивает школьников, заставляет их разрывать общение с близкими и угрожает расправой над семьей при неповиновении.'
         },
         {
             id: 'olympiad',
             keys: ['айв', 'медал', 'учеб', 'экзамен'],
             title: 'Городской портал образования: Списки кандидатов на медаль',
-            text: 'Ученики, претендующие на золотую медаль, обязаны не иметь дисциплинарных взысканий и состоять на безупречном счету у администрации школы.'
+            text: 'Ученики, претенющие на золотую медаль, обязаны не иметь дисциплинарных взысканий и состоять на безупречном счету у администрации школы.'
         }
     ];
 
@@ -43,6 +43,51 @@
         return graveClicks;
     };
 
+    window.triggerBrowserErrorCrash = function(onComplete) {
+        const oldCrash = document.getElementById('systemCrashOverlay');
+        if (oldCrash) oldCrash.remove();
+
+        const crash = document.createElement('div');
+        crash.id = 'systemCrashOverlay';
+
+        const particlesLayer = document.createElement('div');
+        particlesLayer.className = 'crash-particles-layer';
+
+        const colors = ['#ff3333', '#00ff66', '#ffffff', '#ffaa00'];
+        for (let i = 0; i < 65; i++) {
+            const p = document.createElement('div');
+            p.className = 'crash-particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.width = (Math.random() * 24 + 4) + 'px';
+            p.style.height = (Math.random() * 14 + 3) + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = (Math.random() * 0.25) + 's';
+            particlesLayer.appendChild(p);
+        }
+
+        const errText = document.createElement('div');
+        errText.className = 'crash-error-text';
+        errText.textContent = 'ERROR';
+
+        crash.appendChild(particlesLayer);
+        crash.appendChild(errText);
+        document.body.appendChild(crash);
+
+        const particleShuffle = setInterval(() => {
+            particlesLayer.querySelectorAll('.crash-particle').forEach(p => {
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+            });
+            errText.style.opacity = Math.random() > 0.25 ? '1' : '0.15';
+        }, 120);
+
+        setTimeout(() => {
+            clearInterval(particleShuffle);
+            crash.remove();
+            if (onComplete) onComplete();
+        }, 2000);
+    };
     window.initBrowserApp = function(initialArticleId) {
         let win = document.getElementById('windowBrowser');
         if (!win) {
@@ -60,14 +105,8 @@
                 </div>
                 <div class="window-content" style="gap:10px;">
                     <div class="browser-bar">
-                        <input type="text" class="browser-input" id="browserQuery" placeholder="Введите запрос...">
+                        <input type="text" class="browser-input" id="browserQuery" placeholder="Введите поисковый запрос...">
                         <button class="browser-btn" id="btnBrowserSearch">Поиск</button>
-                    </div>
-                    <div class="browser-tags" id="browserTags">
-                        <button class="browser-tag" data-q="пропавшие дети за 5 лет">пропавшие дети за 5 лет</button>
-                        <button class="browser-tag" data-q="школа 1290">школа 1290</button>
-                        <button class="browser-tag" data-q="взлом ии">взлом ии</button>
-                        <button class="browser-tag" data-q="золотая медаль">золотая медаль</button>
                     </div>
                     <div id="browserResults" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
                 </div>
@@ -80,30 +119,30 @@
             document.getElementById('browserQuery').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') runBrowserSearch(e.target.value);
             });
-            win.querySelectorAll('.browser-tag').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const q = btn.getAttribute('data-q');
-                    document.getElementById('browserQuery').value = q;
-                    runBrowserSearch(q);
-                });
-            });
             if (window.makeWindowDraggable) window.makeWindowDraggable(win);
         }
 
         win.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(win);
 
+        const qInput = document.getElementById('browserQuery');
+        if (qInput) qInput.value = '';
+
         if (initialArticleId) {
             const art = articlesDb.find(a => a.id === initialArticleId);
-            if (art) renderArticles([art]);
+            if (art) {
+                if (qInput) qInput.value = 'https://news-city.local';
+                renderArticles([art]);
+            }
         } else {
             renderArticles([]);
         }
     };
+
     function runBrowserSearch(query) {
         const q = (query || '').toLowerCase().trim();
         if (!q) {
-            renderArticles(articlesDb.slice(1));
+            renderArticles([]);
             return;
         }
         const found = articlesDb.filter(a => {
@@ -122,7 +161,7 @@
         box.innerHTML = '';
 
         if (!list || list.length === 0) {
-            box.innerHTML = `<div style="color:rgba(0,255,102,0.55); font-size:0.82rem; padding:12px;">Ничего конкретного не найдено. Попробуйте уточнить запрос или выбрать тему выше.</div>`;
+            box.innerHTML = `<div style="color:rgba(0,255,102,0.55); font-size:0.82rem; padding:12px;">Введите ключевое слово в строку поиска выше.</div>`;
             return;
         }
 
@@ -177,7 +216,6 @@
         if (window.bringToFront) window.bringToFront(win);
         renderSlide();
     };
-
     function renderSlide() {
         const vp = document.getElementById('slideViewport');
         if (!vp) return;
@@ -264,6 +302,7 @@
             }
         }
     }
+
     window.initReportsApp = function() {
         let win = document.getElementById('windowReports');
         if (!win) {
