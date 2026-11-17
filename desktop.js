@@ -11,9 +11,17 @@
 
     let clockInterval = null;
 
+    window.stopClock = function() {
+        if (clockInterval) {
+            clearInterval(clockInterval);
+            clockInterval = null;
+        }
+    };
+
     window.startClock = function() {
-        if (clockInterval) clearInterval(clockInterval);
+        window.stopClock();
         const update = () => {
+            if (taskbarClock && taskbarClock.classList.contains('timer-panic')) return;
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -35,6 +43,15 @@
     });
 
     btnClearData.addEventListener('click', () => {
+        if (window.resetStoryChaptersState) window.resetStoryChaptersState();
+        if (window.stopChapterOneState) window.stopChapterOneState();
+        if (window.resetExtraAppsState) window.resetExtraAppsState();
+        if (window.resetInteractiveState) window.resetInteractiveState();
+        if (window.StoryEngine && window.StoryEngine.resetGraveClicks) {
+            window.StoryEngine.resetGraveClicks();
+        }
+        localStorage.removeItem('kpr_dino_highscore');
+
         if (window.AppConfig && window.AppConfig.resetToDesktopDefault) {
             window.AppConfig.resetToDesktopDefault();
         }
@@ -42,16 +59,29 @@
         document.querySelectorAll('.desktop-window').forEach(win => win.classList.add('hidden'));
         if (window.renderDesktopIcons) window.renderDesktopIcons();
         if (window.renderExplorerContents) window.renderExplorerContents();
+        if (window.renderTrashContents) window.renderTrashContents();
     });
 
     btnDesktopExit.addEventListener('click', () => {
         settingsWindow.classList.add('hidden');
+        document.getElementById('activeMessNotify')?.remove();
+        if (window.resetStoryChaptersState) window.resetStoryChaptersState();
+        if (window.stopChapterOneState) window.stopChapterOneState();
+        if (window.resetExtraAppsState) window.resetExtraAppsState();
+        if (window.resetInteractiveState) window.resetInteractiveState();
+        document.body.classList.remove('theme-mom');
+        document.querySelectorAll('.desktop-window').forEach(win => win.classList.add('hidden'));
+
         if (window.YandexModule) {
             window.YandexModule.stopGameplay();
         }
         desktopEnv.classList.remove('visible');
         setTimeout(() => {
             desktopEnv.classList.add('hidden');
+            desktopEnv.style.display = 'none';
+            if (window.AppConfig) {
+                window.AppConfig.load();
+            }
             const exitToMenu = () => {
                 if (window.triggerLoading) {
                     window.triggerLoading(() => {
