@@ -12,11 +12,11 @@
             d: { t: '???', av: '❓', red: true, m: [], o: [] }
         });
 
-        E.toast('Мысли Айва', 'Откройте Браузер и поищите статьи о пропавших детях за 5 лет.');
+        E.toast('Мысли Айва', 'Откройте Браузер и поищите информацию о пропавших детях.');
 
         window.onBrowserSearched = (q) => {
             const chats = E.getChats();
-            if (chats.cass && chats.cass.hide && (q.includes('пропав') || q.includes('5 лет') || q.includes('дет'))) {
+            if (chats.cass && chats.cass.hide && (q.includes('пропав') || q.includes('дет') || q.includes('дьявол') || q.includes('исчез'))) {
                 E.later(() => {
                     chats.cass.hide = false;
                     E.addM('cass', 'Кассандра', S.cass1);
@@ -32,7 +32,7 @@
                         }}
                     ]);
                     E.toast('Кассандра', 'Привет, Айв. Поможешь с проектом?');
-                }, 1200);
+                }, 1500);
             }
         };
 
@@ -48,6 +48,7 @@
         window.onGraveClicked = (n) => {
             E.setGraveClicks(n);
         };
+
         window.onFourthSlideTriggered = () => {
             E.setOpt('cass', [{ l: 'Что за чертовщина на 4 слайде!?', f: () => {
                 E.addM('cass', 'Айв', 'Что за чертовщина на 4 слайде!?', true);
@@ -90,8 +91,8 @@
                                     E.addM('d', 'Айв', 'Твоя цель рассорить меня со всеми?', true);
                                     E.addM('d', '???', S.devilEnd2);
                                     E.setChatId('d');
-                                    E.later(() => E.win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 4200);
-                                }, 1200);
+                                    E.later(() => E.win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 15000);
+                                }, 1500);
                             }},
                             { l: '2. Я люблю тебя.', f: () => E.over(S.momFailLove) },
                             { l: '3. Я купил тетрис.', f: () => E.over(S.momFailTetris) }
