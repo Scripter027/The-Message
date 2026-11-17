@@ -15,6 +15,16 @@
         pinnedNotice: true
     };
 
+    window.isChapterOneRunning = function() {
+        return isChapterOneActive;
+    };
+
+    window.stopChapterOneState = function() {
+        isChapterOneActive = false;
+        if (typingTimeout) clearTimeout(typingTimeout);
+        if (hackerTypeInterval) clearInterval(hackerTypeInterval);
+    };
+
     window.canPlayDino = function() {
         if (!isChapterOneActive) return true;
         return storyState.dinoTaskReceived;
@@ -25,7 +35,43 @@
         return String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
     }
 
+    window.ensureMessengerWindow = function() {
+        let win = document.getElementById("windowMessenger");
+        if (win) return win;
+        const mainZone = document.querySelector(".desktop-main");
+        if (!mainZone) return null;
+
+        win = document.createElement("div");
+        win.id = "windowMessenger";
+        win.classList.add("desktop-window", "hidden");
+        win.style.width = "min(560px, 94vw)";
+        win.style.height = "min(410px, calc(100dvh - 50px))";
+
+        win.innerHTML = `
+            <div class="window-header">
+                <span class="window-title">Mess</span>
+                <button class="window-close-btn" id="btnCloseMessenger">X</button>
+            </div>
+            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 32px); gap:0; overflow:hidden;">
+                <div id="messSidebar" style="width:35%; min-width:115px; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
+                    <div id="messSidebarHeader" style="padding:6px 8px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.76rem;">
+                        <span>☰ Чаты</span>
+                        <span style="opacity:0.6; font-size:0.68rem;">v2.4</span>
+                    </div>
+                    <div id="messUserList" style="flex:1; overflow-y:auto; color:#00ff66; font-size:0.82rem; cursor:pointer;"></div>
+                </div>
+                <div id="messChatZone" style="width:65%; flex:1; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"></div>
+            </div>
+        `;
+        mainZone.appendChild(win);
+        document.getElementById("btnCloseMessenger").addEventListener("click", () => {
+            win.classList.add("hidden");
+        });
+        if (window.makeWindowDraggable) window.makeWindowDraggable(win);
+        return win;
+    };
     window.initChapterOne = function() {
+        if (window.resetStoryChaptersState) window.resetStoryChaptersState();
         isChapterOneActive = true;
         currentStage = "start";
         selectedUser = null;
@@ -48,6 +94,7 @@
         const crashOverlay = document.getElementById("systemCrashOverlay");
         if (crashOverlay) crashOverlay.remove();
 
+        document.body.classList.remove("theme-mom");
         document.querySelectorAll('.desktop-window').forEach(w => w.classList.add('hidden'));
 
         if (window.AppConfig) {
@@ -59,11 +106,13 @@
             const mainZone = document.querySelector(".desktop-main");
             if (mainZone && mainZone.clientWidth > 0) {
                 if (window.renderDesktopIcons) window.renderDesktopIcons();
-                createMessWindow();
+                window.ensureMessengerWindow();
                 createDinoGameWindow();
                 createHackerOverlay();
                 setTimeout(() => {
-                    showMessNotification("Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?");
+                    if (isChapterOneActive) {
+                        showMessNotification("Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?");
+                    }
                 }, 1200);
             } else {
                 setTimeout(checkVisible, 200);
@@ -102,48 +151,28 @@
         notifyTimeout = setTimeout(() => { if (notify.parentNode) notify.remove(); }, 6000);
     }
 
-    function createMessWindow() {
-        if (document.getElementById("windowMessenger")) return;
-        const mainZone = document.querySelector(".desktop-main");
-        if (!mainZone) return;
-        
-        const win = document.createElement("div");
-        win.id = "windowMessenger";
-        win.classList.add("desktop-window", "hidden");
-        win.style.width = "min(560px, 94vw)";
-        win.style.height = "min(410px, calc(100dvh - 50px))";
-
-        win.innerHTML = `
-            <div class="window-header">
-                <span class="window-title">Mess</span>
-                <button class="window-close-btn" id="btnCloseMessenger">X</button>
-            </div>
-            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 32px); gap:0; overflow:hidden;">
-                <div style="width:35%; min-width:110px; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
-                    <div style="padding:6px 8px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.76rem;">
-                        <span>☰ Чаты</span>
-                        <span style="opacity:0.6; font-size:0.68rem;">v2.4</span>
-                    </div>
-                    <div id="messUserList" style="flex:1; overflow-y:auto; color:#00ff66; font-size:0.82rem; cursor:pointer;"></div>
-                </div>
-                <div id="messChatZone" style="width:65%; flex:1; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"></div>
-            </div>
-        `;
-        mainZone.appendChild(win);
-        document.getElementById("btnCloseMessenger").addEventListener("click", () => {
-            win.classList.add("hidden");
-        });
-        if (window.makeWindowDraggable) window.makeWindowDraggable(win);
+    function openChapterOneMessenger() {
+        const win = window.ensureMessengerWindow();
+        if (!win) return;
+        const sidebar = document.getElementById("messSidebar");
+        const sidebarHeader = document.getElementById("messSidebarHeader");
+        if (sidebar) sidebar.style.borderRightColor = "rgba(0,255,102,0.25)";
+        if (sidebarHeader) {
+            sidebarHeader.style.borderBottomColor = "rgba(0,255,102,0.2)";
+            sidebarHeader.style.color = "#00ff66";
+        }
+        win.classList.remove("hidden");
+        renderMess();
+        if (window.bringToFront) window.bringToFront(win);
     }
     window.openApplicationWindow = (originalOpen => {
         return function(appId) {
             if (appId === "messenger") {
-                const win = document.getElementById("windowMessenger");
-                if (win) {
-                    win.classList.remove("hidden");
-                    renderMess();
-                    if (window.bringToFront) window.bringToFront(win);
+                if (window.isStoryChapterActive && window.isStoryChapterActive()) {
+                    if (window.forceOpenStoryMessenger) window.forceOpenStoryMessenger();
+                    return;
                 }
+                openChapterOneMessenger();
                 return;
             }
             if (appId === "dino") {
@@ -167,7 +196,7 @@
     function triggerFail(reasonText) {
         isChapterOneActive = false;
         if (window.triggerGameOverScreen) {
-            window.triggerGameOverScreen(reasonText);
+            window.triggerGameOverScreen(reasonText, 1);
         }
     }
 
@@ -329,12 +358,12 @@
                 
                 const hint = document.createElement("div");
                 hint.style.color = "#ffaa00";
+                hint.textAlign = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 hint.style.textAlign = "center";
                 hint.style.fontSize = "0.74rem";
                 hint.style.marginTop = "4px";
                 hint.style.padding = "5px";
                 hint.style.border = "1px dashed #ffaa00";
-                hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 msgContainer.appendChild(hint);
                 msgContainer.scrollTop = msgContainer.scrollHeight;
             }
