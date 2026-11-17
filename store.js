@@ -5,20 +5,20 @@
 
     window.initStoreApp = function() {
         windowStore.classList.remove('hidden');
-        renderStoreContents();
+        window.renderStoreContents();
     };
 
     btnCloseStore.addEventListener('click', () => {
         windowStore.classList.add('hidden');
     });
 
-    function renderStoreContents() {
+    window.renderStoreContents = function() {
         storeContainer.innerHTML = '';
         const lang = document.documentElement.lang || 'ru';
 
         Object.keys(window.AppConfig.allApps).forEach(appId => {
             const appData = window.AppConfig.allApps[appId];
-            if (appData.type === 'system') return;
+            if (!appData || appData.type !== 'game') return;
 
             const itemEl = document.createElement('div');
             itemEl.style.display = 'flex';
@@ -66,9 +66,10 @@
                         } else {
                             window.AppConfig.save();
                         }
-                        renderStoreContents();
+                        window.renderStoreContents();
                         if (window.renderDesktopIcons) window.renderDesktopIcons();
                         if (window.renderExplorerContents) window.renderExplorerContents();
+                        if (window.renderTrashContents) window.renderTrashContents();
                     }
                 });
             } else if (isInstalled) {
@@ -83,7 +84,7 @@
                 actionBtn.addEventListener('click', () => {
                     window.AppConfig.state.installed.push(appId);
                     window.AppConfig.save();
-                    renderStoreContents();
+                    window.renderStoreContents();
                     if (window.renderDesktopIcons) window.renderDesktopIcons();
                     if (window.renderExplorerContents) window.renderExplorerContents();
                 });
@@ -92,5 +93,5 @@
             itemEl.appendChild(actionBtn);
             storeContainer.appendChild(itemEl);
         });
-    }
+    };
 })();
