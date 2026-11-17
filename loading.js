@@ -14,9 +14,16 @@
         }, 3000);
     };
 
-    window.triggerGameOverScreen = function(reasonText) {
+    window.triggerGameOverScreen = function(reasonText, failedChapter) {
+        const targetChapter = failedChapter || 1;
         if (window.YandexModule) {
             window.YandexModule.stopGameplay();
+        }
+        if (window.resetStoryChaptersState) {
+            window.resetStoryChaptersState();
+        }
+        if (window.stopChapterOneState) {
+            window.stopChapterOneState();
         }
 
         const checkOverlay = document.getElementById("failOverlay");
@@ -181,6 +188,10 @@
             overlay.style.opacity = "0";
             setTimeout(() => {
                 overlay.remove();
+                if (targetChapter >= 2 && window.launchStoryChapter) {
+                    window.launchStoryChapter(targetChapter);
+                    return;
+                }
                 if (window.AppConfig) {
                     window.AppConfig.setupChapterOneMode();
                 }
@@ -188,6 +199,8 @@
                 if (env) {
                     env.style.display = "flex";
                     env.style.filter = "none";
+                    env.classList.remove("hidden");
+                    env.classList.add("visible");
                 }
                 if (window.YandexModule) {
                     window.YandexModule.startGameplay();
@@ -203,7 +216,7 @@
             setTimeout(() => {
                 overlay.remove();
                 if (window.AppConfig) {
-                    window.AppConfig.resetToDesktopDefault();
+                    window.AppConfig.load();
                 }
                 const env = document.getElementById("desktopEnv");
                 if (env) {
@@ -231,6 +244,12 @@
     window.triggerChapterCompleteScreen = function(chapterNum, subtitleText) {
         if (window.YandexModule) {
             window.YandexModule.stopGameplay();
+        }
+        if (window.resetStoryChaptersState) {
+            window.resetStoryChaptersState();
+        }
+        if (window.stopChapterOneState) {
+            window.stopChapterOneState();
         }
 
         const oldWin = document.getElementById("chapterWinOverlay");
@@ -304,7 +323,7 @@
             setTimeout(() => {
                 overlay.remove();
                 if (window.AppConfig) {
-                    window.AppConfig.resetToDesktopDefault();
+                    window.AppConfig.load();
                 }
                 const env = document.getElementById("desktopEnv");
                 if (env) {
