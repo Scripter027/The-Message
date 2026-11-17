@@ -24,20 +24,51 @@
             E.setOpt('d', [{ l: 'Поторопить: Ну и долго ты собираешься идти? Я уже не боюсь тебя!', f: () => {
                 E.addM('d', 'Айв', S.provokeIve, true);
                 E.setOpt('d', []);
-                E.later(() => E.addM('d', '???', S.provoke1), 900);
-                E.later(() => E.addM('dad', 'Папа', S.provoke2), 1800);
-                E.later(() => E.addM('le', 'ЛЭ', S.provoke3), 2700);
-                E.later(() => E.addM('mom', 'Мама', S.provoke4), 3600);
-                E.later(() => E.addM('sam', 'Бро', S.provoke5), 4500);
-                E.later(() => E.addM('d', '???', S.provoke6), 5400);
-                E.later(() => E.bsod(S.bsodFake), 7500);
+                startSequentialProvoke();
             }}]);
         };
+
+        function startSequentialProvoke() {
+            const steps = [
+                { chat: 'd', sender: '???', text: S.provoke1, btn: 'Читать дальше...' },
+                { chat: 'dad', sender: 'Папа', text: S.provoke2, btn: 'Открыть сообщение от Папы' },
+                { chat: 'le', sender: 'ЛЭ', text: S.provoke3, btn: 'Открыть сообщение от Ларисы Эдуардовны' },
+                { chat: 'mom', sender: 'Мама', text: S.provoke4, btn: 'Открыть сообщение от Мамы' },
+                { chat: 'sam', sender: 'Бро', text: S.provoke5, btn: 'Открыть сообщение от Бро' },
+                { chat: 'd', sender: '???', text: S.provoke6, btn: 'Открыть сообщение от ???' }
+            ];
+
+            let idx = 0;
+
+            const showStepButton = () => {
+                if (idx >= steps.length) {
+                    const lastChat = steps[steps.length - 1].chat;
+                    E.setOpt(lastChat, [{ l: 'Осознать происходящее...', f: () => {
+                        E.setOpt(lastChat, []);
+                        E.bsod(S.bsodFake);
+                    }}]);
+                    return;
+                }
+
+                const step = steps[idx];
+                const targetOptChat = idx === 0 ? 'd' : steps[idx - 1].chat;
+                E.setOpt(targetOptChat, [{ l: step.btn, f: () => {
+                    E.setOpt(targetOptChat, []);
+                    E.addM(step.chat, step.sender, step.text);
+                    E.setChatId(step.chat);
+                    idx++;
+                    showStepButton();
+                }}]);
+            };
+
+            showStepButton();
+        }
 
         E.setOpt('le', [{ l: 'Написать извинения Ларисе Эдуардовне', f: () => { E.addM('le', 'Айв', S.toTeacher, true); E.setOpt('le', []); onSent(); } }]);
         E.setOpt('dad', [{ l: 'Написать прощание Папе', f: () => { E.addM('dad', 'Айв', S.toDad, true); E.setOpt('dad', []); onSent(); } }]);
         E.setOpt('mom', [{ l: 'Написать прощание Маме', f: () => { E.addM('mom', 'Айв', S.toMom, true); E.setOpt('mom', []); onSent(); } }]);
         E.setOpt('sam', [{ l: 'Написать прощание Бро', f: () => { E.addM('sam', 'Айв', S.toBro, true); E.setOpt('sam', []); onSent(); } }]);
+
         window.onEvilTetris = () => {
             const chats = E.getChats();
             if (!chats.via || !chats.via.hide) return;
@@ -51,9 +82,9 @@
                     E.setOpt('via', []);
                     E.setChatId('d');
                     E.addM('d', 'Айв', S.sendFileIve, true);
-                    E.later(() => E.addM('d', '???', S.devilFile1), 1500);
-                    E.later(() => E.addM('d', '???', S.devilFile2), 3400);
-                    E.later(() => E.addM('d', '???', S.devilFile3), 5200);
+                    E.later(() => E.addM('d', '???', S.devilFile1), 2500);
+                    E.later(() => E.addM('d', '???', S.devilFile2), 6000);
+                    E.later(() => E.addM('d', '???', S.devilFile3), 9500);
                     E.later(() => {
                         if (E.getGraveClicks() >= 68) {
                             if (window.triggerMadEnding) {
@@ -64,7 +95,7 @@
                         } else {
                             E.win(5, S.goodEnding);
                         }
-                    }, 7200);
+                    }, 15000);
                 }}
             ]);
         };
