@@ -3,12 +3,24 @@
 
     function injectExtraDesktopApps() {
         if (!window.AppConfig) return;
-        const extras = {
-            antivirus: { id: 'antivirus', nameRu: 'Защитник', nameEn: 'Defender', icon: '🛡️', type: 'system' },
-            diary: { id: 'diary', nameRu: 'Дневник', nameEn: 'Diary', icon: '📓', type: 'system' },
-            homework: { id: 'homework', nameRu: 'Уроки', nameEn: 'Homework', icon: '📐', type: 'system' },
-            cmd_term: { id: 'cmd_term', nameRu: 'Консоль', nameEn: 'Console', icon: '💻', type: 'system' }
-        };
+        const isMomTheme = document.body.classList.contains('theme-mom');
+        const activeCh = window.StoryEngine ? window.StoryEngine.getActiveChapter() : 1;
+        const isCh1 = window.isChapterOneRunning && window.isChapterOneRunning();
+        if (isCh1) return;
+
+        const extras = isMomTheme
+            ? {
+                diary: { id: 'diary', nameRu: 'Дневник', nameEn: 'Diary', icon: '📓', type: 'system' }
+            }
+            : {
+                antivirus: { id: 'antivirus', nameRu: 'Защитник', nameEn: 'Defender', icon: '🛡️', type: 'system' },
+                diary: { id: 'diary', nameRu: 'Дневник', nameEn: 'Diary', icon: '📓', type: 'system' },
+                homework: { id: 'homework', nameRu: 'Уроки', nameEn: 'Homework', icon: '📐', type: 'system' },
+                cmd_term: { id: 'cmd_term', nameRu: 'Консоль', nameEn: 'Console', icon: '💻', type: 'system' }
+            };
+
+        if (activeCh === 4 && !isMomTheme) return;
+
         let added = false;
         Object.keys(extras).forEach(k => {
             window.AppConfig.allApps[k] = extras[k];
@@ -20,46 +32,20 @@
         if (added && window.renderDesktopIcons) window.renderDesktopIcons();
     }
 
-    function hookAppLauncher() {
-        if (window.openApplicationWindow && !window.openApplicationWindow._isStoryHooked) {
-            const baseOpen = window.openApplicationWindow;
-            const hooked = function(appId) {
-                if (handleCustomApp(appId)) return;
-                return baseOpen.apply(this, arguments);
-            };
-            hooked._isStoryHooked = true;
-            window.openApplicationWindow = hooked;
-        }
-    }
-
-    function handleCustomApp(id) {
-        if (id === 'messenger' && window.isStoryChapterActive && window.isStoryChapterActive()) {
-            if (window.forceOpenStoryMessenger) window.forceOpenStoryMessenger();
-            return true;
-        }
-        if (id === 'browser' && window.isStoryBrowserLocked && window.isStoryBrowserLocked()) {
-            if (window.forceOpenOfflineBrowser) window.forceOpenOfflineBrowser();
-            return true;
-        }
-        if (id === 'browser' && window.initBrowserApp) { window.initBrowserApp(); return true; }
-        if (id === 'slides' && window.initSlidesApp) { window.initSlidesApp(); return true; }
-        if (id === 'reports' && window.initReportsApp) { window.initReportsApp(); return true; }
-        if (id === 'secret_file' && window.initSecretFileApp) { window.initSecretFileApp(); return true; }
-        if (id === 'tetris' && window.isTetrisEvilMode && window.isTetrisEvilMode()) {
-            alert('Я уже тут.');
-            if (window.onEvilTetris) window.onEvilTetris();
-            return true;
-        }
+    window.handleInteractiveApp = function(id) {
         if (id === 'antivirus') { openDefender(); return true; }
         if (id === 'diary') { openDiary(); return true; }
         if (id === 'homework') { openHomework(); return true; }
         if (id === 'cmd_term') { openConsole(); return true; }
         if (id && id.startsWith('ghost_trace_')) { openTraceLog(id); return true; }
         return false;
-    }
+    };
+
+    window.resetInteractiveState = function() {
+        ghostCounter = 0;
+    };
 
     setInterval(() => {
-        hookAppLauncher();
         const env = document.getElementById('desktopEnv');
         if (!env || env.classList.contains('hidden')) return;
         injectExtraDesktopApps();
@@ -79,54 +65,13 @@
         if (isPanic && ghostCounter < 3 && Math.random() < 0.25 && window.AppConfig) {
             ghostCounter++;
             const gid = 'ghost_trace_' + ghostCounter;
-            window.AppConfig.allApps[gid] = { id: gid, nameRu: 'УЛИКА_' + ghostCounter + '.LOG', nameEn: 'TRACE_' + ghostCounter + '.LOG', icon: '⚠️', type: 'game' };
+            window.AppConfig.allApps[gid] = { id: gid, nameRu: 'УЛИКА_' + ghostCounter + '.LOG', nameEn: 'TRACE_' + ghostCounter + '.LOG', icon: '⚠️', type: 'trace' };
             window.AppConfig.state.installed.push(gid);
             if (window.renderDesktopIcons) window.renderDesktopIcons();
         }
     }, 1000);
 
-    ['click', 'dblclick'].forEach(evtName => {
-        document.addEventListener(evtName, (e) => {
-            const icon = e.target.closest('.desktop-icon, .start-app-item, [data-app], [data-id]');
-            if (!icon) return;
-            const id = icon.dataset.app || icon.dataset.id;
-            if (!id) return;
-            if (id === 'messenger' && (!window.isStoryChapterActive || !window.isStoryChapterActive())) return;
-            if (id === 'browser' && (!window.isStoryChapterActive || !window.isStoryChapterActive())) return;
-            if (id === 'tetris' && (!window.isTetrisEvilMode || !window.isTetrisEvilMode())) return;
-            if (['messenger', 'browser', 'slides', 'reports', 'secret_file', 'tetris', 'antivirus', 'diary', 'homework', 'cmd_term'].includes(id) || id.startsWith('ghost_trace_')) {
-                e.stopImmediatePropagation();
-                handleCustomApp(id);
-            }
-        }, true);
-    });
-
-    const nativeAlert = window.alert;
-    window.alert = function(msg) {
-        if (typeof msg === 'string' && msg.includes('Я уже тут')) {
-            let win = document.getElementById('windowEvilTetris');
-            if (!win) {
-                win = document.createElement('div');
-                win.id = 'windowEvilTetris';
-                win.className = 'desktop-window';
-                win.style.width = 'min(320px,92vw)';
-                win.innerHTML = `<div class="window-header"><span class="window-title">Тетрис</span><button class="window-close-btn" id="clsEvTet">X</button></div><div class="window-content"><div style="width:100%;height:260px;background:#000;border:2px solid #ff3333;display:flex;align-items:center;justify-content:center;"><div style="color:#ff3333;font-size:1.4rem;letter-spacing:2px;text-shadow:0 0 12px #ff3333;">Я уже тут.</div></div></div>`;
-                document.querySelector('.desktop-main')?.appendChild(win);
-                document.getElementById('clsEvTet').onclick = () => win.classList.add('hidden');
-                if (window.makeWindowDraggable) window.makeWindowDraggable(win);
-            }
-            win.classList.remove('hidden');
-            if (window.bringToFront) window.bringToFront(win);
-            return;
-        }
-        if (typeof msg === 'string' && msg.includes('Настоящий Дьявол во Плоти')) {
-            showMadScene();
-            return;
-        }
-        nativeAlert(msg);
-    };
-
-    function showMadScene() {
+    window.triggerMadEnding = function(onFinish) {
         const env = document.getElementById('desktopEnv');
         if (env) env.style.display = 'none';
         let ov = document.getElementById('hackerOverlay');
@@ -151,13 +96,19 @@
             b.className = 'hacker-btn';
             b.textContent = st < lines.length - 1 ? 'Далее' : 'Завершить';
             b.onclick = () => {
-                if (st < lines.length - 1) { st++; draw(); }
-                else { ov.style.display = 'none'; }
+                if (st < lines.length - 1) {
+                    st++;
+                    draw();
+                } else {
+                    ov.classList.remove('visible');
+                    ov.style.display = 'none';
+                    if (onFinish) onFinish();
+                }
             };
             optEl.appendChild(b);
         };
         draw();
-    }
+    };
     function openDefender() {
         let win = document.getElementById('windowDefender');
         if (!win) {
@@ -194,7 +145,6 @@
             }
         };
     }
-
     function openDiary() {
         let win = document.getElementById('windowDiary');
         if (!win) {
@@ -229,6 +179,7 @@
             }
         };
     }
+
     function openHomework() {
         let win = document.getElementById('windowHomework');
         if (!win) {
@@ -273,7 +224,6 @@
             box.appendChild(b);
         });
     }
-
     function openConsole() {
         let win = document.getElementById('windowConsole');
         if (!win) {
@@ -292,16 +242,30 @@
         const out = document.getElementById('cmdOut');
         const inp = document.getElementById('cmdIn');
         const run = () => {
-            const val = inp.value.trim().toLowerCase();
+            const rawVal = inp.value.trim();
+            const val = rawVal.toLowerCase();
             inp.value = '';
             if (!val) return;
-            out.innerHTML += `<div style="color:#ffaa00;">&gt; ${val}</div>`;
-            if (val === 'help') out.innerHTML += `<div>Команды: status, scan, trace 68, clear</div>`;
-            else if (val === 'status') out.innerHTML += `<div>Ядро: IVE_OS_v2.6 | Активный модуль: dEvil68.sys [СКРЫТЫЙ]</div>`;
-            else if (val === 'scan') out.innerHTML += `<div>Найдено 1 скрытое подключение: localhost:6868 (Владелец: Айв)</div>`;
-            else if (val === 'trace 68') out.innerHTML += `<div style="color:#ff3333;">КРИТИЧЕСКИЙ ЛОГ: Прототип «йвА» ожидает перегрузки старого носителя.</div>`;
-            else if (val === 'clear') out.innerHTML = '';
-            else out.innerHTML += `<div>Неизвестная команда. Введите help.</div>`;
+            const cmdLine = document.createElement('div');
+            cmdLine.style.color = '#ffaa00';
+            cmdLine.textContent = '> ' + rawVal;
+            out.appendChild(cmdLine);
+
+            if (val === 'clear') {
+                out.innerHTML = '';
+                return;
+            }
+            const resLine = document.createElement('div');
+            if (val === 'help') resLine.textContent = 'Команды: status, scan, trace 68, clear';
+            else if (val === 'status') resLine.textContent = 'Ядро: IVE_OS_v2.6 | Активный модуль: dEvil68.sys [СКРЫТЫЙ]';
+            else if (val === 'scan') resLine.textContent = 'Найдено 1 скрытое подключение: localhost:6868 (Владелец: Айв)';
+            else if (val === 'trace 68') {
+                resLine.style.color = '#ff3333';
+                resLine.textContent = 'КРИТИЧЕСКИЙ ЛОГ: Прототип «йвА» ожидает перегрузки старого носителя.';
+            } else {
+                resLine.textContent = 'Неизвестная команда. Введите help.';
+            }
+            out.appendChild(resLine);
             out.scrollTop = out.scrollHeight;
         };
         document.getElementById('btnCmdGo').onclick = run;
