@@ -29,13 +29,14 @@
                             E.addM('d', '???', S.devil1, false, () => {
                                 E.unlockBrowser();
                                 document.getElementById('windowOfflineBrowser')?.classList.add('hidden');
+                                document.getElementById('windowMessenger')?.classList.add('hidden');
                                 if (window.initBrowserApp) window.initBrowserApp('school_1290');
                                 window.onSchoolLinkClicked = () => {
                                     document.getElementById('windowBrowser')?.classList.add('hidden');
                                     document.getElementById('windowMessenger')?.classList.add('hidden');
-                                    E.later(() => {
+                                    const launchCrashAndDevil = () => {
                                         E.addM('d', '???', S.devil2);
-                                        E.setChatId('sam');
+                                        E.setChatId('d');
                                         E.openMess();
                                         E.setTimer(15, () => E.over('Время вышло! Вы не успели поссориться с другом...'));
                                         E.setOpt('sam', [{ l: 'Мы больше не друзья!', f: () => {
@@ -57,7 +58,12 @@
                                                 { l: '3. Потому что', f: () => E.over(S.samFail3) }
                                             ]);
                                         }}]);
-                                    }, 1200);
+                                    };
+                                    if (window.triggerBrowserErrorCrash) {
+                                        window.triggerBrowserErrorCrash(launchCrashAndDevil);
+                                    } else {
+                                        launchCrashAndDevil();
+                                    }
                                 };
                             });
                             E.toast('???', 'В следующий раз будь еще осторожнее...');
