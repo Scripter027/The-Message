@@ -11,12 +11,12 @@
     let lastTouchTime = 0;
 
     function getGridMetrics() {
-        const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
+        const isMobile = window.innerWidth <= 768;
         return {
-            cellWidth: isMobile ? 76 : 90,
-            cellHeight: isMobile ? 74 : 90,
+            cellWidth: isMobile ? 82 : 94,
+            cellHeight: isMobile ? 82 : 94,
             margin: isMobile ? 12 : 20,
-            taskbarHeight: isMobile ? 38 : 45
+            taskbarHeight: isMobile ? 44 : 46
         };
     }
 
@@ -92,8 +92,8 @@
             }
 
             if (parentRect.width > 0 && parentRect.height > 0) {
-                const maxLeft = Math.max(margin, parentRect.width - 78);
-                const maxTop = Math.max(margin, parentRect.height - 78 - taskbarHeight);
+                const maxLeft = Math.max(margin, parentRect.width - 82);
+                const maxTop = Math.max(margin, parentRect.height - 82 - taskbarHeight);
                 if (savedPos.left > maxLeft || savedPos.top > maxTop) {
                     savedPos = findFreeGridPosition(appId);
                     window.AppConfig.state.positions[appId] = savedPos;
@@ -123,8 +123,8 @@
         draggedElement = el;
         hasMoved = false;
         const rect = el.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const clientX = e.touches ? e.touches.clientX : e.clientX;
+        const clientY = e.touches ? e.touches.clientY : e.clientY;
         startTouchX = clientX;
         startTouchY = clientY;
         offsetX = clientX - rect.left;
@@ -141,6 +141,7 @@
             if (!hasMoved) {
                 e.preventDefault();
                 const appId = el.getAttribute("data-app-id");
+                if (window.GamePrefs) { window.GamePrefs.playTone(600, 0.03); window.GamePrefs.vibrate(10); }
                 window.openApplicationWindow(appId);
             }
         });
@@ -150,7 +151,8 @@
             if (hasMoved) return;
             const currentTime = new Date().getTime();
             const appId = el.getAttribute("data-app-id");
-            if (lastClickTarget === el && (currentTime - lastClickTime) < 350) {
+            if (lastClickTarget === el && (currentTime - lastClickTime) < 380) {
+                if (window.GamePrefs) { window.GamePrefs.playTone(600, 0.03); window.GamePrefs.vibrate(10); }
                 window.openApplicationWindow(appId);
                 lastClickTime = 0;
             } else {
@@ -163,10 +165,10 @@
     function handleDragMove(e) {
         if (!draggedElement) return;
         const parentRect = desktopMain.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const clientX = e.touches ? e.touches.clientX : e.clientX;
+        const clientY = e.touches ? e.touches.clientY : e.clientY;
 
-        if (Math.abs(clientX - startTouchX) > 6 || Math.abs(clientY - startTouchY) > 6) {
+        if (Math.abs(clientX - startTouchX) > 7 || Math.abs(clientY - startTouchY) > 7) {
             hasMoved = true;
         }
 
@@ -236,7 +238,6 @@
 
     document.addEventListener("mousemove", handleDragMove);
     document.addEventListener("touchmove", handleDragMove, { passive: true });
-
     document.addEventListener("mouseup", handleDragEnd);
     document.addEventListener("touchend", handleDragEnd);
 
@@ -251,6 +252,10 @@
         if (appId === "trash" && window.initTrashApp) { window.initTrashApp(); win = document.getElementById('windowTrash'); }
         if (appId === "explorer" && window.initExplorerApp) { window.initExplorerApp(); win = document.getElementById('windowExplorer'); }
         if (appId === "store" && window.initStoreApp) { window.initStoreApp(); win = document.getElementById('windowStore'); }
+        if (appId === "notes" && window.initNotesApp) { window.initNotesApp(); win = document.getElementById('windowNotes'); }
+        if (appId === "homework" && window.initHomeworkApp) { window.initHomeworkApp(); win = document.getElementById('windowHomework'); }
+        if (appId === "nethack" && window.initNetHackApp) { window.initNetHackApp(); win = document.getElementById('windowNetHack'); }
+        if (appId === "minesweeper" && window.initMinesweeperApp) { window.initMinesweeperApp(); win = document.getElementById('windowMinesweeper'); }
         if (appId === "tetris") {
             if (window.isTetrisEvilMode && window.isTetrisEvilMode()) {
                 if (window.setTetrisPossessed) window.setTetrisPossessed(true);
