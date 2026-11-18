@@ -2,7 +2,7 @@
     window.initChapterFive = function() {
         const E = window.StoryEngine;
         const S = window.StoryDB.ch5;
-        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris'];
+        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris', 'notes'];
         if (window.renderDesktopIcons) window.renderDesktopIcons();
 
         E.setChats({
@@ -11,7 +11,7 @@
             mom: { t: 'Мама', av: '👩', m: [], o: [] },
             sam: { t: 'Бро', av: '👦', m: [], o: [] },
             d: { t: '???', av: '❓', red: true, m: [], o: [] },
-            via: { t: 'вйА', av: '👁️', hide: true, m: [], o: [] }
+            via: { t: 'Неизвестный узел', av: '👁️', hide: true, m: [], o: [] }
         });
 
         let sent = 0;
@@ -20,7 +20,7 @@
             if (sent < 4) return;
             E.setTetrisEvil(true);
             if (window.setTetrisPossessed) window.setTetrisPossessed(true);
-            E.toast('Мысли Айва', 'Все дела завершены. Поторопите ??? в чате или откройте Тетрис...');
+            E.toast('Мысли Айва', 'Все письма отправлены. Откройте Тетрис или напишите ??? в чате...');
             E.setOpt('d', [{ l: 'Поторопить: Ну и долго ты собираешься идти? Я уже не боюсь тебя!', f: () => {
                 E.addM('d', 'Айв', S.provokeIve, true);
                 E.setOpt('d', []);
@@ -39,7 +39,6 @@
             ];
 
             let idx = 0;
-
             const showStepButton = () => {
                 if (idx >= steps.length) {
                     const lastChat = steps[steps.length - 1].chat;
@@ -49,7 +48,6 @@
                     }}]);
                     return;
                 }
-
                 const step = steps[idx];
                 const targetOptChat = idx === 0 ? 'd' : steps[idx - 1].chat;
                 E.setOpt(targetOptChat, [{ l: step.btn, f: () => {
@@ -60,10 +58,8 @@
                     showStepButton();
                 }}]);
             };
-
             showStepButton();
         }
-
         E.setOpt('le', [{ l: 'Написать извинения Ларисе Эдуардовне', f: () => { E.addM('le', 'Айв', S.toTeacher, true); E.setOpt('le', []); onSent(); } }]);
         E.setOpt('dad', [{ l: 'Написать прощание Папе', f: () => { E.addM('dad', 'Айв', S.toDad, true); E.setOpt('dad', []); onSent(); } }]);
         E.setOpt('mom', [{ l: 'Написать прощание Маме', f: () => { E.addM('mom', 'Айв', S.toMom, true); E.setOpt('mom', []); onSent(); } }]);
@@ -73,31 +69,40 @@
             const chats = E.getChats();
             if (!chats.via || !chats.via.hide) return;
             E.setOpt('d', []);
-            chats.via.hide = false;
-            E.addM('via', 'вйА', S.viaMsg);
-            E.toast('вйА', S.viaMsg);
-            E.setOpt('via', [
-                { l: 'Открыть файл и посмотреть содержимое', f: () => E.bsod(S.bsodFile) },
-                { l: 'Не открывать и сразу отправить файл ???', f: () => {
-                    E.setOpt('via', []);
-                    E.setChatId('d');
-                    E.addM('d', 'Айв', S.sendFileIve, true);
-                    E.later(() => E.addM('d', '???', S.devilFile1), 2500);
-                    E.later(() => E.addM('d', '???', S.devilFile2), 6000);
-                    E.later(() => E.addM('d', '???', S.devilFile3), 9500);
-                    E.later(() => {
-                        if (E.getGraveClicks() >= 68) {
-                            if (window.triggerMadEnding) {
-                                window.triggerMadEnding(() => E.win(5, 'Безумная концовка: Настоящий Дьявол во Плоти.'));
+            if (!window.AppConfig.state.installed.includes('nethack')) {
+                window.AppConfig.state.installed.push('nethack');
+                if (window.renderDesktopIcons) window.renderDesktopIcons();
+            }
+            E.toast('Система', 'Обнаружен скрытый канал! Откройте «Шлюз 4x4», чтобы перехватить пакет.');
+            window.onNetHackCompleted = () => {
+                document.getElementById('windowNetHack')?.classList.add('hidden');
+                chats.via.hide = false;
+                E.addM('via', 'Неизвестный узел', S.viaMsg);
+                E.openMess();
+                E.setChatId('via');
+                E.setOpt('via', [
+                    { l: 'Открыть файл и посмотреть содержимое', f: () => E.bsod(S.bsodFile) },
+                    { l: 'Не открывать и сразу отправить файл ???', f: () => {
+                        E.setOpt('via', []);
+                        E.setChatId('d');
+                        E.addM('d', 'Айв', S.sendFileIve, true);
+                        E.later(() => E.addM('d', '???', S.devilFile1), 2200);
+                        E.later(() => E.addM('d', '???', S.devilFile2), 5200);
+                        E.later(() => E.addM('d', '???', S.devilFile3), 8200);
+                        E.later(() => {
+                            if (E.getGraveClicks() >= 68) {
+                                if (window.triggerMadEnding) {
+                                    window.triggerMadEnding(() => E.win(5, 'Безумная концовка: Настоящий Дьявол во Плоти.'));
+                                } else {
+                                    E.win(5, 'Безумная концовка: Настоящий Дьявол во Плоти.');
+                                }
                             } else {
-                                E.win(5, 'Безумная концовка: Настоящий Дьявол во Плоти.');
+                                E.win(5, S.goodEnding);
                             }
-                        } else {
-                            E.win(5, S.goodEnding);
-                        }
-                    }, 15000);
-                }}
-            ]);
+                        }, 13000);
+                    }}
+                ]);
+            };
         };
 
         E.toast('Мысли Айва', 'Откройте Mess и напишите всем, кого обидели...');
