@@ -6,7 +6,8 @@ const videos = [
 const translations = {
     ru: {
         prompt: "НАЖМИТЕ НА ЭКРАН ДЛЯ СТАРТА",
-        start: "Начать игру",
+        continue: "Продолжить",
+        start: "Главы",
         free: "Свободная игра",
         settings: "Настройки",
         settings_title: "Настройки",
@@ -15,6 +16,16 @@ const translations = {
         graphics_med: "Средняя",
         graphics_high: "Высокая",
         language: "Язык:",
+        sound: "Звуки:",
+        vibration: "Вибрация:",
+        text_speed: "Текст:",
+        crt_lines: "Полосы ЭЛТ:",
+        brightness: "Яркость:",
+        on: "Вкл",
+        off: "Выкл",
+        speed_slow: "Медленно",
+        speed_norm: "Норма",
+        speed_fast: "Быстро",
         clear_data: "Стереть все данные",
         back: "Назад",
         chapters_title: "Главы",
@@ -31,7 +42,8 @@ const translations = {
     },
     en: {
         prompt: "CLICK ON SCREEN TO START",
-        start: "Start Game",
+        continue: "Continue",
+        start: "Chapters",
         free: "Free Play",
         settings: "Settings",
         settings_title: "Settings",
@@ -40,6 +52,16 @@ const translations = {
         graphics_med: "Medium",
         graphics_high: "High",
         language: "Language:",
+        sound: "Sound:",
+        vibration: "Vibration:",
+        text_speed: "Text Speed:",
+        crt_lines: "CRT Lines:",
+        brightness: "Brightness:",
+        on: "On",
+        off: "Off",
+        speed_slow: "Slow",
+        speed_norm: "Normal",
+        speed_fast: "Fast",
         clear_data: "Wipe all data",
         back: "Back",
         chapters_title: "Chapters",
@@ -59,14 +81,97 @@ const translations = {
 const gfxLevels = ['low', 'medium', 'high'];
 const gfxLangKeys = { low: 'graphics_low', medium: 'graphics_med', high: 'graphics_high' };
 const langOrder = ['en', 'ru'];
+const speedLevels = ['slow', 'normal', 'fast'];
+const speedLangKeys = { slow: 'speed_slow', normal: 'speed_norm', fast: 'speed_fast' };
+const brightLevels = [0.75, 0.9, 1.0, 1.15, 1.3];
 
-let currentGfxIndex = 2;
-let currentLangIndex = 1;
+const savedPrefs = (() => {
+    try {
+        return JSON.parse(localStorage.getItem('kpr_user_prefs') || '{}');
+    } catch (e) {
+        return {};
+    }
+})();
+
+let currentGfxIndex = typeof savedPrefs.gfx === 'number' ? savedPrefs.gfx : 2;
+let currentLangIndex = typeof savedPrefs.lang === 'number' ? savedPrefs.lang : 1;
+let soundEnabled = savedPrefs.sound !== undefined ? !!savedPrefs.sound : true;
+let vibrationEnabled = savedPrefs.vib !== undefined ? !!savedPrefs.vib : true;
+let currentSpeedIndex = typeof savedPrefs.speed === 'number' ? savedPrefs.speed : 1;
+let crtEnabled = savedPrefs.crt !== undefined ? !!savedPrefs.crt : true;
+let currentBrightIndex = typeof savedPrefs.bright === 'number' ? savedPrefs.bright : 2;
+
 let currentVideoIndex = 0;
 let isGameStarted = false;
 let isIntroFinished = false;
 let settingsContext = 'menu';
+let audioCtx = null;
 
+window.GamePrefs = {
+    isSoundOn: () => soundEnabled,
+    isVibOn: () => vibrationEnabled,
+    getTextDelay: () => (currentSpeedIndex === 0 ? 42 : currentSpeedIndex === 2 ? 12 : 26),
+    getSavedChapter: () => Math.max(1, Math.min(5, parseInt(localStorage.getItem('kpr_saved_chapter') || '1', 10))),
+    saveChapterProgress: (ch) => {
+        const prev = window.GamePrefs.getSavedChapter();
+        if (ch > prev) {
+            localStorage.setItem('kpr_saved_chapter', String(Math.min(5, ch)));
+        }
+        updateContinueButton();
+    },
+    playTone: (freq = 520, duration = 0.045, type = 'square', vol = 0.04) => {
+        if (!soundEnabled) return;
+        try {
+            if (!audioCtx) {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (Ctx) audioCtx = new Ctx();
+            }
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+    },
+    vibrate: (ms = 14) => {
+        if (!vibrationEnabled) return;
+        if (navigator.vibrate) {
+            try { navigator.vibrate(ms); } catch (e) {}
+        }
+    }
+};
+
+function saveUserPrefs() {
+    localStorage.setItem('kpr_user_prefs', JSON.stringify({
+        gfx: currentGfxIndex,
+        lang: currentLangIndex,
+        sound: soundEnabled,
+        vib: vibrationEnabled,
+        speed: currentSpeedIndex,
+        crt: crtEnabled,
+        bright: currentBrightIndex
+    }));
+}
+
+function updateContinueButton() {
+    const btn = document.getElementById('btnContinue');
+    if (!btn) return;
+    const savedCh = window.GamePrefs.getSavedChapter();
+    const lang = langOrder[currentLangIndex] || 'ru';
+    if (savedCh > 1) {
+        btn.style.display = 'inline-block';
+        btn.textContent = lang === 'ru' ? `Продолжить (Глава ${savedCh})` : `Continue (Ch. ${savedCh})`;
+    } else {
+        btn.style.display = 'none';
+    }
+}
 const videoContainer = document.getElementById('videoContainer');
 const videoElement = document.getElementById('introVideo');
 const mainMenu = document.getElementById('mainMenu');
@@ -79,20 +184,30 @@ const mainButtonsList = document.getElementById('mainButtonsList');
 const panelSettings = document.getElementById('panelSettings');
 const panelStart = document.getElementById('panelStart');
 
+function applyVisualPrefs() {
+    document.body.classList.toggle('no-crt', !crtEnabled);
+    const bVal = brightLevels[currentBrightIndex] || 1.0;
+    document.documentElement.style.setProperty('--crt-brightness', String(bVal));
+}
+
 function initGameLaunch() {
     if (isGameStarted) return;
     isGameStarted = true;
+    window.GamePrefs.playTone(620, 0.06);
+    window.GamePrefs.vibrate(18);
     startPrompt.classList.add('fade-out');
     setTimeout(() => {
         startPrompt.style.display = 'none';
         playNextVideo();
         setupSkipListeners();
-        updateGraphics('high');
+        updateGraphics(gfxLevels[currentGfxIndex] || 'high');
+        applyVisualPrefs();
         if (window.startClock) {
             try { window.startClock(); } catch(e){}
         }
-    }, 500);
+    }, 450);
 }
+
 function playNextVideo() {
     if (isIntroFinished) return;
     if (currentVideoIndex < videos.length) {
@@ -151,7 +266,7 @@ function transitionToMenu() {
     videoElement.pause();
     videoElement.removeAttribute('src');
     videoElement.load();
-    videoContainer.style.transition = 'opacity 1.0s ease';
+    videoContainer.style.transition = 'opacity 0.8s ease';
     videoContainer.style.opacity = '0';
     setTimeout(() => {
         videoContainer.style.display = 'none';
@@ -160,14 +275,14 @@ function transitionToMenu() {
             mainMenu.classList.add('visible');
             unlockFirstChapterButton();
             if (window.syncChapterTitles) window.syncChapterTitles();
-            syncSettingsUI();
+            switchLanguage(langOrder[currentLangIndex] || 'ru');
+            updateContinueButton();
             if (window.YandexModule) {
                 window.YandexModule.gameReady();
             }
-        }, 50);
-    }, 1000);
+        }, 40);
+    }, 800);
 }
-
 function unlockFirstChapterButton() {
     const grid = panelStart.querySelector(".chapters-grid");
     if (!grid) return;
@@ -192,7 +307,7 @@ function openPanel(clickedButton, targetPanel) {
     }
     syncSettingsUI();
     targetPanel.classList.remove('hidden');
-    setTimeout(() => targetPanel.classList.add('visible'), 50);
+    setTimeout(() => targetPanel.classList.add('visible'), 30);
 }
 
 function closeAllPanels() {
@@ -207,44 +322,42 @@ function closeAllPanels() {
             if (!panel.classList.contains('visible')) {
                 panel.classList.add('hidden');
             }
-        }, 450);
+        }, 360);
     });
 }
+
 function syncSettingsUI() {
     const lang = langOrder[currentLangIndex] || 'ru';
+    const t = translations[lang];
     const gfx = gfxLevels[currentGfxIndex] || 'high';
-    const gfxText = translations[lang][gfxLangKeys[gfx]];
-    const langText = lang === 'ru' ? 'Русский' : 'English';
+    const spd = speedLevels[currentSpeedIndex] || 'normal';
+    const brightPct = Math.round((brightLevels[currentBrightIndex] || 1.0) * 100) + '%';
 
-    ['menuGfxValue', 'desktopGfxValue'].forEach(id => {
+    const setVal = (ids, val) => ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = gfxText;
+        if (el) el.textContent = val;
     });
-
-    ['menuLangValue', 'desktopLangValue'].forEach(id => {
+    const setDis = (ids, dis) => ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = langText;
+        if (el) el.disabled = dis;
     });
 
-    ['menuGfxPrev', 'desktopGfxPrev'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.disabled = currentGfxIndex <= 0;
-    });
+    setVal(['menuGfxValue', 'desktopGfxValue'], t[gfxLangKeys[gfx]]);
+    setVal(['menuLangValue', 'desktopLangValue'], lang === 'ru' ? 'Русский' : 'English');
+    setVal(['menuSoundValue', 'desktopSoundValue'], soundEnabled ? t.on : t.off);
+    setVal(['menuVibValue', 'desktopVibValue'], vibrationEnabled ? t.on : t.off);
+    setVal(['menuSpeedValue', 'desktopSpeedValue'], t[speedLangKeys[spd]]);
+    setVal(['menuCrtValue', 'desktopCrtValue'], crtEnabled ? t.on : t.off);
+    setVal(['menuBrightValue', 'desktopBrightValue'], brightPct);
 
-    ['menuGfxNext', 'desktopGfxNext'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.disabled = currentGfxIndex >= gfxLevels.length - 1;
-    });
-
-    ['menuLangPrev', 'desktopLangPrev'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.disabled = currentLangIndex <= 0;
-    });
-
-    ['menuLangNext', 'desktopLangNext'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.disabled = currentLangIndex >= langOrder.length - 1;
-    });
+    setDis(['menuGfxPrev', 'desktopGfxPrev'], currentGfxIndex <= 0);
+    setDis(['menuGfxNext', 'desktopGfxNext'], currentGfxIndex >= gfxLevels.length - 1);
+    setDis(['menuLangPrev', 'desktopLangPrev'], currentLangIndex <= 0);
+    setDis(['menuLangNext', 'desktopLangNext'], currentLangIndex >= langOrder.length - 1);
+    setDis(['menuSpeedPrev', 'desktopSpeedPrev'], currentSpeedIndex <= 0);
+    setDis(['menuSpeedNext', 'desktopSpeedNext'], currentSpeedIndex >= speedLevels.length - 1);
+    setDis(['menuBrightPrev', 'desktopBrightPrev'], currentBrightIndex <= 0);
+    setDis(['menuBrightNext', 'desktopBrightNext'], currentBrightIndex >= brightLevels.length - 1);
 }
 
 function switchLanguage(lang) {
@@ -257,11 +370,13 @@ function switchLanguage(lang) {
             el.textContent = translations[lang][key];
         }
     });
+    updateContinueButton();
     if (window.syncChapterTitles) window.syncChapterTitles();
     if (window.renderDesktopIcons) window.renderDesktopIcons();
     if (window.renderExplorerContents) window.renderExplorerContents();
     if (window.renderTrashContents) window.renderTrashContents();
     if (window.renderStoreContents) window.renderStoreContents();
+    saveUserPrefs();
     syncSettingsUI();
 }
 
@@ -270,6 +385,7 @@ function updateGraphics(level) {
     if (idx !== -1) currentGfxIndex = idx;
     document.body.classList.remove('gfx-low', 'gfx-medium', 'gfx-high');
     document.body.classList.add('gfx-' + level);
+    saveUserPrefs();
     syncSettingsUI();
 }
 
@@ -289,13 +405,9 @@ function launchChapterOneProcess() {
                     desktopEnv.classList.remove('hidden');
                     setTimeout(() => {
                         desktopEnv.classList.add('visible');
-                        if (window.YandexModule) {
-                            window.YandexModule.startGameplay();
-                        }
-                        if (window.initChapterOne) {
-                            window.initChapterOne();
-                        }
-                    }, 50);
+                        if (window.YandexModule) window.YandexModule.startGameplay();
+                        if (window.initChapterOne) window.initChapterOne();
+                    }, 40);
                 });
             }
         };
@@ -304,7 +416,7 @@ function launchChapterOneProcess() {
         } else {
             startChapter();
         }
-    }, 1000);
+    }, 700);
 }
 
 function showOverlayMessage(textKey) {
@@ -313,13 +425,12 @@ function showOverlayMessage(textKey) {
         creditsText.textContent = translations[lang][textKey];
     }
     creditsOverlay.classList.remove('hidden');
-    setTimeout(() => creditsOverlay.classList.add('visible'), 50);
+    setTimeout(() => creditsOverlay.classList.add('visible'), 40);
     setTimeout(() => {
         creditsOverlay.classList.remove('visible');
-        setTimeout(() => creditsOverlay.classList.add('hidden'), 500);
-    }, 3000);
+        setTimeout(() => creditsOverlay.classList.add('hidden'), 400);
+    }, 2500);
 }
-
 document.addEventListener('click', function(e) {
     const target = e.target;
     const btn = target.closest("button");
@@ -329,55 +440,99 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    if (btn && (btn.id === 'menuGfxPrev' || btn.id === 'desktopGfxPrev')) {
+    if (!btn) return;
+    window.GamePrefs.playTone(btn.classList.contains('back-btn') ? 380 : 540, 0.035);
+    window.GamePrefs.vibrate(10);
+
+    const id = btn.id;
+    if (id === 'menuGfxPrev' || id === 'desktopGfxPrev') {
         if (currentGfxIndex > 0) updateGraphics(gfxLevels[currentGfxIndex - 1]);
         return;
     }
-
-    if (btn && (btn.id === 'menuGfxNext' || btn.id === 'desktopGfxNext')) {
+    if (id === 'menuGfxNext' || id === 'desktopGfxNext') {
         if (currentGfxIndex < gfxLevels.length - 1) updateGraphics(gfxLevels[currentGfxIndex + 1]);
         return;
     }
-
-    if (btn && (btn.id === 'menuLangPrev' || btn.id === 'desktopLangPrev')) {
+    if (id === 'menuLangPrev' || id === 'desktopLangPrev') {
         if (currentLangIndex > 0) switchLanguage(langOrder[currentLangIndex - 1]);
         return;
     }
-
-    if (btn && (btn.id === 'menuLangNext' || btn.id === 'desktopLangNext')) {
+    if (id === 'menuLangNext' || id === 'desktopLangNext') {
         if (currentLangIndex < langOrder.length - 1) switchLanguage(langOrder[currentLangIndex + 1]);
         return;
     }
-    
-    if (btn && btn.id === 'btnSettings') {
+    if (id === 'menuSoundPrev' || id === 'menuSoundNext' || id === 'desktopSoundPrev' || id === 'desktopSoundNext') {
+        soundEnabled = !soundEnabled;
+        saveUserPrefs();
+        syncSettingsUI();
+        return;
+    }
+    if (id === 'menuVibPrev' || id === 'menuVibNext' || id === 'desktopVibPrev' || id === 'desktopVibNext') {
+        vibrationEnabled = !vibrationEnabled;
+        if (vibrationEnabled) window.GamePrefs.vibrate(25);
+        saveUserPrefs();
+        syncSettingsUI();
+        return;
+    }
+    if (id === 'menuSpeedPrev' || id === 'desktopSpeedPrev') {
+        if (currentSpeedIndex > 0) { currentSpeedIndex--; saveUserPrefs(); syncSettingsUI(); }
+        return;
+    }
+    if (id === 'menuSpeedNext' || id === 'desktopSpeedNext') {
+        if (currentSpeedIndex < speedLevels.length - 1) { currentSpeedIndex++; saveUserPrefs(); syncSettingsUI(); }
+        return;
+    }
+    if (id === 'menuCrtPrev' || id === 'menuCrtNext' || id === 'desktopCrtPrev' || id === 'desktopCrtNext') {
+        crtEnabled = !crtEnabled;
+        applyVisualPrefs();
+        saveUserPrefs();
+        syncSettingsUI();
+        return;
+    }
+    if (id === 'menuBrightPrev' || id === 'desktopBrightPrev') {
+        if (currentBrightIndex > 0) { currentBrightIndex--; applyVisualPrefs(); saveUserPrefs(); syncSettingsUI(); }
+        return;
+    }
+    if (id === 'menuBrightNext' || id === 'desktopBrightNext') {
+        if (currentBrightIndex < brightLevels.length - 1) { currentBrightIndex++; applyVisualPrefs(); saveUserPrefs(); syncSettingsUI(); }
+        return;
+    }
+    if (id === 'btnContinue') {
+        const ch = window.GamePrefs.getSavedChapter();
+        if (ch >= 2 && window.launchStoryChapter) {
+            mainMenu.classList.remove('visible');
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                window.triggerLoading(() => window.launchStoryChapter(ch));
+            }, 450);
+        } else {
+            launchChapterOneProcess();
+        }
+        return;
+    }
+    if (id === 'btnSettings') {
         settingsContext = 'menu';
         openPanel(btn, panelSettings);
         return;
     }
-    
-    if (btn && btn.id === 'btnStart') {
+    if (id === 'btnStart') {
         settingsContext = 'menu';
         openPanel(btn, panelStart);
         return;
     }
-    
-    if (btn && btn.classList.contains('chapter-btn-active')) {
+    if (btn.classList.contains('chapter-btn-active')) {
         closeAllPanels();
         launchChapterOneProcess();
         return;
     }
-    
-    if (btn && btn.id === 'btnCredits') {
+    if (id === 'btnCredits') {
         showOverlayMessage('credits_soon');
         return;
     }
-    
-    if (btn && btn.id === 'btnFree') {
+    if (id === 'btnFree') {
         if (window.resetStoryChaptersState) window.resetStoryChaptersState();
         if (window.stopChapterOneState) window.stopChapterOneState();
-        if (window.AppConfig) {
-            window.AppConfig.load();
-        }
+        if (window.AppConfig) window.AppConfig.load();
         mainMenu.classList.remove('visible');
         setTimeout(() => {
             mainMenu.classList.add('hidden');
@@ -390,13 +545,9 @@ document.addEventListener('click', function(e) {
                         desktopEnv.classList.remove('hidden');
                         setTimeout(() => {
                             desktopEnv.classList.add('visible');
-                            if (window.renderDesktopIcons) {
-                                window.renderDesktopIcons();
-                            }
-                            if (window.YandexModule) {
-                                window.YandexModule.startGameplay();
-                            }
-                        }, 50);
+                            if (window.renderDesktopIcons) window.renderDesktopIcons();
+                            if (window.YandexModule) window.YandexModule.startGameplay();
+                        }, 40);
                     });
                 }
             };
@@ -405,23 +556,19 @@ document.addEventListener('click', function(e) {
             } else {
                 startFreePlay();
             }
-        }, 1000);
+        }, 700);
         return;
     }
-    
-    if (btn && btn.classList.contains('back-btn')) {
+    if (btn.classList.contains('back-btn')) {
         closeAllPanels();
         return;
     }
-    
-    if (btn && btn.id === 'btnClearData') {
-        if (window.AppConfig) {
-            window.AppConfig.resetToDesktopDefault();
-        }
-        if (window.StoryEngine && window.StoryEngine.resetGraveClicks) {
-            window.StoryEngine.resetGraveClicks();
-        }
+    if (id === 'btnClearData') {
+        if (window.AppConfig) window.AppConfig.resetToDesktopDefault();
+        if (window.StoryEngine && window.StoryEngine.resetGraveClicks) window.StoryEngine.resetGraveClicks();
         localStorage.removeItem('kpr_dino_highscore');
+        localStorage.removeItem('kpr_saved_chapter');
+        updateContinueButton();
         showOverlayMessage('clear_data');
         return;
     }
@@ -442,6 +589,8 @@ window.addEventListener('keydown', function onAnyKeyStart(e) {
     initGameLaunch();
 });
 
+applyVisualPrefs();
+updateContinueButton();
 window.switchLanguage = switchLanguage;
 window.updateGraphics = updateGraphics;
 window.syncSettingsUI = syncSettingsUI;
