@@ -41,7 +41,8 @@
                 <img src="logo.png" alt="The Message" class="menu-logo">
             </div>
             <div class="buttons-list" id="mainButtonsList">
-                <button class="menu-btn" id="btnStart" data-lang="start">Начать игру</button>
+                <button class="menu-btn" id="btnContinue" data-lang="continue">Продолжить</button>
+                <button class="menu-btn" id="btnStart" data-lang="start">Главы</button>
                 <button class="menu-btn" id="btnFree" data-lang="free">Свободная игра</button>
                 <button class="menu-btn" id="btnSettings" data-lang="settings">Настройки</button>
                 <button class="menu-btn" id="btnCredits" data-lang="credits">Титры</button>
@@ -50,28 +51,69 @@
 
         <div class="side-panel hidden" id="panelSettings">
             <h2 class="panel-title" data-lang="settings_title">Настройки</h2>
-            <div class="setting-row">
-                <span class="setting-label" data-lang="graphics">Графика:</span>
-                <div class="arrow-selector">
-                    <button class="arrow-btn" id="menuGfxPrev">&lt;</button>
-                    <div class="arrow-value" id="menuGfxValue">Высокая</div>
-                    <button class="arrow-btn" id="menuGfxNext" disabled>&gt;</button>
+            <div class="settings-scroll">
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="graphics">Графика:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuGfxPrev">&lt;</button>
+                        <div class="arrow-value" id="menuGfxValue">Высокая</div>
+                        <button class="arrow-btn" id="menuGfxNext" disabled>&gt;</button>
+                    </div>
                 </div>
-            </div>
-            <div class="setting-row">
-                <span class="setting-label" data-lang="language">Язык:</span>
-                <div class="arrow-selector">
-                    <button class="arrow-btn" id="menuLangPrev">&lt;</button>
-                    <div class="arrow-value" id="menuLangValue">Русский</div>
-                    <button class="arrow-btn" id="menuLangNext" disabled>&gt;</button>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="language">Язык:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuLangPrev">&lt;</button>
+                        <div class="arrow-value" id="menuLangValue">Русский</div>
+                        <button class="arrow-btn" id="menuLangNext" disabled>&gt;</button>
+                    </div>
                 </div>
-            </div>
-            <div class="setting-row">
-                <button class="action-btn text-danger" id="btnClearData" data-lang="clear_data">Стереть все данные</button>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="sound">Звуки:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuSoundPrev">&lt;</button>
+                        <div class="arrow-value" id="menuSoundValue">Вкл</div>
+                        <button class="arrow-btn" id="menuSoundNext">&gt;</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="vibration">Вибрация:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuVibPrev">&lt;</button>
+                        <div class="arrow-value" id="menuVibValue">Вкл</div>
+                        <button class="arrow-btn" id="menuVibNext">&gt;</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="text_speed">Скорость текста:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuSpeedPrev">&lt;</button>
+                        <div class="arrow-value" id="menuSpeedValue">Норма</div>
+                        <button class="arrow-btn" id="menuSpeedNext">&gt;</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="crt_lines">Полосы ЭЛТ:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuCrtPrev">&lt;</button>
+                        <div class="arrow-value" id="menuCrtValue">Вкл</div>
+                        <button class="arrow-btn" id="menuCrtNext">&gt;</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label" data-lang="brightness">Яркость:</span>
+                    <div class="arrow-selector">
+                        <button class="arrow-btn" id="menuBrightPrev">&lt;</button>
+                        <div class="arrow-value" id="menuBrightValue">100%</div>
+                        <button class="arrow-btn" id="menuBrightNext">&gt;</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <button class="action-btn text-danger" id="btnClearData" data-lang="clear_data">Стереть все данные</button>
+                </div>
             </div>
             <button class="menu-btn back-btn" data-lang="back">Назад</button>
         </div>
-
         <div class="side-panel hidden" id="panelStart">
             <h2 class="panel-title" data-lang="chapters_title">Главы</h2>
             <div class="chapters-grid">
@@ -134,6 +176,46 @@
                         </div>
                     </div>
                     <div class="setting-row">
+                        <span class="setting-label" data-lang="sound">Звуки:</span>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="desktopSoundPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopSoundValue">Вкл</div>
+                            <button class="arrow-btn" id="desktopSoundNext">&gt;</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="vibration">Вибрация:</span>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="desktopVibPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopVibValue">Вкл</div>
+                            <button class="arrow-btn" id="desktopVibNext">&gt;</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="text_speed">Скорость текста:</span>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="desktopSpeedPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopSpeedValue">Норма</div>
+                            <button class="arrow-btn" id="desktopSpeedNext">&gt;</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="crt_lines">Полосы ЭЛТ:</span>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="desktopCrtPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopCrtValue">Вкл</div>
+                            <button class="arrow-btn" id="desktopCrtNext">&gt;</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label" data-lang="brightness">Яркость:</span>
+                        <div class="arrow-selector">
+                            <button class="arrow-btn" id="desktopBrightPrev">&lt;</button>
+                            <div class="arrow-value" id="desktopBrightValue">100%</div>
+                            <button class="arrow-btn" id="desktopBrightNext">&gt;</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
                         <button class="action-btn text-danger" id="btnDesktopClearData" data-lang="clear_data">Стереть все данные</button>
                     </div>
                 </div>
@@ -168,7 +250,7 @@
             </div>
         </div>
         <div class="taskbar">
-            <div class="taskbar-left"></div>
+            <div class="taskbar-left" id="taskbarMinimized"></div>
             <div class="taskbar-right">
                 <button class="taskbar-btn" id="btnDesktopSettings" data-lang="settings">Настройки</button>
                 <button class="taskbar-btn" id="btnDesktopExit" data-lang="exit">Выход</button>
