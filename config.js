@@ -3,12 +3,16 @@ window.AppConfig = {
         trash: { id: "trash", nameRu: "Корзина", nameEn: "Recycle Bin", icon: "🗑️", type: "system" },
         explorer: { id: "explorer", nameRu: "Проводник", nameEn: "File Explorer", icon: "📁", type: "system" },
         store: { id: "store", nameRu: "Магазин", nameEn: "App Store", icon: "🏪", type: "system" },
+        notes: { id: "notes", nameRu: "Заметки", nameEn: "Notes", icon: "📝", type: "system" },
+        homework: { id: "homework", nameRu: "Школа ДЗ", nameEn: "School HW", icon: "📚", type: "system" },
+        nethack: { id: "nethack", nameRu: "Шлюз 4x4", nameEn: "Gateway 4x4", icon: "🔌", type: "system" },
         tetris: { id: "tetris", nameRu: "Тетрис", nameEn: "Tetris", icon: "🧱", type: "game" },
         dino: { id: "dino", nameRu: "Динозаврик", nameEn: "Dino Game", icon: "🦖", type: "game" },
+        minesweeper: { id: "minesweeper", nameRu: "Сапёр", nameEn: "Minesweeper", icon: "💣", type: "game" },
         messenger: { id: "messenger", nameRu: "Mess", nameEn: "Mess", icon: "💬", type: "system" }
     },
     state: {
-        installed: ["trash", "explorer", "store"],
+        installed: ["trash", "explorer", "store", "notes", "minesweeper"],
         positions: {},
         trashContents: []
     },
@@ -28,19 +32,14 @@ window.AppConfig = {
         }
     },
     resetToDesktopDefault: function() {
-        this.state.installed = ["trash", "explorer", "store"];
+        this.state.installed = ["trash", "explorer", "store", "notes", "minesweeper"];
         this.state.positions = {};
         this.state.trashContents = [];
         this.save();
     },
     setupChapterOneMode: function() {
-        this.state.installed = ["trash", "explorer", "messenger", "store"];
-        this.state.positions = {
-            "trash": { left: 20, top: 20 },
-            "explorer": { left: 20, top: 110 },
-            "messenger": { left: 20, top: 200 },
-            "store": { left: 20, top: 290 }
-        };
+        this.state.installed = ["trash", "explorer", "messenger", "store", "notes", "homework"];
+        this.state.positions = {};
         this.state.trashContents = [];
     }
 };
