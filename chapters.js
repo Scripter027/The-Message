@@ -85,10 +85,14 @@
         clearTimer: () => clearTimer(),
         toast: (from, text) => {
             document.getElementById('activeMessNotify')?.remove();
-            const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
+            if (window.GamePrefs) {
+                window.GamePrefs.playTone(700, 0.045);
+                window.GamePrefs.vibrate(14);
+            }
+            const isMobile = window.innerWidth <= 768;
             const d = document.createElement('div');
             d.id = 'activeMessNotify';
-            d.style.cssText = `position:fixed;bottom:${isMobile ? '46px' : '54px'};right:${isMobile ? '12px' : '18px'};max-width:${isMobile ? 'calc(100vw - 24px)' : '320px'};background:#000;border:2px solid currentColor;padding:10px 14px;font-family:Russo One,sans-serif;z-index:12000;cursor:pointer;`;
+            d.style.cssText = `position:fixed;bottom:${isMobile ? '50px' : '54px'};right:${isMobile ? '12px' : '18px'};max-width:${isMobile ? 'calc(100vw - 24px)' : '330px'};background:#000;border:2px solid currentColor;padding:10px 14px;font-family:Russo One,sans-serif;z-index:12000;cursor:pointer;`;
             d.style.color = document.body.classList.contains('theme-mom') ? '#ff66b2' : '#00ff66';
             d.innerHTML = `<b>${from}</b><div style="font-size:0.78rem;margin-top:3px;">${text}</div>`;
             d.onclick = () => {
@@ -104,6 +108,9 @@
             if (window.triggerGameOverScreen) window.triggerGameOverScreen(txt, failedCh);
         },
         win: (ch, txt) => {
+            if (window.GamePrefs && ch < 5) {
+                window.GamePrefs.saveChapterProgress(ch + 1);
+            }
             resetAllStoryState();
             if (window.triggerChapterCompleteScreen) window.triggerChapterCompleteScreen(ch, txt);
         },
@@ -147,7 +154,6 @@
         if (window.resetExtraAppsState) window.resetExtraAppsState();
     }
     window.resetStoryChaptersState = resetAllStoryState;
-
     function syncTitles() {
         const grid = document.querySelector('#panelStart .chapters-grid');
         if (!grid || !window.StoryDB) return;
@@ -190,8 +196,9 @@
         setTimeout(() => {
             mm.classList.add('hidden');
             window.triggerLoading(() => launchCh(ch));
-        }, 500);
+        }, 400);
     }, true);
+
     function openNativeMess() {
         const w = window.ensureMessengerWindow ? window.ensureMessengerWindow() : document.getElementById('windowMessenger');
         if (!w) return;
@@ -243,7 +250,6 @@
             };
             l.appendChild(it);
         });
-
         if (!chatId || !chats[chatId]) {
             a.innerHTML = `<div style="color:${accent};opacity:0.55;text-align:center;margin:auto;font-size:0.8rem;padding:12px;">Выберите диалог слева</div>`;
             return;
@@ -257,7 +263,7 @@
                 <button id="btnStoryMessBack" style="background:transparent;border:1px solid ${curColor};color:${curColor};padding:2px 8px;font-family:Russo One,sans-serif;font-size:0.68rem;cursor:pointer;">Назад</button>
             </div>
             <div id="nativeLogs" style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;"></div>
-            <div id="nativeOpts" style="padding:6px 8px;display:flex;flex-direction:column;gap:5px;border-top:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.85);flex-shrink:0;max-height:46%;overflow-y:auto;"></div>
+            <div id="nativeOpts" style="padding:6px 8px;display:flex;flex-direction:column;gap:5px;border-top:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.85);flex-shrink:0;max-height:48%;overflow-y:auto;"></div>
         `;
         document.getElementById('btnStoryMessBack').onclick = () => {
             chatId = null;
@@ -278,7 +284,7 @@
 
         cur.o.forEach(opt => {
             const b = document.createElement('button');
-            b.style.cssText = `background:transparent;border:1px solid ${curColor};color:${curColor};padding:6px 8px;text-align:left;cursor:pointer;font-family:Russo One,sans-serif;font-size:0.74rem;line-height:1.25;`;
+            b.style.cssText = `background:transparent;border:1px solid ${curColor};color:${curColor};padding:7px 8px;text-align:left;cursor:pointer;font-family:Russo One,sans-serif;font-size:0.74rem;line-height:1.25;`;
             b.textContent = opt.l;
             b.onclick = opt.f;
             ob.appendChild(b);
@@ -292,7 +298,7 @@
             win.id = 'windowOfflineBrowser';
             win.className = 'desktop-window';
             win.style.width = 'min(460px, 92vw)';
-            win.innerHTML = `<div class="window-header"><span class="window-title">Браузер — Нет сети</span><button class="window-close-btn" id="clsOffBr">X</button></div><div class="window-content" style="text-align:center;padding:24px;gap:12px;"><div style="font-size:2.4rem;">🦖</div><div style="font-size:1rem;">Нет подключения к Интернету</div><div style="font-size:0.8rem;opacity:0.75;">Проверьте сетевой кабель или дождитесь входящей ссылки...</div></div>`;
+            win.innerHTML = `<div class="window-header"><span class="window-title">Браузер — Нет сети</span><button class="window-close-btn" id="clsOffBr">X</button></div><div class="window-content" style="text-align:center;padding:24px;gap:12px;"><div style="font-size:2.4rem;">🦖</div><div style="font-size:1rem;">Нет подключения к Интернету</div><div style="font-size:0.8rem;opacity:0.75;">Сетевой шлюз заблокирован извне. Проверьте сообщения или откройте «Шлюз 4x4»...</div></div>`;
             document.querySelector('.desktop-main')?.appendChild(win);
             document.getElementById('clsOffBr').onclick = () => win.classList.add('hidden');
             if (window.makeWindowDraggable) window.makeWindowDraggable(win);
@@ -319,7 +325,7 @@
             window.AppConfig.allApps.browser = { id: 'browser', nameRu: 'Браузер', nameEn: 'Browser', icon: '🌐', type: 'system' };
             window.AppConfig.allApps.slides = { id: 'slides', nameRu: 'Проект.ppt', nameEn: 'Project.ppt', icon: '📊', type: 'system' };
             window.AppConfig.allApps.reports = { id: 'reports', nameRu: 'Отчеты', nameEn: 'Reports', icon: '📑', type: 'system' };
-            window.AppConfig.allApps.secret_file = { id: 'secret_file', nameRu: 'Файл_вйА.dat', nameEn: 'File_vIA.dat', icon: '☣️', type: 'system' };
+            window.AppConfig.allApps.secret_file = { id: 'secret_file', nameRu: 'Пакет.dat', nameEn: 'Packet.dat', icon: '☣️', type: 'system' };
         }
         if (window.ensureMessengerWindow) window.ensureMessengerWindow();
         if (window.YandexModule) window.YandexModule.startGameplay();
