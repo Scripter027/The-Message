@@ -4,13 +4,21 @@
         const S = window.StoryDB.ch4;
         if (window.resetExtraAppsState) window.resetExtraAppsState();
         document.body.classList.add('theme-mom');
-        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger'];
+        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'notes'];
         if (window.renderDesktopIcons) window.renderDesktopIcons();
 
         E.setChats({
             kir: { t: 'Кирилл', av: '❤️', m: [], o: [] },
+            col: { t: 'Бухгалтерия', av: '💼', m: [], o: [] },
             le: { t: 'Лариса Эдуардовна', av: '👩‍🏫', hide: true, m: [], o: [] }
         });
+
+        E.addM('col', 'Главбух', S.col1);
+        E.setOpt('col', [{ l: 'Ответить: Поняла, сейчас открою «Отчеты» и всё пересчитаю.', f: () => {
+            E.addM('col', 'Лора', 'Поняла, сейчас открою «Отчеты» и всё пересчитаю.', true);
+            E.addM('col', 'Главбух', S.col2);
+            E.setOpt('col', []);
+        }}]);
 
         E.addM('kir', 'Кирилл', S.kir1);
         E.setOpt('kir', [{ l: 'Ответить: Ох, Кир, да на работе все хорошо, 10 отчетов из 15 закончены...', f: () => {
@@ -27,7 +35,7 @@
                         E.setOpt('kir', []);
                         window.AppConfig.state.installed.push('reports');
                         if (window.renderDesktopIcons) window.renderDesktopIcons();
-                        E.toast('Работа', 'Откройте приложение «Отчеты» и доделайте 5 оставшихся отчетов!');
+                        E.toast('Работа', 'Откройте «Отчеты» и проверьте 5 накладных на ошибки!');
                     }}]);
                 }}]);
             }}]);
@@ -52,7 +60,7 @@
                             E.addM('le', 'Лора', S.lora8, true);
                             E.addM('le', 'Лариса Эдуардовна', S.le5);
                             E.setOpt('le', []);
-                            E.later(() => switchToIve(), 3200);
+                            E.later(() => switchToIve(), 2800);
                         }}]);
                     }}]);
                 }}]);
@@ -63,14 +71,14 @@
             document.getElementById('windowMessenger')?.classList.add('hidden');
             window.triggerLoading(() => {
                 document.body.classList.remove('theme-mom');
-                window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris'];
+                window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'tetris', 'notes'];
                 if (window.renderDesktopIcons) window.renderDesktopIcons();
                 let readCount = 0;
 
                 const checkAllRead = () => {
                     readCount++;
                     if (readCount >= 4) {
-                        E.later(() => E.win(4, 'Айв остался один. На краю от отчисления, позора и гибели...'), 3500);
+                        E.later(() => E.win(4, 'Айв остался один. На краю от отчисления, позора и гибели...'), 3000);
                     }
                 };
 
@@ -90,7 +98,7 @@
                     c.d.hide = false;
                     E.addM('d', '???', S.devilEnd);
                     E.toast('???', 'Прицел будет снят только после твоей смерти...');
-                }, 3500);
+                }, 3000);
 
                 E.later(() => {
                     const c = E.getChats();
@@ -98,7 +106,7 @@
                     c.mom.hide = false;
                     E.addM('mom', 'Мама', S.momEnd);
                     E.toast('Мама', 'Я очень разочарована в тебе...');
-                }, 7000);
+                }, 6000);
 
                 E.later(() => {
                     const c = E.getChats();
@@ -106,7 +114,7 @@
                     c.sam.hide = false;
                     E.addM('sam', 'Бро', S.broEnd);
                     E.toast('Бро', 'Я так разочарован в тебе. (Прочитайте все 4 диалога)');
-                }, 10500);
+                }, 9000);
             });
         }
 
