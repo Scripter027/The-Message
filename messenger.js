@@ -8,9 +8,11 @@
     let isChapterOneActive = false;
 
     const storyState = {
+        hwDone: false,
         dinoTaskReceived: false,
         dinoScoreBeaten: false,
         unreadBro: 1,
+        unreadMom: 1,
         unreadHacker: 0,
         pinnedNotice: true
     };
@@ -44,23 +46,23 @@
         win = document.createElement("div");
         win.id = "windowMessenger";
         win.classList.add("desktop-window", "hidden");
-        win.style.width = "min(560px, 94vw)";
-        win.style.height = "min(410px, calc(100dvh - 50px))";
+        win.style.width = "min(580px, 94vw)";
+        win.style.height = "min(430px, calc(100dvh - 54px))";
 
         win.innerHTML = `
             <div class="window-header">
                 <span class="window-title">Mess</span>
                 <button class="window-close-btn" id="btnCloseMessenger">X</button>
             </div>
-            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 32px); gap:0; overflow:hidden;">
-                <div id="messSidebar" style="width:35%; min-width:115px; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
-                    <div id="messSidebarHeader" style="padding:6px 8px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.76rem;">
+            <div class="window-content" style="flex-direction:row; padding:0; height:calc(100% - 34px); gap:0; overflow:hidden;">
+                <div id="messSidebar" style="width:34%; min-width:110px; border-right:1px solid rgba(0,255,102,0.25); background:rgba(0,5,0,0.75); display:flex; flex-direction:column;">
+                    <div id="messSidebarHeader" style="padding:7px 8px; border-bottom:1px solid rgba(0,255,102,0.2); display:flex; align-items:center; justify-content:space-between; color:#00ff66; font-size:0.76rem;">
                         <span>☰ Чаты</span>
                         <span style="opacity:0.6; font-size:0.68rem;">v2.4</span>
                     </div>
                     <div id="messUserList" style="flex:1; overflow-y:auto; color:#00ff66; font-size:0.82rem; cursor:pointer;"></div>
                 </div>
-                <div id="messChatZone" style="width:65%; flex:1; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"></div>
+                <div id="messChatZone" style="width:66%; flex:1; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"></div>
             </div>
         `;
         mainZone.appendChild(win);
@@ -76,9 +78,11 @@
         currentStage = "start";
         selectedUser = null;
         isTyping = false;
+        storyState.hwDone = false;
         storyState.dinoTaskReceived = false;
         storyState.dinoScoreBeaten = false;
         storyState.unreadBro = 1;
+        storyState.unreadMom = 1;
         storyState.unreadHacker = 0;
         storyState.pinnedNotice = true;
 
@@ -90,7 +94,6 @@
             hackerOverlay.classList.remove("visible");
             hackerOverlay.style.display = "none";
         }
-
         const crashOverlay = document.getElementById("systemCrashOverlay");
         if (crashOverlay) crashOverlay.remove();
 
@@ -101,7 +104,13 @@
             window.AppConfig.setupChapterOneMode();
             window.AppConfig.save();
         }
-        
+
+        window.onHomeworkCompleted = () => {
+            storyState.hwDone = true;
+            showMessNotification("Школьный портал", "ДЗ сдано! Теперь можно ответить Бро в Mess.");
+            if (selectedUser === "bro") renderMess();
+        };
+
         const checkVisible = () => {
             const mainZone = document.querySelector(".desktop-main");
             if (mainZone && mainZone.clientWidth > 0) {
@@ -113,7 +122,7 @@
                     if (isChapterOneActive) {
                         showMessNotification("Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?");
                     }
-                }, 1200);
+                }, 1000);
             } else {
                 setTimeout(checkVisible, 200);
             }
@@ -126,11 +135,16 @@
         if (oldNotify) oldNotify.remove();
         if (notifyTimeout) clearTimeout(notifyTimeout);
 
-        const isMobile = window.innerWidth <= 1023 || window.innerHeight <= 540;
+        if (window.GamePrefs) {
+            window.GamePrefs.playTone(720, 0.05);
+            window.GamePrefs.vibrate(15);
+        }
+
+        const isMobile = window.innerWidth <= 768;
         const notify = document.createElement("div");
         notify.id = "activeMessNotify";
         notify.style.position = "fixed";
-        notify.style.bottom = isMobile ? "46px" : "60px";
+        notify.style.bottom = isMobile ? "50px" : "60px";
         notify.style.right = isMobile ? "12px" : "20px";
         notify.style.maxWidth = isMobile ? "calc(100vw - 24px)" : "340px";
         notify.style.background = "#000";
@@ -205,7 +219,33 @@
         const chatZone = document.getElementById("messChatZone");
         if (!userList || !chatZone) return;
         userList.innerHTML = "";
-        
+
+        const momItem = document.createElement("div");
+        momItem.style.padding = "8px";
+        momItem.style.borderBottom = "1px solid rgba(0,255,102,0.12)";
+        momItem.style.color = "#00ff66";
+        momItem.style.display = "flex";
+        momItem.style.justifyContent = "space-between";
+        momItem.style.alignItems = "center";
+        momItem.style.gap = "5px";
+        if (selectedUser === "mom") {
+            momItem.style.background = "rgba(0,255,102,0.18)";
+            storyState.unreadMom = 0;
+        }
+        momItem.innerHTML = `
+            <div style="overflow:hidden; flex:1;">
+                <div style="font-weight:bold; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👩 Мама</div>
+                <div style="font-size:0.68rem; opacity:0.6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Сынок, ты сделал ДЗ?...</div>
+            </div>
+            ${storyState.unreadMom > 0 ? `<div style="background:#00ff66; color:#000; font-size:0.68rem; padding:2px 5px; font-weight:bold; flex-shrink:0;">${storyState.unreadMom}</div>` : ""}
+        `;
+        momItem.addEventListener("click", () => {
+            selectedUser = "mom";
+            storyState.unreadMom = 0;
+            renderMess();
+        });
+        userList.appendChild(momItem);
+
         const broItem = document.createElement("div");
         broItem.style.padding = "8px";
         broItem.style.borderBottom = "1px solid rgba(0,255,102,0.12)";
@@ -230,7 +270,6 @@
             </div>
             ${storyState.unreadBro > 0 ? `<div style="background:#00ff66; color:#000; font-size:0.68rem; padding:2px 5px; font-weight:bold; flex-shrink:0;">${storyState.unreadBro}</div>` : ""}
         `;
-        
         broItem.addEventListener("click", () => {
             selectedUser = "bro";
             storyState.unreadBro = 0;
@@ -258,7 +297,6 @@
                 </div>
                 ${storyState.unreadHacker > 0 ? `<div style="background:#ff3333; color:#000; font-size:0.68rem; padding:2px 5px; font-weight:bold; flex-shrink:0;">${storyState.unreadHacker}</div>` : ""}
             `;
-            
             hackerItem.addEventListener("click", () => {
                 selectedUser = "hacker";
                 storyState.unreadHacker = 0;
@@ -272,10 +310,30 @@
             return;
         }
 
-        if (selectedUser === "bro") {
+        if (selectedUser === "mom") {
+            renderMomChat(chatZone);
+        } else if (selectedUser === "bro") {
             renderBroChat(chatZone);
         } else if (selectedUser === "hacker") {
             renderHackerChat(chatZone);
+        }
+    }
+
+    function renderMomChat(zone) {
+        const timeStr = getCurrentTimeStr();
+        zone.innerHTML = `
+            <div style="padding:6px 10px; border-bottom:1px solid rgba(0,255,102,0.25); display:flex; justify-content:space-between; align-items:center; background:rgba(0,15,0,0.6); flex-shrink:0;">
+                <div style="color:#00ff66; font-weight:bold; font-size:0.85rem;">👩 Мама</div>
+                <button id="btnMomBack" style="background:transparent; border:1px solid rgba(0,255,102,0.4); color:#00ff66; padding:3px 8px; font-family:'Russo One', sans-serif; font-size:0.68rem; cursor:pointer;">Назад</button>
+            </div>
+            <div id="messMomLogs" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;"></div>
+        `;
+        document.getElementById("btnMomBack")?.addEventListener("click", () => { selectedUser = null; renderMess(); });
+        const box = document.getElementById("messMomLogs");
+        appendMessLog(box, "Мама", "Сынок, мы с папой сегодня задержимся. Обязательно сделай все задания в «Школа ДЗ» и не вздумай играть в игры, пока не закончишь уроки! Ты же идешь на золотую медаль.", false, timeStr);
+        if (storyState.hwDone) {
+            appendMessLog(box, "Вы", "Мам, я всё решил и отправил на портал!", true, timeStr);
+            appendMessLog(box, "Мама", "Умница! Горжусь тобой. Не ложись слишком поздно.", false, timeStr);
         }
     }
     function triggerBroReply(nextStage) {
@@ -292,7 +350,7 @@
                 storyState.unreadBro = 1;
             }
             renderMess();
-        }, 900);
+        }, 750);
     }
 
     function renderBroChat(zone) {
@@ -315,21 +373,15 @@
             <div id="messOptions" style="padding:6px 8px; display:flex; flex-direction:column; gap:5px; border-top:1px solid rgba(0,255,102,0.2); background:rgba(0,10,0,0.8); flex-shrink:0; max-height:46%; overflow-y:auto;"></div>
         `;
 
-        const backBtn = document.getElementById("btnMessBack");
-        if (backBtn) {
-            backBtn.addEventListener("click", () => {
-                selectedUser = null;
-                renderMess();
-            });
-        }
+        document.getElementById("btnMessBack")?.addEventListener("click", () => {
+            selectedUser = null;
+            renderMess();
+        });
 
-        const closePin = document.getElementById("closePinBtn");
-        if (closePin) {
-            closePin.addEventListener("click", () => {
-                storyState.pinnedNotice = false;
-                renderMess();
-            });
-        }
+        document.getElementById("closePinBtn")?.addEventListener("click", () => {
+            storyState.pinnedNotice = false;
+            renderMess();
+        });
 
         const msgContainer = document.getElementById("messLogs");
         const optContainer = document.getElementById("messOptions");
@@ -339,26 +391,44 @@
             appendMessLog(msgContainer, "Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?", false, timeStr);
             if (!isTyping) {
                 createMessOption(optContainer, "1. Отвали", () => triggerFail("Бро обиделся и перестал писать. Вы остались делать уроки."));
-                createMessOption(optContainer, "2. Да, а что?", () => triggerBroReply("bro_dino"));
+                createMessOption(optContainer, "2. Да, а что?", () => triggerBroReply("bro_hw_check"));
                 createMessOption(optContainer, "3. Ты кто?", () => triggerFail("Бро подумал, что вы сошли с ума, и заблокировал вас."));
             }
-        } else if (currentStage === "bro_dino") {
+        } else if (currentStage === "bro_hw_check") {
             appendMessLog(msgContainer, "Бро", "Хей, Айв! Как дела? Все еще за уроками сидишь?", false, timeStr);
             appendMessLog(msgContainer, "Вы", "Да, а что?", true, timeStr);
             if (!isTyping) {
-                appendMessLog(msgContainer, "Бро", "Да хватит тухнуть! Давай ка мы на секунду представим, что ты не дорожишь званием «умника школы» и твои родители не ругают тебя за плохие оценки! Попробуй побить рекорд в динозаврике! Ты ведь его не удалил?", false, timeStr);
+                appendMessLog(msgContainer, "Бро", "Слушай, ты же олимпиадник, щёлкаешь задачки как орешки! Дорешай по-быстрому своё ДЗ на портале, а потом зарубимся в Динозаврика. Я там новый рекорд поставил!", false, timeStr);
+                if (!storyState.hwDone) {
+                    const hint = document.createElement("div");
+                    hint.style.color = "#ffaa00";
+                    hint.textContent = "[Задание: Откройте «Школа ДЗ» на рабочем столе и решите все 4 задачи]";
+                    hint.style.textAlign = "center";
+                    hint.style.fontSize = "0.74rem";
+                    hint.style.marginTop = "4px";
+                    hint.style.padding = "5px";
+                    hint.style.border = "1px dashed #ffaa00";
+                    msgContainer.appendChild(hint);
+                } else {
+                    createMessOption(optContainer, "1. Готово! Сдал всё на пятерку. Что там за игра?", () => triggerBroReply("bro_dino"));
+                }
+            }
+        } else if (currentStage === "bro_dino") {
+            appendMessLog(msgContainer, "Вы", "Готово! Сдал всё на пятерку. Что там за игра?", true, timeStr);
+            if (!isTyping) {
+                appendMessLog(msgContainer, "Бро", "Вот это скорость! Давай ка мы на секунду представим, что ты не дорожишь званием «умника школы» и твои родители не ругают тебя за плохие оценки! Попробуй побить рекорд в динозаврике! Ты ведь его не удалил?", false, timeStr);
                 createMessOption(optContainer, "1. Ты кто?", () => triggerFail("Бро решил не общаться с шутником."));
-                createMessOption(optContainer, "2. Отвали, я хочу доделать уроки!", () => triggerFail("Вы зарылись в учебники и проиграли жизнь."));
-                createMessOption(optContainer, "3. Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", () => triggerBroReply("bro_record"));
+                createMessOption(optContainer, "2. Отвали, я хочу еще поучиться!", () => triggerFail("Вы зарылись в учебники и проиграли жизнь."));
+                createMessOption(optContainer, "3. Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю остальное. Какой там рекорд?", () => triggerBroReply("bro_record"));
             }
         } else if (currentStage === "bro_record") {
-            appendMessLog(msgContainer, "Вы", "Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю уроки. Какой там рекорд?", true, timeStr);
+            appendMessLog(msgContainer, "Вы", "Черт, кажись удалил! Я хотел чтобы родители думали что я только занимаюсь учебой на этом компе. Ладно, завтра сделаю остальное. Какой там рекорд?", true, timeStr);
             if (!isTyping) {
                 appendMessLog(msgContainer, "Бро", "Вот он! Старый добрый Айв! Мой рекорд 1000! Сможешь побить? Или не сможешь нажать на пробел когда надо? Ха-ха!", false, timeStr);
                 
                 const hint = document.createElement("div");
                 hint.style.color = "#ffaa00";
-                hint.textAlign = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
+                hint.textContent = "[Задание: Зайдите в Магазин и скачайте Динозаврика]";
                 hint.style.textAlign = "center";
                 hint.style.fontSize = "0.74rem";
                 hint.style.marginTop = "4px";
@@ -394,7 +464,7 @@
         btn.style.background = "transparent";
         btn.style.border = "1px solid #00ff66";
         btn.style.color = "#00ff66";
-        btn.style.padding = "6px 8px";
+        btn.style.padding = "7px 8px";
         btn.style.textAlign = "left";
         btn.style.cursor = "pointer";
         btn.style.fontFamily = "Russo One, sans-serif";
@@ -439,49 +509,10 @@
         const messWin = document.getElementById("windowMessenger");
         if (messWin) messWin.classList.add("hidden");
 
-        const crash = document.createElement("div");
-        crash.id = "systemCrashOverlay";
-
-        const particlesLayer = document.createElement("div");
-        particlesLayer.className = "crash-particles-layer";
-
-        const colors = ["#ff3333", "#00ff66", "#ffffff", "#ffaa00"];
-        for (let i = 0; i < 65; i++) {
-            const p = document.createElement("div");
-            p.className = "crash-particle";
-            p.style.left = Math.random() * 100 + "vw";
-            p.style.top = Math.random() * 100 + "vh";
-            p.style.width = (Math.random() * 24 + 4) + "px";
-            p.style.height = (Math.random() * 14 + 3) + "px";
-            p.style.background = colors[Math.floor(Math.random() * colors.length)];
-            p.style.animationDelay = (Math.random() * 0.25) + "s";
-            particlesLayer.appendChild(p);
-        }
-
-        const errText = document.createElement("div");
-        errText.className = "crash-error-text";
-        errText.textContent = "ERROR";
-
-        crash.appendChild(particlesLayer);
-        crash.appendChild(errText);
-        document.body.appendChild(crash);
-
-        const particleShuffle = setInterval(() => {
-            particlesLayer.querySelectorAll(".crash-particle").forEach(p => {
-                p.style.left = Math.random() * 100 + "vw";
-                p.style.top = Math.random() * 100 + "vh";
-            });
-            errText.style.opacity = Math.random() > 0.25 ? "1" : "0.15";
-        }, 120);
-
-        setTimeout(() => {
-            clearInterval(particleShuffle);
-            crash.remove();
-
-            const env = document.getElementById("desktopEnv");
-            if (env) env.style.display = "none";
-
-            setTimeout(() => {
+        if (window.triggerBrowserErrorCrash) {
+            window.triggerBrowserErrorCrash(() => {
+                const env = document.getElementById("desktopEnv");
+                if (env) env.style.display = "none";
                 const overlay = document.getElementById("hackerOverlay");
                 if (overlay) {
                     overlay.style.opacity = "0";
@@ -492,13 +523,12 @@
                             overlay.style.opacity = "1";
                         });
                     });
-                    setTimeout(() => {
-                        runHackerDialog("start");
-                    }, 900);
+                    setTimeout(() => runHackerDialog("start"), 750);
                 }
-            }, 1400);
-        }, 2200);
+            });
+        }
     }
+
     function renderHackerChat(zone) {
         const timeStr = getCurrentTimeStr();
         zone.innerHTML = `
@@ -511,13 +541,10 @@
             </div>
             <div id="messHackerLogs" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;"></div>
         `;
-        const backBtn = document.getElementById("btnHackerBack");
-        if (backBtn) {
-            backBtn.addEventListener("click", () => {
-                selectedUser = null;
-                renderMess();
-            });
-        }
+        document.getElementById("btnHackerBack")?.addEventListener("click", () => {
+            selectedUser = null;
+            renderMess();
+        });
 
         const container = document.getElementById("messHackerLogs");
         const msg = document.createElement("div");
@@ -533,15 +560,8 @@
             <div style="text-align:right; font-size:0.62rem; opacity:0.65; margin-top:4px;">${timeStr}</div>
         `;
         container.appendChild(msg);
-        
-        const link = document.getElementById("hackerLink");
-        if (link) {
-            link.addEventListener("click", () => {
-                triggerErrorSequence();
-            });
-        }
+        document.getElementById("hackerLink")?.addEventListener("click", () => triggerErrorSequence());
     }
-
     function createHackerOverlay() {
         if (document.getElementById("hackerOverlay")) return;
         const overlay = document.createElement("div");
@@ -581,6 +601,7 @@
         if (hackerTypeInterval) clearInterval(hackerTypeInterval);
         msgEl.textContent = "";
         let index = 0;
+        const speed = window.GamePrefs ? window.GamePrefs.getTextDelay() : 26;
         hackerTypeInterval = setInterval(() => {
             if (index < fullText.length) {
                 msgEl.textContent += fullText.charAt(index);
@@ -590,7 +611,7 @@
                 hackerTypeInterval = null;
                 if (onComplete) onComplete();
             }
-        }, 28);
+        }, speed);
     }
 
     function runHackerDialog(node) {
@@ -632,12 +653,12 @@
         for (let i = 0; i < 3; i++) {
             createHackerOption(parent, "Да", () => {
                 isChapterOneActive = false;
+                if (window.GamePrefs) window.GamePrefs.saveChapterProgress(2);
                 const overlay = document.getElementById("hackerOverlay");
                 if (overlay) {
                     overlay.classList.remove("visible");
                     overlay.style.display = "none";
                 }
-                
                 if (window.triggerChapterCompleteScreen) {
                     window.triggerChapterCompleteScreen(1, "Вы в ловушке дЬяВоЛа68...");
                 }
