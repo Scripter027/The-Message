@@ -4,7 +4,7 @@
         const S = window.StoryDB.ch3;
         if (window.resetExtraAppsState) window.resetExtraAppsState();
         E.resetGraveClicks();
-        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser', 'store'];
+        window.AppConfig.state.installed = ['trash', 'explorer', 'messenger', 'browser', 'store', 'notes', 'minesweeper'];
 
         E.setChats({
             cass: { t: 'Кассандра', av: '👧', hide: true, m: [], o: [] },
@@ -12,11 +12,16 @@
             d: { t: '???', av: '❓', red: true, m: [], o: [] }
         });
 
-        E.toast('Мысли Айва', 'Откройте Браузер и поищите информацию о пропавших детях.');
+        let searchedTopics = new Set();
+        E.toast('Мысли Айва', 'Откройте Браузер и изучите 3 разные темы: архивы, форум и троян.');
 
         window.onBrowserSearched = (q) => {
+            if (q.includes('пропав') || q.includes('дет') || q.includes('исчез')) searchedTopics.add('missing');
+            if (q.includes('форум') || q.includes('шантаж') || q.includes('дьявол')) searchedTopics.add('forum');
+            if (q.includes('вирус') || q.includes('троян') || q.includes('медал')) searchedTopics.add('virus');
+
             const chats = E.getChats();
-            if (chats.cass && chats.cass.hide && (q.includes('пропав') || q.includes('дет') || q.includes('дьявол') || q.includes('исчез'))) {
+            if (chats.cass && chats.cass.hide && searchedTopics.size >= 3) {
                 E.later(() => {
                     chats.cass.hide = false;
                     E.addM('cass', 'Кассандра', S.cass1);
@@ -32,7 +37,9 @@
                         }}
                     ]);
                     E.toast('Кассандра', 'Привет, Айв. Поможешь с проектом?');
-                }, 1500);
+                }, 1200);
+            } else if (searchedTopics.size < 3) {
+                E.toast('Мысли Айва', `Найдено улик: ${searchedTopics.size} / 3. Поищите по другим тегам в Браузере.`);
             }
         };
 
@@ -48,7 +55,6 @@
         window.onGraveClicked = (n) => {
             E.setGraveClicks(n);
         };
-
         window.onFourthSlideTriggered = () => {
             E.setOpt('cass', [{ l: 'Что за чертовщина на 4 слайде!?', f: () => {
                 E.addM('cass', 'Айв', 'Что за чертовщина на 4 слайде!?', true);
@@ -66,38 +72,44 @@
                     E.addM('mom', 'Мама', S.momNoGame);
                     E.setOpt('mom', []);
                 }}]);
-                E.setOpt('d', [{ l: 'Зайти в Магазин и купить Тетрис (пароль: Айв)', f: () => {
-                    const p = prompt('Пароль от привязанной карты (Подсказка: Имя любимого сына):');
-                    if (p && p.trim().toLowerCase() === 'айв') {
-                        E.clearTimer();
-                        E.setOpt('d', []);
-                        if (!window.AppConfig.state.installed.includes('tetris')) {
-                            window.AppConfig.state.installed.push('tetris');
-                            if (window.renderDesktopIcons) window.renderDesktopIcons();
+                E.setOpt('d', [{ l: 'Обойти защиту оплаты (Пройти «Сапёр» и ввести пароль)', f: () => {
+                    document.getElementById('windowMessenger')?.classList.add('hidden');
+                    window.onMinesweeperWon = () => {
+                        document.getElementById('windowMinesweeper')?.classList.add('hidden');
+                        const p = prompt('Защита снята! Введите пароль от привязанной карты (Подсказка в «Заметках»):');
+                        if (p && p.trim().toLowerCase() === 'айв') {
+                            E.clearTimer();
+                            E.setOpt('d', []);
+                            if (!window.AppConfig.state.installed.includes('tetris')) {
+                                window.AppConfig.state.installed.push('tetris');
+                                if (window.renderDesktopIcons) window.renderDesktopIcons();
+                            }
+                            E.openMess();
+                            E.addM('d', '???', S.devil3);
+                            E.addM('d', 'Айв', 'Ты же обещал что её это касаться не будет!', true);
+                            E.addM('d', '???', S.devil4);
+                            E.setChatId('mom');
+                            E.setTimer(5, () => E.over('5 минут истекли! Вы не успели написать маме.'));
+                            E.setOpt('mom', [
+                                { l: '1. Ну как обычно. Ты меня не понимаешь вот и все!', f: () => {
+                                    E.addM('mom', 'Айв', 'Ну как обычно. Ты меня не понимаешь вот и все!', true);
+                                    E.addM('mom', 'Мама', S.momOk);
+                                    E.setOpt('mom', []);
+                                    E.clearTimer();
+                                    E.later(() => {
+                                        E.addM('d', '???', S.devilEnd1);
+                                        E.addM('d', 'Айв', 'Твоя цель рассорить меня со всеми?', true);
+                                        E.addM('d', '???', S.devilEnd2);
+                                        E.setChatId('d');
+                                        E.later(() => E.win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 8000);
+                                    }, 1200);
+                                }},
+                                { l: '2. Я люблю тебя.', f: () => E.over(S.momFailLove) },
+                                { l: '3. Я купил тетрис.', f: () => E.over(S.momFailTetris) }
+                            ]);
                         }
-                        E.addM('d', '???', S.devil3);
-                        E.addM('d', 'Айв', 'Ты же обещал что её это касаться не будет!', true);
-                        E.addM('d', '???', S.devil4);
-                        E.setChatId('mom');
-                        E.setTimer(5, () => E.over('5 минут истекли! Вы не успели написать маме.'));
-                        E.setOpt('mom', [
-                            { l: '1. Ну как обычно. Ты меня не понимаешь вот и все!', f: () => {
-                                E.addM('mom', 'Айв', 'Ну как обычно. Ты меня не понимаешь вот и все!', true);
-                                E.addM('mom', 'Мама', S.momOk);
-                                E.setOpt('mom', []);
-                                E.clearTimer();
-                                E.later(() => {
-                                    E.addM('d', '???', S.devilEnd1);
-                                    E.addM('d', 'Айв', 'Твоя цель рассорить меня со всеми?', true);
-                                    E.addM('d', '???', S.devilEnd2);
-                                    E.setChatId('d');
-                                    E.later(() => E.win(3, 'Тетрис куплен. Отношения с мамой разрушены.'), 15000);
-                                }, 1500);
-                            }},
-                            { l: '2. Я люблю тебя.', f: () => E.over(S.momFailLove) },
-                            { l: '3. Я купил тетрис.', f: () => E.over(S.momFailTetris) }
-                        ]);
-                    }
+                    };
+                    if (window.initMinesweeperApp) window.initMinesweeperApp();
                 }}]);
             }}]);
         };
