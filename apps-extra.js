@@ -1,43 +1,43 @@
 (function() {
-    const articlesDb = [
+    const articlesDb = new Array(
         {
             id: 'school_1290',
-            keys: ['1290', 'школ', 'останк', 'мусор', 'новост'],
+            keys: new Array('1290', 'школ', 'останк', 'мусор', 'новост'),
             title: 'СРОЧНО: Страшная находка возле школы № 1290',
             text: 'Сегодня утром в мусорном баке были найдены останки пропавших школьников школы 1290. Их не могли найти около двух недель и вот наконец останки были найдены. Виновник все еще не обличен, но он будет и будет наказан за это ужасное деяние.',
             linkText: 'Далее к комментариям родителей пропавших'
         },
         {
             id: 'missing_2022',
-            keys: ['пропавш', 'дет', '5 лет', 'архив', 'дело', 'поиск', 'исчез'],
+            keys: new Array('пропавш', 'дет', '5 лет', 'архив', 'дело', 'поиск', 'исчез'),
             title: 'Архив МВД: Серия исчезновений подростков в районе',
             text: 'За последние 5 лет в городе зафиксировано более 90 случаев бесследного исчезновения школьников 13–16 лет. По словам следователей, перед пропажей все подростки резко ссорились с друзьями, ухудшали успеваемость и совершали неадекватные поступки в школе.'
         },
         {
             id: 'devil_rumors',
-            keys: ['дьявол', 'devil', '68', 'шантаж', 'взлом', 'угроз'],
+            keys: new Array('дьявол', 'devil', '68', 'шантаж', 'взлом', 'угроз'),
             title: 'Городские слухи: Анонимный шантажист в сети',
             text: 'На местных форумах родители обсуждают сообщения от неизвестного аккаунта. Злоумышленник запугивает школьников, заставляет их разрывать общение с близкими и угрожает расправой над семьей при неповиновении.'
         },
         {
             id: 'forum_threads',
-            keys: ['форум', 'жертв', 'свидетел', 'полиц', 'улик'],
+            keys: new Array('форум', 'жертв', 'свидетел', 'полиц', 'улик'),
             title: 'Городской форум: Обсуждение серии пропаж (Тема #409)',
-            text: 'Пользователь [Anon_Father]: «Мой племянник перед исчезновением вдруг начал грубить матери, удалил все игры, кроме какого-то старого тетриса, и твердил, что за ним следят через веб-камеру. Полиция разводит руками — следов взлома в квартире не нашли».'
+            text: 'Пользователь Anon_Father: «Мой племянник перед исчезновением вдруг начал грубить матери, удалил все игры, кроме какого-то старого тетриса, и твердил, что за ним следят через веб-камеру. Полиция разводит руками — следов взлома в квартире не нашли».'
         },
         {
             id: 'olympiad',
-            keys: ['айв', 'медал', 'учеб', 'экзамен', 'олимпиад'],
+            keys: new Array('айв', 'медал', 'учеб', 'экзамен', 'олимпиад'),
             title: 'Городской портал образования: Списки кандидатов на медаль',
             text: 'Ученики, претендующие на золотую медаль, обязаны не иметь дисциплинарных взысканий и состоять на безупречном счету у администрации школы. Ближайший срез успеваемости состоится на этой неделе.'
         },
         {
             id: 'cyber_virus',
-            keys: ['вирус', 'ссылк', 'фишинг', 'троян', 'безопасн'],
+            keys: new Array('вирус', 'ссылк', 'фишинг', 'троян', 'безопасн'),
             title: 'Бюллетень кибербезопасности: Новый троян-вымогатель',
             text: 'Специалисты предупреждают о вредоносных ссылках в мессенджере Mess. Программа блокирует доступ к сетевым настройкам, перехватывает управление окнами и имитирует системные сбои.'
         }
-    ];
+    );
 
     let graveClicks = 0;
     let slideIndex = 0;
@@ -61,7 +61,7 @@
 
         if (window.GamePrefs) {
             window.GamePrefs.playTone(140, 0.35, 'sawtooth', 0.08);
-            window.GamePrefs.vibrate();
+            window.GamePrefs.vibrate(45);
         }
 
         const crash = document.createElement('div');
@@ -70,7 +70,7 @@
         const particlesLayer = document.createElement('div');
         particlesLayer.className = 'crash-particles-layer';
 
-        const colors = ['#ff3333', '#00ff66', '#ffffff', '#ffaa00'];
+        const colors = new Array('#ff3333', '#00ff66', '#ffffff', '#ffaa00');
         for (let i = 0; i < 65; i++) {
             const p = document.createElement('div');
             p.className = 'crash-particle';
@@ -78,7 +78,7 @@
             p.style.top = Math.random() * 100 + 'vh';
             p.style.width = (Math.random() * 24 + 4) + 'px';
             p.style.height = (Math.random() * 14 + 3) + 'px';
-            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.background = colors.at(Math.floor(Math.random() * colors.length));
             p.style.animationDelay = (Math.random() * 0.25) + 's';
             particlesLayer.appendChild(p);
         }
@@ -163,17 +163,17 @@
             const art = articlesDb.find(a => a.id === initialArticleId);
             if (art) {
                 if (qInput) qInput.value = 'https://news-city.local';
-                renderArticles([art]);
+                renderArticles(new Array(art));
             }
         } else {
-            renderArticles([]);
+            renderArticles(new Array());
         }
     };
 
     function runBrowserSearch(query) {
         const q = (query || '').toLowerCase().trim();
         if (!q) {
-            renderArticles([]);
+            renderArticles(new Array());
             return;
         }
         const found = articlesDb.filter(a => {
@@ -251,7 +251,7 @@
         const vp = document.getElementById('slideViewport');
         if (!vp) return;
 
-        const slidesData = [
+        const slidesData = new Array(
             {
                 num: 'Слайд 1 / 3',
                 title: 'Кибербезопасность и мошенничество в сети',
@@ -267,10 +267,10 @@
                 title: 'Выводы и защита',
                 body: 'Главная защита от манипуляций — не молчать и сразу рассказать взрослым. ' + (fourthSlideErased ? 'Спасибо за внимание!' : 'Как все это избежать? След. слайд')
             }
-        ];
+        );
 
         if (slideIndex < 3) {
-            const s = slidesData[slideIndex];
+            const s = slidesData.at(slideIndex);
             vp.innerHTML = `
                 <div class="slide-box">
                     <div>
@@ -335,7 +335,7 @@
                         hint.textContent = '68... ПАМЯТЬ РАЗБЛОКИРОВАНА';
                         hint.style.color = '#ffaa00';
                     } else if (hint && graveClicks > 10) {
-                        hint.textContent = `Глитч памяти... [${graveClicks}/68]`;
+                        hint.textContent = `Глитч памяти... (${graveClicks}/68)`;
                     }
                     if (window.onGraveClicked) {
                         window.onGraveClicked(graveClicks);
@@ -344,13 +344,13 @@
             }
         }
     }
-    const invoicesList = [
+    const invoicesList = new Array(
         { num: '#11', items: '12 400 ₽ + 7 600 ₽', declared: '20 000 ₽', valid: true },
         { num: '#12', items: '8 500 ₽ + 4 300 ₽', declared: '13 800 ₽', valid: false },
         { num: '#13', items: '15 200 ₽ + 9 800 ₽', declared: '25 000 ₽', valid: true },
         { num: '#14', items: '6 750 ₽ + 3 450 ₽', declared: '10 100 ₽', valid: false },
         { num: '#15', items: '19 100 ₽ + 11 900 ₽', declared: '31 000 ₽', valid: true }
-    ];
+    );
 
     window.initReportsApp = function() {
         let win = document.getElementById('windowReports');
@@ -389,7 +389,7 @@
             `;
             return;
         }
-        const inv = invoicesList[momReportsDone - 10];
+        const inv = invoicesList.at(momReportsDone - 10);
         body.innerHTML = `
             <div style="font-size:0.88rem;">Смена Лоры: <b>${momReportsDone} / 15</b> накладных закрыто</div>
             <div style="border:1px solid currentColor; padding:12px; display:flex; flex-direction:column; gap:8px; background:rgba(255,102,178,0.06);">
@@ -445,15 +445,15 @@
 
         const body = document.getElementById('notesBody');
         const isMom = document.body.classList.contains('theme-mom') || mode === 'mom';
-        const entries = isMom ? [
+        const entries = isMom ? new Array(
             { title: 'Список дел на неделю', text: '1. Закрыть 15 квартальных отчетов.\n2. Проверить оценки Айва перед педсоветом.\n3. Записаться к врачу на пятницу.' },
             { title: 'Памятка по карте', text: 'Семейная карта привязана к магазину приложений. Кодовое слово для подтверждения покупок — имя нашего сына.' },
             { title: 'Тревожные мысли', text: 'Айв в последнее время сам не свой. Сидит за компьютером до ночи, вздрагивает от каждого уведомления. Надо поговорить с ним по душам.' }
-        ] : [
+        ) : new Array(
             { title: 'План подготовки к медали', text: 'Математика: повторить логарифмы и прогрессии.\nИнформатика: дописать проект по нейросетям и алгоритмам.\nГлавное — ни одной четверки в четверти, иначе мама снова устроит скандал.' },
             { title: 'Пароли и заметки', text: 'Школьный портал: логин ive_1290.\nНе забыть удалить игры с рабочего стола перед приходом родителей!' },
             { title: 'Черновик сообщения', text: 'Бро звал побить его рекорд в Динозаврике. Надо хотя бы на 10 минут отвлечься от учебников, иначе голова лопнет.' }
-        ];
+        );
 
         body.innerHTML = entries.map(e => `
             <div class="article-card">
@@ -462,28 +462,28 @@
             </div>
         `).join('');
     };
-    const hwQuestions = [
+    const hwQuestions = new Array(
         {
             q: '1. Информатика: Чему равно число 68 в двоичной системе счисления?',
-            opts: ['1000100', '1010100', '1001000'],
+            opts: new Array('1000100', '1010100', '1001000'),
             ans: 0
         },
         {
             q: '2. Алгебра: Найдите значение log₂(64) + 3².',
-            opts: ['13', '15', '17'],
+            opts: new Array('13', '15', '17'),
             ans: 1
         },
         {
             q: '3. Алгоритмы: Какая сложность у бинарного поиска в отсортированном массиве из N элементов?',
-            opts: ['O(N)', 'O(N²)', 'O(log N)'],
+            opts: new Array('O(N)', 'O(N²)', 'O(log N)'),
             ans: 2
         },
         {
             q: '4. Кибербезопасность: Что категорически нельзя делать при получении ссылки от неизвестного контакта?',
-            opts: ['Закрыть диалог', 'Переходить по ссылке и вводить данные', 'Заблокировать отправителя'],
+            opts: new Array('Закрыть диалог', 'Переходить по ссылке и вводить данные', 'Заблокировать отправителя'),
             ans: 1
         }
-    ];
+    );
 
     window.initHomeworkApp = function() {
         let win = document.getElementById('windowHomework');
@@ -520,7 +520,7 @@
                 if (window.onHomeworkCompleted) window.onHomeworkCompleted();
                 return;
             }
-            const item = hwQuestions[step];
+            const item = hwQuestions.at(step);
             body.innerHTML = `
                 <div style="font-size:0.78rem; opacity:0.75;">Задание ${step + 1} из ${hwQuestions.length} (Кандидат на золотую медаль)</div>
                 <div style="font-size:0.94rem; line-height:1.45; border-bottom:1px solid rgba(0,255,102,0.3); padding-bottom:8px;">${item.q}</div>
@@ -529,7 +529,8 @@
                     ${item.opts.map((opt, idx) => `<button class="browser-btn" style="text-align:left;" data-idx="${idx}">${idx + 1}. ${opt}</button>`).join('')}
                 </div>
             `;
-            body.querySelectorAll('button[data-idx]').forEach(btn => {
+            body.querySelectorAll('button').forEach(btn => {
+                if (!btn.hasAttribute('data-idx')) return;
                 btn.addEventListener('click', () => {
                     const chosen = Number(btn.getAttribute('data-idx'));
                     if (chosen === item.ans) {
@@ -545,7 +546,6 @@
         };
         drawHw();
     };
-
     window.initNetHackApp = function() {
         let win = document.getElementById('windowNetHack');
         if (!win) {
@@ -569,47 +569,50 @@
         win.classList.remove('hidden');
         if (window.bringToFront) window.bringToFront(win);
 
-        const baseGrid = [
+        const baseGrid = new Array(
             { type: 'L', rot: 1 }, { type: 'I', rot: 0 }, { type: 'L', rot: 2 }, { type: 'L', rot: 0 },
             { type: 'I', rot: 1 }, { type: 'L', rot: 0 }, { type: 'I', rot: 1 }, { type: 'I', rot: 0 },
             { type: 'L', rot: 0 }, { type: 'I', rot: 0 }, { type: 'L', rot: 3 }, { type: 'I', rot: 1 },
             { type: 'L', rot: 3 }, { type: 'I', rot: 1 }, { type: 'I', rot: 1 }, { type: 'L', rot: 3 }
-        ];
-        const cells = baseGrid.map(c => ({ ...c }));
+        );
+        const cells = baseGrid.map(c => ({ type: c.type, rot: c.rot }));
 
         function getOpenings(cell) {
             const r = cell.rot % 4;
             if (cell.type === 'I') {
-                return r % 2 === 0 ? [1, 0, 1, 0] :;
+                return r % 2 === 0 ? new Array(1, 0, 1, 0) : new Array(0, 1, 0, 1);
             }
-            const base =;
-            return [0, 1, 2, 3].map(i => base[(i - r + 4) % 4]);
+            const base = new Array(1, 1, 0, 0);
+            return new Array(0, 1, 2, 3).map(i => base.at((i - r + 4) % 4));
         }
 
         function checkConnected() {
             const visited = new Set();
-            const queue =;
-            if (!getOpenings(cells[0])[3] && !getOpenings(cells[0])[0]) return false;
+            const queue = new Array(0);
+            const firstOp = getOpenings(cells.at(0));
+            if (!firstOp.at(0) && !firstOp.at(3)) return false;
             visited.add(0);
             while (queue.length > 0) {
                 const idx = queue.shift();
-                if (idx === 15 && (getOpenings(cells[15])[1] || getOpenings(cells[15])[2])) return true;
+                const lastOp = getOpenings(cells.at(15));
+                if (idx === 15 && (lastOp.at(1) || lastOp.at(2))) return true;
                 const r = Math.floor(idx / 4);
                 const c = idx % 4;
-                const op = getOpenings(cells[idx]);
-                const dirs = [
+                const op = getOpenings(cells.at(idx));
+                const dirs = new Array(
                     { dr: -1, dc: 0, me: 0, opp: 2 },
                     { dr: 0, dc: 1, me: 1, opp: 3 },
                     { dr: 1, dc: 0, me: 2, opp: 0 },
                     { dr: 0, dc: -1, me: 3, opp: 1 }
-                ];
+                );
                 dirs.forEach(d => {
                     const nr = r + d.dr;
                     const nc = c + d.dc;
                     if (nr < 0 || nr >= 4 || nc < 0 || nc >= 4) return;
                     const nIdx = nr * 4 + nc;
                     if (visited.has(nIdx)) return;
-                    if (op[d.me] && getOpenings(cells[nIdx])[d.opp]) {
+                    const nextOp = getOpenings(cells.at(nIdx));
+                    if (op.at(d.me) && nextOp.at(d.opp)) {
                         visited.add(nIdx);
                         queue.push(nIdx);
                     }
@@ -645,10 +648,12 @@
                 }
                 return;
             }
-            body.querySelectorAll('button[data-cell]').forEach(btn => {
+            body.querySelectorAll('button').forEach(btn => {
+                if (!btn.hasAttribute('data-cell')) return;
                 btn.addEventListener('click', () => {
                     const idx = Number(btn.getAttribute('data-cell'));
-                    cells[idx].rot = (cells[idx].rot + 1) % 4;
+                    const item = cells.at(idx);
+                    item.rot = (item.rot + 1) % 4;
                     if (window.GamePrefs) { window.GamePrefs.playTone(480, 0.03); window.GamePrefs.vibrate(8); }
                     renderGrid();
                 });
@@ -683,7 +688,7 @@
         const MINES = 8;
         let flagMode = false;
         let finished = false;
-        let grid = [];
+        let grid = new Array();
 
         function setupMineBoard() {
             finished = false;
@@ -691,13 +696,13 @@
             let placed = 0;
             while (placed < MINES) {
                 const idx = Math.floor(Math.random() * grid.length);
-                if (!grid[idx].mine) {
-                    grid[idx].mine = true;
+                if (!grid.at(idx).mine) {
+                    grid.at(idx).mine = true;
                     placed++;
                 }
             }
             for (let i = 0; i < grid.length; i++) {
-                if (grid[i].mine) continue;
+                if (grid.at(i).mine) continue;
                 const r = Math.floor(i / SIZE);
                 const c = i % SIZE;
                 let cnt = 0;
@@ -705,16 +710,16 @@
                     for (let dc = -1; dc <= 1; dc++) {
                         const nr = r + dr;
                         const nc = c + dc;
-                        if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && grid[nr * SIZE + nc].mine) cnt++;
+                        if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && grid.at(nr * SIZE + nc).mine) cnt++;
                     }
                 }
-                grid[i].count = cnt;
+                grid.at(i).count = cnt;
             }
         }
 
         function floodOpen(idx) {
             if (idx < 0 || idx >= grid.length) return;
-            const cell = grid[idx];
+            const cell = grid.at(idx);
             if (cell.open || cell.flag) return;
             cell.open = true;
             if (cell.count === 0 && !cell.mine) {
@@ -771,11 +776,12 @@
                 setupMineBoard();
                 renderMine();
             });
-            body.querySelectorAll('button[data-m]').forEach(btn => {
+            body.querySelectorAll('button').forEach(btn => {
+                if (!btn.hasAttribute('data-m')) return;
                 btn.addEventListener('click', () => {
                     if (finished) return;
                     const idx = Number(btn.getAttribute('data-m'));
-                    const cell = grid[idx];
+                    const cell = grid.at(idx);
                     if (flagMode) {
                         if (!cell.open) cell.flag = !cell.flag;
                         renderMine();
