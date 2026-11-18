@@ -6,6 +6,10 @@
     font-display: swap;
 }
 
+:root {
+    --crt-brightness: 1;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -22,6 +26,12 @@ body, html {
     background-color: #000;
     font-family: 'Russo One', sans-serif;
     touch-action: manipulation;
+    filter: brightness(var(--crt-brightness));
+    transition: filter 0.25s ease;
+}
+
+body.no-crt .scanlines {
+    display: none !important;
 }
 
 .video-container {
@@ -55,7 +65,7 @@ video {
     align-items: center;
     z-index: 110;
     cursor: pointer;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .prompt-text {
@@ -70,7 +80,7 @@ video {
 }
 
 @keyframes pulse {
-    from { opacity: 0.4; }
+    from { opacity: 0.45; }
     to { opacity: 1; }
 }
 
@@ -89,7 +99,7 @@ video {
     z-index: 80;
     opacity: 0;
     pointer-events: none !important;
-    transition: opacity 1.5s ease-in-out;
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .black-overlay.active {
@@ -109,7 +119,7 @@ video {
     align-items: center;
     z-index: 10;
     opacity: 0;
-    transition: opacity 2s ease-in-out;
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
@@ -136,12 +146,12 @@ video {
     height: 100%;
     background: linear-gradient(
         rgba(10, 10, 10, 0) 40%, 
-        rgba(0, 0, 0, 0.6) 40%
+        rgba(0, 0, 0, 0.58) 40%
     ), linear-gradient(
         90deg, 
-        rgba(255, 0, 0, 0.12), 
-        rgba(0, 255, 0, 0.05), 
-        rgba(0, 0, 255, 0.12)
+        rgba(255, 0, 0, 0.1), 
+        rgba(0, 255, 0, 0.04), 
+        rgba(0, 0, 255, 0.1)
     );
     background-size: 100% 5px, 6px 100%;
     pointer-events: none !important;
@@ -153,20 +163,21 @@ video {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 255, 102, 0.04);
+    background: rgba(0, 255, 102, 0.035);
     opacity: 0;
-    animation: tv-flicker 0.1s infinite;
+    animation: tv-flicker 0.12s infinite;
     pointer-events: none !important;
 }
 
 @keyframes tv-flicker {
-    0% { opacity: 0.25; }
-    30% { opacity: 0.40; }
-    40% { opacity: 0.28; }
-    70% { opacity: 0.45; }
-    80% { opacity: 0.32; }
-    100% { opacity: 0.25; }
+    0% { opacity: 0.22; }
+    30% { opacity: 0.38; }
+    40% { opacity: 0.26; }
+    70% { opacity: 0.42; }
+    80% { opacity: 0.30; }
+    100% { opacity: 0.22; }
 }
+
 .menu-content {
     position: relative;
     z-index: 20;
@@ -176,17 +187,17 @@ video {
     align-items: center;
     justify-content: center;
     max-height: 96dvh;
-    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease;
 }
 
 .menu-content.shifted {
     opacity: 0;
     pointer-events: none !important;
-    transform: scale(0.95);
+    transform: scale(0.94);
 }
 
 .logo-wrapper {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -194,41 +205,41 @@ video {
 }
 
 .menu-logo {
-    max-width: 420px;
-    max-height: 24dvh;
+    max-width: 400px;
+    max-height: 22dvh;
     width: auto;
     height: auto;
     display: block;
-    filter: brightness(1.3) contrast(1.2) sepia(1) hue-rotate(85deg) saturate(6);
+    filter: brightness(1.25) contrast(1.15) sepia(1) hue-rotate(85deg) saturate(5);
     mix-blend-mode: screen;
-    opacity: 0.9;
+    opacity: 0.92;
     transition: filter 0.3s ease;
 }
 
 .buttons-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     align-items: center;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s ease;
 }
 
 .menu-btn {
-    background: transparent;
+    background: rgba(0, 12, 4, 0.72);
     border: 3px solid #00ff66;
     border-radius: 0 !important;
     color: #00ff66;
-    padding: 10px 30px;
-    font-size: 1.25rem;
+    padding: 11px 28px;
+    font-size: 1.2rem;
     font-family: 'Russo One', sans-serif;
     cursor: pointer;
     text-transform: uppercase;
-    width: 270px;
-    max-width: 85vw;
+    width: 280px;
+    max-width: 86vw;
     position: relative;
     overflow: hidden;
-    transition: all 0.2s ease, opacity 0.5s ease, box-shadow 0.5s ease;
-    box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+    transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, color 0.2s ease, box-shadow 0.25s ease, opacity 0.3s ease;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.25);
     letter-spacing: 1px;
     z-index: 25;
     pointer-events: auto !important;
@@ -237,13 +248,12 @@ video {
 .menu-btn:hover {
     background: #00ff66;
     color: #000;
-    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.7);
 }
 
 .menu-btn:active {
     transform: scale(0.96);
 }
-
 .buttons-list.has-active .menu-btn {
     opacity: 0.3;
     pointer-events: none !important;
@@ -254,7 +264,7 @@ video {
     opacity: 1;
     background: transparent;
     color: #00ff66;
-    box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66;
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.65);
     pointer-events: auto !important;
 }
 
@@ -262,21 +272,20 @@ video {
     position: fixed;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -46%) scale(0.96);
-    width: 520px;
+    transform: translate(-50%, -46%) scale(0.95);
+    width: 540px;
     max-width: 92vw;
-    max-height: 92dvh;
-    overflow-y: auto;
-    background: rgba(5, 15, 5, 0.96);
+    max-height: 90dvh;
+    background: rgba(4, 12, 4, 0.97);
     border: 3px solid #00ff66;
-    padding: 32px;
-    box-shadow: 0 0 25px rgba(0, 255, 102, 0.25);
+    padding: 26px 28px;
+    box-shadow: 0 0 28px rgba(0, 255, 102, 0.28);
     z-index: 30;
-    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+    transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
     opacity: 0;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 16px;
     pointer-events: none !important;
 }
 
@@ -292,64 +301,89 @@ video {
     display: none !important;
 }
 
+.settings-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    padding-right: 6px;
+    max-height: 54dvh;
+}
+
+.settings-scroll::-webkit-scrollbar,
+.window-content::-webkit-scrollbar,
+.chapters-grid::-webkit-scrollbar,
+.app-list-container::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.settings-scroll::-webkit-scrollbar-thumb,
+.window-content::-webkit-scrollbar-thumb,
+.chapters-grid::-webkit-scrollbar-thumb,
+.app-list-container::-webkit-scrollbar-thumb {
+    background: #00ff66;
+}
+
 .panel-title {
     color: #00ff66;
     text-transform: uppercase;
-    font-size: 1.8rem;
+    font-size: 1.65rem;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px #00ff66;
+    text-shadow: 0 0 10px rgba(0, 255, 102, 0.75);
     border-bottom: 2px solid #00ff66;
     padding-bottom: 8px;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .setting-row {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 .setting-label {
     color: #00ff66;
-    font-size: 1.05rem;
+    font-size: 0.98rem;
     text-transform: uppercase;
-}
-
-.setting-options {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    align-items: center;
+    flex-shrink: 0;
 }
 
 .arrow-selector {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    gap: 12px;
+    width: 220px;
+    max-width: 54vw;
+    gap: 8px;
 }
 
 .arrow-btn {
-    background: transparent;
+    background: rgba(0, 20, 6, 0.8);
     border: 2px solid #00ff66;
     color: #00ff66;
-    width: 44px;
-    height: 42px;
+    width: 38px;
+    height: 36px;
     font-family: 'Russo One', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: transform 0.14s ease, background-color 0.18s ease, color 0.18s ease;
     flex-shrink: 0;
 }
 
 .arrow-btn:hover:not(:disabled) {
     background: #00ff66;
     color: #000;
-    box-shadow: 0 0 12px #00ff66;
+}
+
+.arrow-btn:active:not(:disabled) {
+    transform: scale(0.92);
 }
 
 .arrow-btn:disabled {
@@ -364,55 +398,45 @@ video {
     flex: 1;
     text-align: center;
     color: #00ff66;
-    font-size: 1.05rem;
+    font-size: 0.92rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 9px 10px;
+    letter-spacing: 0.5px;
+    padding: 7px 8px;
     border: 1px solid rgba(0, 255, 102, 0.35);
     background: rgba(0, 255, 102, 0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.select-btn {
-    flex: 1;
-    background: transparent;
-    border: 2px solid #00ff66;
-    color: #00ff66;
-    padding: 10px;
-    font-family: 'Russo One', sans-serif;
-    text-transform: uppercase;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-.select-btn.active, .select-btn:hover {
-    background: #00ff66;
-    color: #000;
-    box-shadow: 0 0 10px #00ff66;
-}
 .action-btn {
     background: transparent;
     border: 2px solid #ff3333;
     color: #ff3333;
     width: 100%;
-    padding: 12px;
+    padding: 11px;
     font-family: 'Russo One', sans-serif;
     text-transform: uppercase;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .action-btn:hover {
     background: #ff3333;
     color: #000;
-    box-shadow: 0 0 15px #ff3333;
+    box-shadow: 0 0 14px rgba(255, 51, 51, 0.6);
+}
+
+.action-btn:active {
+    transform: scale(0.97);
 }
 
 .back-btn {
     width: 100% !important;
     max-width: 100% !important;
-    margin-top: 6px;
+    margin-top: 4px;
+    flex-shrink: 0;
 }
 
 .chapters-grid {
@@ -420,17 +444,9 @@ video {
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-height: 46dvh;
+    max-height: 48dvh;
     overflow-y: auto;
     padding-right: 4px;
-}
-
-.chapters-grid::-webkit-scrollbar {
-    width: 6px;
-}
-
-.chapters-grid::-webkit-scrollbar-thumb {
-    background: #00ff66;
 }
 
 .chapter-btn {
@@ -439,13 +455,13 @@ video {
     display: flex !important;
     justify-content: space-between;
     align-items: center;
-    padding: 11px 20px !important;
-    font-size: 1.05rem !important;
+    padding: 12px 18px !important;
+    font-size: 1rem !important;
     gap: 10px;
 }
 
 .chapter-btn.locked {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
     box-shadow: none !important;
 }
@@ -456,12 +472,11 @@ video {
 }
 
 .lock-icon {
-    font-size: 1.15rem;
-    filter: drop-shadow(0 0 3px #00ff66);
+    font-size: 1.1rem;
 }
 
 .coming-soon {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #00ff66;
     text-transform: lowercase;
     opacity: 0.7;
@@ -479,7 +494,7 @@ video {
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.4s ease-in-out;
     pointer-events: none !important;
 }
 
@@ -492,14 +507,14 @@ video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 22px;
 }
 
 .loading-text {
     color: #00ff66;
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     letter-spacing: 2px;
-    text-shadow: 0 0 8px #00ff66;
+    text-shadow: 0 0 8px rgba(0, 255, 102, 0.7);
 }
 
 .credits-overlay {
@@ -514,7 +529,7 @@ video {
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.4s ease-in-out;
     pointer-events: none !important;
 }
 
@@ -525,9 +540,9 @@ video {
 
 .credits-text {
     color: #00ff66;
-    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-size: clamp(1.2rem, 4vw, 1.9rem);
     letter-spacing: 2px;
-    text-shadow: 0 0 10px #00ff66;
+    text-shadow: 0 0 10px rgba(0, 255, 102, 0.75);
     text-transform: uppercase;
     text-align: center;
     padding: 0 20px;
@@ -535,9 +550,9 @@ video {
 
 .square-spinner {
     position: relative;
-    width: 50px;
-    height: 50px;
-    border: 2px solid rgba(0, 255, 102, 0.1);
+    width: 48px;
+    height: 48px;
+    border: 2px solid rgba(0, 255, 102, 0.12);
 }
 
 .square-spinner::before {
@@ -547,12 +562,12 @@ video {
     height: 3px;
     background: #00ff66;
     box-shadow: 0 0 8px #00ff66;
-    animation: square-trace 2s linear infinite;
+    animation: square-trace 1.8s linear infinite;
 }
 
 @keyframes square-trace {
     0% { top: -2px; left: -2px; width: 12px; height: 3px; }
-    20% { top: -2px; left: calc(100% - 10px); width: 12px; height: 3px; transform: rotate(0deg); }
+    20% { top: -2px; left: calc(100% - 10px); width: 12px; height: 3px; }
     25% { top: -2px; left: calc(100% - 1px); width: 3px; height: 12px; }
     45% { top: calc(100% - 10px); left: calc(100% - 1px); width: 3px; height: 12px; }
     50% { top: calc(100% - 1px); left: calc(100% - 10px); width: 12px; height: 3px; }
@@ -561,7 +576,6 @@ video {
     95% { top: -2px; left: -2px; width: 3px; height: 12px; }
     100% { top: -2px; left: -2px; width: 12px; height: 3px; }
 }
-
 .desktop-environment {
     position: fixed;
     top: 0;
@@ -573,7 +587,7 @@ video {
     display: flex;
     flex-direction: column;
     opacity: 0;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none !important;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
@@ -598,23 +612,38 @@ video {
 
 .taskbar {
     width: 100%;
-    height: 45px;
-    background: rgba(5, 20, 5, 0.9);
+    height: 46px;
+    background: rgba(5, 18, 5, 0.94);
     border-top: 2px solid #00ff66;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 16px;
+    padding: 0 12px;
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 25;
     position: relative;
     flex-shrink: 0;
+    gap: 8px;
+}
+
+.taskbar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    flex: 1;
+    scrollbar-width: none;
+}
+
+.taskbar-left::-webkit-scrollbar {
+    display: none;
 }
 
 .taskbar-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .taskbar-btn {
@@ -623,141 +652,126 @@ video {
     color: #00ff66;
     font-family: 'Russo One', sans-serif;
     text-transform: uppercase;
-    padding: 5px 14px;
+    padding: 6px 12px;
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+    white-space: nowrap;
 }
 
 .taskbar-btn:hover {
     background: #00ff66;
     color: #000;
-    box-shadow: 0 0 8px #00ff66;
+}
+
+.taskbar-btn:active {
+    transform: scale(0.95);
 }
 
 .taskbar-clock {
     color: #00ff66;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     letter-spacing: 1px;
-    text-shadow: 0 0 5px #00ff66;
-    min-width: 82px;
+    text-shadow: 0 0 5px rgba(0, 255, 102, 0.65);
+    min-width: 76px;
     text-align: right;
 }
+
 .desktop-window {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 450px;
+    transform: translate(-50%, -50%) scale(1);
+    width: 480px;
     max-width: 94vw;
     max-height: calc(100dvh - 58px);
-    background: #000;
-    border: 3px solid #00ff66;
-    box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+    background: rgba(1, 6, 2, 0.98);
+    border: 2px solid #00ff66;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85), 0 0 16px rgba(0, 255, 102, 0.22);
     z-index: 50;
     display: flex;
     flex-direction: column;
     opacity: 1;
     visibility: visible;
-    filter: blur(0px);
-    margin-top: 0px;
     pointer-events: auto !important;
-    transition: opacity 0.26s ease, filter 0.26s ease, margin-top 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.1), visibility 0.26s;
+    will-change: transform, opacity;
+    transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.24s;
+}
+
+.desktop-window.is-dragging {
+    transition: none !important;
 }
 
 .desktop-window.hidden {
     display: flex !important;
     opacity: 0;
     visibility: hidden;
-    filter: blur(3px);
-    margin-top: 14px;
+    transform: translate(-50%, -47%) scale(0.95);
     pointer-events: none !important;
+}
+
+.desktop-window.custom-pos {
+    transform: translate(0, 0) scale(1);
+}
+
+.desktop-window.custom-pos.hidden {
+    transform: translate(0, 12px) scale(0.96);
 }
 
 .window-header {
     background: #00ff66;
     color: #000;
-    padding: 7px 14px;
+    padding: 8px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     letter-spacing: 1px;
     flex-shrink: 0;
+    touch-action: none;
 }
 
 .window-title {
     color: #000 !important;
     text-shadow: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .window-close-btn {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.14);
     border: none;
     color: #000;
     font-family: 'Russo One', sans-serif;
-    font-size: 1.1rem;
+    font-size: 1rem;
     cursor: pointer;
     font-weight: bold;
-    padding: 0 6px;
+    min-width: 28px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .window-close-btn:hover {
-    color: #ff3333;
+    background: #ff3333;
+    color: #fff;
 }
 
 .window-content {
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     overflow-y: auto;
     flex: 1;
-}
-
-.desktop-window .setting-row {
-    display: flex;
-    flex-direction: row !important;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: 10px;
-}
-
-.desktop-window .setting-options {
-    display: flex;
-    gap: 5px;
-    width: auto;
-}
-
-.desktop-window .arrow-selector {
-    width: 210px;
-    max-width: 56vw;
-    gap: 8px;
-}
-
-.desktop-window .arrow-btn {
-    width: 34px;
-    height: 32px;
-    font-size: 1rem;
-}
-
-.desktop-window .arrow-value {
-    font-size: 0.85rem;
-    padding: 6px 8px;
-}
-
-.desktop-window .select-btn {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    width: auto;
-}
-
-.desktop-window .action-btn {
-    padding: 8px;
-    font-size: 0.85rem;
+    -webkit-overflow-scrolling: touch;
 }
 
 .app-list-container {
@@ -765,46 +779,38 @@ video {
     width: 100%;
     max-height: 45dvh;
     overflow-y: auto;
-    border: 1px solid rgba(0, 255, 102, 0.2);
-    background: rgba(0, 5, 0, 0.4);
-    padding: 5px;
-    margin-bottom: 10px;
-}
-
-.app-list-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.app-list-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.app-list-container::-webkit-scrollbar-thumb {
-    background: #00ff66;
+    border: 1px solid rgba(0, 255, 102, 0.25);
+    background: rgba(0, 8, 2, 0.55);
+    padding: 6px;
 }
 
 .desktop-icon {
-    width: 78px;
-    height: 78px;
+    width: 82px;
+    height: 82px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    padding: 4px;
-    transition: background-color 0.1s ease;
+    padding: 6px 4px;
+    border: 1px solid transparent;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
 }
 
 .desktop-icon:hover {
-    background-color: rgba(0, 255, 102, 0.15);
-    border: 1px dashed rgba(0, 255, 102, 0.4);
+    background-color: rgba(0, 255, 102, 0.14);
+    border: 1px dashed rgba(0, 255, 102, 0.45);
+}
+
+.desktop-icon:active {
+    transform: scale(0.94);
 }
 
 .icon-visual {
-    font-size: 2.1rem;
+    font-size: 2.15rem;
     line-height: 1;
-    margin-bottom: 4px;
-    filter: drop-shadow(0 0 5px rgba(0, 255, 102, 0.5));
+    margin-bottom: 5px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 102, 0.45));
 }
 
 .icon-name {
@@ -815,6 +821,7 @@ video {
     max-width: 100%;
     font-family: 'Russo One', sans-serif;
     text-transform: uppercase;
+    line-height: 1.15;
 }
 
 body.gfx-low .scanlines, body.gfx-low .flicker {
@@ -824,151 +831,104 @@ body.gfx-low .menu-btn, body.gfx-low .side-panel, body.gfx-low .prompt-text, bod
     text-shadow: none !important;
     box-shadow: none !important;
 }
-body.gfx-low .menu-btn:hover, body.gfx-low .taskbar-btn:hover, body.gfx-low .desktop-icon:hover {
-    box-shadow: none !important;
-}
 body.gfx-low .menu-logo {
     filter: none !important;
     mix-blend-mode: normal !important;
     opacity: 1 !important;
 }
-body.gfx-low .desktop-icon:hover {
-    border: 1px solid #00ff66;
-}
-
 body.gfx-medium .flicker {
     display: none !important;
 }
 body.gfx-medium .menu-btn, body.gfx-medium .side-panel {
     text-shadow: none !important;
 }
-body.gfx-medium .menu-logo {
-    filter: brightness(1.1) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(3);
-}
-
 body.gfx-high .flicker {
     display: block !important;
 }
-body.gfx-high .menu-logo {
-    filter: brightness(1.2) contrast(1.1) sepia(1) hue-rotate(85deg) saturate(5);
-}
 
-@media (max-width: 1023px) {
-    .logo-wrapper {
-        margin-bottom: 12px;
-    }
+@media (max-width: 768px) {
     .menu-logo {
-        max-width: 220px;
-        max-height: 20dvh;
-    }
-    .buttons-list {
-        gap: 8px;
+        max-width: 240px;
+        max-height: 18dvh;
     }
     .menu-btn {
-        width: 220px;
-        padding: 7px 16px;
-        font-size: 0.95rem;
+        width: 250px;
+        padding: 10px 18px;
+        font-size: 1rem;
         border-width: 2px;
     }
     .side-panel {
-        width: 90vw;
-        max-width: 460px;
-        max-height: 90dvh;
-        padding: 16px 20px;
+        width: 94vw;
+        max-height: 88dvh;
+        padding: 16px;
         gap: 12px;
         border-width: 2px;
     }
     .panel-title {
-        font-size: 1.3rem;
-        padding-bottom: 6px;
+        font-size: 1.25rem;
     }
     .setting-label {
-        font-size: 0.9rem;
+        font-size: 0.82rem;
+    }
+    .arrow-selector {
+        width: 168px;
+        max-width: 52vw;
+        gap: 5px;
     }
     .arrow-btn {
-        width: 36px;
+        width: 34px;
         height: 34px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     .arrow-value {
-        font-size: 0.9rem;
-        padding: 6px 8px;
-    }
-    .action-btn {
-        padding: 8px;
-        font-size: 0.85rem;
-    }
-    .chapter-btn {
-        padding: 8px 14px !important;
-        font-size: 0.9rem !important;
-    }
-    .taskbar {
-        height: 38px;
-        padding: 0 10px;
-    }
-    .taskbar-btn {
-        padding: 4px 10px;
-        font-size: 0.75rem;
-    }
-    .taskbar-clock {
-        font-size: 0.85rem;
-        min-width: 72px;
+        font-size: 0.78rem;
+        padding: 6px 4px;
     }
     .desktop-window {
-        width: 92vw !important;
-        max-width: 520px !important;
-        max-height: calc(100dvh - 46px) !important;
-        border-width: 2px;
+        top: 6px !important;
+        left: 3vw !important;
+        transform: scale(1) !important;
+        width: 94vw !important;
+        max-width: 94vw !important;
+        height: calc(100dvh - 56px) !important;
+        max-height: calc(100dvh - 56px) !important;
     }
-    #windowMessenger {
-        height: calc(100dvh - 48px) !important;
-        max-height: 360px !important;
-    }
-    #windowDino {
-        height: auto !important;
-        max-height: calc(100dvh - 48px) !important;
+    .desktop-window.hidden {
+        transform: translateY(14px) scale(0.97) !important;
     }
     .window-header {
-        padding: 5px 10px;
-        font-size: 0.8rem;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    .window-close-btn {
+        min-width: 34px;
+        height: 28px;
+        font-size: 1.05rem;
     }
     .window-content {
         padding: 12px;
         gap: 10px;
     }
+    .taskbar {
+        height: 44px;
+        padding: 0 8px;
+    }
+    .taskbar-btn {
+        padding: 6px 9px;
+        font-size: 0.74rem;
+    }
+    .taskbar-clock {
+        font-size: 0.8rem;
+        min-width: 66px;
+    }
     .desktop-icon {
-        width: 68px;
-        height: 68px;
+        width: 74px;
+        height: 76px;
     }
     .icon-visual {
-        font-size: 1.8rem;
+        font-size: 1.9rem;
     }
     .icon-name {
         font-size: 0.68rem;
-    }
-}
-
-@media (max-width: 1023px) and (orientation: portrait) {
-    body::before {
-        content: "ПОЖАЛУЙСТА, ПЕРЕВЕРНИТЕ УСТРОЙСТВО ГОРИЗОНТАЛЬНО";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100dvh;
-        background: #000;
-        color: #00ff66;
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 30px;
-        font-family: 'Russo One', sans-serif;
-        font-size: 1.2rem;
-        letter-spacing: 1px;
-    }
-    html[lang="en"] body::before {
-        content: "PLEASE ROTATE YOUR DEVICE TO LANDSCAPE";
     }
 }
