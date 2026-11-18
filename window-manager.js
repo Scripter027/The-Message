@@ -11,6 +11,11 @@
         if (!win) return;
         highestZIndex++;
         win.style.zIndex = highestZIndex;
+        if (window.innerWidth <= 768) {
+            win.classList.remove('custom-pos');
+            win.style.left = '';
+            win.style.top = '';
+        }
     };
 
     window.makeWindowDraggable = function(win) {
@@ -20,35 +25,38 @@
         const header = win.querySelector('.window-header');
         if (!header) return;
 
-        const onMouseDown = () => {
+        const onBring = () => {
             window.bringToFront(win);
         };
 
-        win.addEventListener('mousedown', onMouseDown);
-        win.addEventListener('touchstart', onMouseDown, { passive: true });
+        win.addEventListener('mousedown', onBring);
+        win.addEventListener('touchstart', onBring, { passive: true });
 
         header.style.cursor = 'move';
-        
+
         const onDragStart = (e) => {
-            if (e.target.classList.contains('window-close-btn')) return;
-            
+            if (window.innerWidth <= 768) return;
+            if (e.target.closest('.window-close-btn')) return;
+
             isDragging = true;
             activeWindow = win;
+            activeWindow.classList.add('is-dragging');
             window.bringToFront(win);
 
-            const clientX = e.touches ? e.touches.clientX : e.clientX;
-            const clientY = e.touches ? e.touches.clientY : e.clientY;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
             startX = clientX;
             startY = clientY;
 
             const rect = win.getBoundingClientRect();
-            const parentRect = document.getElementById('desktopEnv').getBoundingClientRect();
-            
+            const env = document.getElementById('desktopEnv');
+            const parentRect = env ? env.getBoundingClientRect() : { left: 0, top: 0 };
+
             initialLeft = rect.left - parentRect.left;
             initialTop = rect.top - parentRect.top;
 
-            win.style.transform = 'none';
+            win.classList.add('custom-pos');
             win.style.left = initialLeft + 'px';
             win.style.top = initialTop + 'px';
 
@@ -71,21 +79,25 @@
     const onDragMove = (e) => {
         if (!isDragging || !activeWindow) return;
 
-        const clientX = e.touches ? e.touches.clientX : e.clientX;
-        const clientY = e.touches ? e.touches.clientY : e.clientY;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
         const deltaX = clientX - startX;
         const deltaY = clientY - startY;
 
-        const parentRect = document.getElementById('desktopEnv').getBoundingClientRect();
+        const env = document.getElementById('desktopEnv');
+        const parentRect = env ? env.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
         const taskbar = document.querySelector('.taskbar');
-        const taskbarHeight = taskbar ? taskbar.offsetHeight : 45;
-        
+        const taskbarHeight = taskbar ? taskbar.offsetHeight : 46;
+
         let newLeft = initialLeft + deltaX;
         let newTop = initialTop + deltaY;
 
-        newLeft = Math.max(0, Math.min(newLeft, parentRect.width - activeWindow.offsetWidth));
-        newTop = Math.max(0, Math.min(newTop, parentRect.height - activeWindow.offsetHeight - taskbarHeight));
+        const maxLeft = Math.max(0, parentRect.width - activeWindow.offsetWidth);
+        const maxTop = Math.max(0, parentRect.height - activeWindow.offsetHeight - taskbarHeight);
+
+        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+        newTop = Math.max(0, Math.min(newTop, maxTop));
 
         activeWindow.style.left = newLeft + 'px';
         activeWindow.style.top = newTop + 'px';
@@ -96,6 +108,7 @@
 
     const onDragEnd = () => {
         if (isDragging) {
+            if (activeWindow) activeWindow.classList.remove('is-dragging');
             isDragging = false;
             activeWindow = null;
             document.body.style.cursor = '';
@@ -104,6 +117,16 @@
 
     document.addEventListener('mouseup', onDragEnd);
     document.addEventListener('touchend', onDragEnd);
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.desktop-window.custom-pos').forEach(win => {
+                win.classList.remove('custom-pos');
+                win.style.left = '';
+                win.style.top = '';
+            });
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', initWindowManager);
 })();
